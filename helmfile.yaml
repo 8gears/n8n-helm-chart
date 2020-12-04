@@ -1,0 +1,30 @@
+environments:
+  default:
+    values:
+      - namespace: n8n-dev
+      - domain: "n8ndev.app.8gears.com"
+      - encryption_key: "iam not a secret"
+      - db_password: "iam not a secret"
+
+helmDefaults:
+  wait: true
+  timeout: 66
+
+repositories:
+  - name: 8gears
+    url: https://8gears.container-registry.com/chartrepo/library
+
+releases:
+  - name: n8n
+    namespace: {{ .Values.namespace }}
+    chart: . #version: 0.1.0 # if unset use latest.
+    values:
+      - n8n:
+          encryption_key: {{ .Values.encryption_key }}
+      - config:
+          host: {{ .Values.domain }}
+      - persistence:
+          enabled: true
+          type: dynamic
+
+

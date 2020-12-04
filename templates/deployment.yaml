@@ -1,0 +1,101 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "n8n.fullname" . }}
+  labels:
+    {{- include "n8n.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "n8n.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ print .Values | sha256sum }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "n8n.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "n8n.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: "N8N_PORT" #! we better set the port once again as ENV Var, see: https://community.n8n.io/t/default-config-is-not-set-or-the-port-to-be-more-precise/3158/3?u=vad1mo
+              value: {{ get .Values.config "port" | default "5678" | quote }}
+            - name: "N8N_ENCRYPTION_KEY"
+              valueFrom:
+                secretKeyRef:
+                  key:  N8N_ENCRYPTION_KEY
+                  name: {{ include "n8n.fullname" . }}
+            {{- if or .Values.config .Values.secret }}
+            - name: "N8N_CONFIG_FILES"
+              value: {{ include "n8n.configFiles" . | quote }}
+            {{ end }}
+          ports:
+            - name: http
+              containerPort: {{ get .Values.config "port" | default 5678 }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /root/.n8n
+            {{- if .Values.config }}
+            - name: config-volume
+              mountPath: /n8n-config
+            {{- end }}
+            {{- if .Values.secret }}
+            - name: secret-volume
+              mountPath: /n8n-secret
+                {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: "data"
+          {{ include "n8n.pvc" . }}
+        {{- if .Values.config }}
+        - name: config-volume
+          configMap:
+            name: {{ include "n8n.fullname" . }}
+        {{- end }}
+        {{- if .Values.secret }}
+        - name: secret-volume
+          secret:
+            secretName: {{ include "n8n.fullname" . }}
+            items:
+              - key: "secret.json"
+                path: "secret.json"
+        {{- end }}

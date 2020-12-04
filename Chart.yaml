@@ -1,0 +1,22 @@
+apiVersion: v2
+name: n8n
+version: 0.1.2
+appVersion: 0.94.1
+type: application
+
+description: A Kubernetes Helm chart for n8n a free and open fair-code licensed node based Workflow Automation Tool. Easily automate tasks across different services.
+home: https://github.com/8gears/n8n-helm-chart
+icon: https://avatars1.githubusercontent.com/u/45487711?s=200&v=4
+keywords:
+  - Workflow Automation
+  - Workflow
+  - iPaaS
+  - integration-framework
+  - low-code-plattform
+  - low-code
+sources:
+  - https://n8n.io/
+  - https://github.com/n8n-io/n8n
+  - https://8gears.container-registry.com/harbor/projects/1/helm-charts/n8n/versions/0.1.0
+maintainers:
+  - name: Vadim Bauer
