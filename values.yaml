@@ -18,7 +18,6 @@ secret: # Dict with all n8n json config options, unlike config the values here w
 #      postgresdb:
 #        password: 'big secret'
 
-
 ## ALL possible n8n Values
 
 #
@@ -94,6 +93,11 @@ secret: # Dict with all n8n json config options, unlike config the values here w
 #  exclude: # Nodes not to load - default: "[]"
 #  errorTriggerType: # Node Type to use as Error Trigger - default: n8n-nodes-base.errorTrigger
 
+# Set additional environment variables on the Deployment
+extraEnv: {}
+# Set this if running behind a reverse proxy and the external port is different from the port n8n runs on
+#   WEBHOOK_TUNNEL_URL: "https://n8n.myhost.com/
+
 ##
 ##
 ##
@@ -127,7 +131,6 @@ persistence:
   ##
   # existingClaim:
 
-
 replicaCount: 1
 
 image:
@@ -136,7 +139,7 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
-imagePullSecrets: [ ]
+imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
@@ -144,17 +147,18 @@ serviceAccount:
   # Specifies whether a service account should be created
   create: true
   # Annotations to add to the service account
-  annotations: { }
+  annotations: {}
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
-podAnnotations: { }
+podAnnotations: {}
 
-podSecurityContext: { }
+podSecurityContext: {}
 # fsGroup: 2000
 
-securityContext: { }
+securityContext:
+  {}
   # capabilities:
   #   drop:
   #   - ALL
@@ -168,18 +172,19 @@ service:
 
 ingress:
   enabled: false
-  annotations: { }
+  annotations: {}
   # kubernetes.io/ingress.class: nginx
   # kubernetes.io/tls-acme: "true"
   hosts:
     - host: chart-example.local
-      paths: [ ]
-  tls: [ ]
+      paths: []
+  tls: []
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
 
-resources: { }
+resources:
+  {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
@@ -198,8 +203,8 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
-nodeSelector: { }
+nodeSelector: {}
 
-tolerations: [ ]
+tolerations: []
 
-affinity: { }
+affinity: {}
