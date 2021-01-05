@@ -5,27 +5,27 @@
 [![Artifact HUB](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/open-8gears)](https://artifacthub.io/packages/search?repo=open-8gears)
 
 The Helm chart source code location is [github.com/8gears/n8n-helm-chart](https://github.com/8gears/n8n-helm-chart)
- 
+
 
 8gears Chart Museum location is: [8gears.container-registry.com/harbor/projects/1/helm-charts/n8n/versions/0.1.0](https://8gears.container-registry.com/harbor/projects/1/helm-charts/n8n/versions/0.1.0)
 
 
 ## Requirements
 
-Before you start make sure you have the following dependencies ready and working: 
+Before you start make sure you have the following dependencies ready and working:
 
 - Helm > 3
-- Postgres DB | MongoDB | MySQL | Embedded SQLite 
+- Postgres DB | MongoDB | MySQL | Embedded SQLite
 - Helmfile (Optional)
 
 ## Configuration
-The `values.yaml` file is divided into a n8n specific configuration section, and a Kubernetes deployment specific section. 
+The `values.yaml` file is divided into a n8n specific configuration section, and a Kubernetes deployment specific section.
 
 The shown values represent Helm defaults not application defaults. The comments behind the values provide a description and display the application default.
 
 Every possible n8n config can be set that are also described in the: [n8n configuration options](https://github.com/n8n-io/n8n/blob/master/packages/cli/config/index.ts).
 
-These n8n config options should be attached to Secret or Config. 
+These n8n config options should be attached to Secret or Config.
 You decide what should be a secret and what should be a config the options are the same.
 
 ```yaml
@@ -105,14 +105,14 @@ nodes:
 ```
 
 
-### Values 
+### Values
 
 
 ```yaml
 # The n8n related part of the config
 
 
-config: # Dict with all n8n config options 
+config: # Dict with all n8n config options
 secret: # Dict with all n8n config options, unlike config the values here will end up in a secret.
 ##
 ##
@@ -145,6 +145,10 @@ persistence:
   ##
   # existingClaim:
 
+# Set additional environment variables on the Deployment
+extraEnv: {}
+# Set this if running behind a reverse proxy and the external port is different from the port n8n runs on
+#   WEBHOOK_TUNNEL_URL: "https://n8n.myhost.com/
 
 replicaCount: 1
 
@@ -221,7 +225,7 @@ nodeSelector: { }
 tolerations: [ ]
 
 affinity: { }
-``` 
+```
 
 # Typical Values Example
 A typical example of a config in combination with a secret.
@@ -247,7 +251,7 @@ secret:
 
 ```shell script
 
-helm repo add  --username='robot$helmcli' --password="xxx" 8gears https://8gears.container-registry.com/chartrepo/library 
+helm repo add  --username='robot$helmcli' --password="xxx" 8gears https://8gears.container-registry.com/chartrepo/library
 helm push --username='robot$helmcli' --password="$PASSWD" . 8gears
 
 ```
