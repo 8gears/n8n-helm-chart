@@ -7,7 +7,7 @@
 The Helm chart source code location is [github.com/8gears/n8n-helm-chart](https://github.com/8gears/n8n-helm-chart)
 
 
-8gears Chart Museum location is: [8gears.container-registry.com/harbor/projects/1/helm-charts/n8n/versions/0.1.0](https://8gears.container-registry.com/harbor/projects/1/helm-charts/n8n/versions/0.1.0)
+8gears Chart Museum location is: [8gears.container-registry.com/harbor/projects/1/helm-charts/n8n/versions](https://8gears.container-registry.com/harbor/projects/1/helm-charts/n8n/versionsex)
 
 
 ## Requirements
@@ -251,7 +251,7 @@ secret:
 
 ```shell script
 
-helm repo add  --username='robot$helmcli' --password="xxx" 8gears https://8gears.container-registry.com/chartrepo/library
-helm push --username='robot$helmcli' --password="$PASSWD" . 8gears
+helm repo add  --username='robot$helmcli' --password="$PASSWD" open-8gears https://8gears.container-registry.com/chartrepo/library
+helm push --username='robot$helmcli' --password="$PASSWD" . open-8gears
 
 ```
