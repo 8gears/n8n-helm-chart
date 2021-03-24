@@ -131,9 +131,13 @@ persistence:
   ##
   # storageClass: "-"
   ## PVC annotations
-  ##
-  annotations:
-    helm.sh/resource-policy: keep
+  #
+  # If you need this annotation include it under values.yml file and pvc.yml template will add it.
+  # This is not maintained at Helm v3 anymore.
+  # https://github.com/8gears/n8n-helm-chart/issues/8
+  #
+  # annotations:
+  #   helm.sh/resource-policy: keep
   ## Persistent Volume Access Mode
   ##
   accessModes:
