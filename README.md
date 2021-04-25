@@ -15,7 +15,7 @@ The Helm chart source code location is [github.com/8gears/n8n-helm-chart](https:
 Before you start make sure you have the following dependencies ready and working:
 
 - Helm > 3
-- Postgres DB | MongoDB | MySQL | Embedded SQLite
+- Postgres DB | MySQL | Embedded SQLite
 - Helmfile (Optional)
 
 ## Configuration
@@ -31,10 +31,8 @@ You decide what should be a secret and what should be a config the options are t
 ```yaml
 
 database:
-  type:   # Type of database to use - Other possible types ['sqlite', 'mariadb', 'mongodb', 'mysqldb', 'postgresdb'] - default: sqlite
+  type:   # Type of database to use - Other possible types ['sqlite', 'mariadb', 'mysqldb', 'postgresdb'] - default: sqlite
   tablePrefix:      # Prefix for table names - default: ''
-  mongodb:
-    connectionUrl:  # MongoDB Connection URL - default: mongodb://user:password@localhost:27017/database
   postgresdb:
     database:       # PostgresDB Database - default: n8n
     host:           # PostgresDB Host - default: localhost
