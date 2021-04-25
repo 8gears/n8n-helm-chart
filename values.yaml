@@ -22,10 +22,8 @@ secret: # Dict with all n8n json config options, unlike config the values here w
 
 #
 #database:
-#  type:             # Type of database to use - Other possible types ['sqlite', 'mariadb', 'mongodb', 'mysqldb', 'postgresdb'] - default: sqlite
+#  type:             # Type of database to use - Other possible types ['sqlite', 'mariadb', 'mysqldb', 'postgresdb'] - default: sqlite
 #  tablePrefix:      # Prefix for table names - default: ''
-#  mongodb:
-#    connectionUrl:  # MongoDB Connection URL - default: mongodb://user:password@localhost:27017/database
 #  postgresdb:
 #    database:       # PostgresDB Database - default: n8n
 #    host:           # PostgresDB Host - default: localhost
