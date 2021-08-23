@@ -9,7 +9,7 @@ spec:
   replicas: {{ .Values.replicaCount }}
   {{- end }}
   strategy:
-    type: Recreate
+    type: {{ .Values.deploymentStrategy.type }}
   selector:
     matchLabels:
       {{- include "n8n.selectorLabels" . | nindent 6 }}
