@@ -135,6 +135,9 @@ persistence:
 
 replicaCount: 1
 
+deploymentStrategy:
+  type: "Recreate"
+
 image:
   repository: n8nio/n8n
   pullPolicy: IfNotPresent
