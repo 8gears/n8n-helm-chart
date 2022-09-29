@@ -1,0 +1,3 @@
+helm template --output-dir './yamls' -f values.yaml -f values.custom.yaml -n n8n n8n .
+
+helm install -f values.yaml -f values.custom.yaml -n n8n n8n .

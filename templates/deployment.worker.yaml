@@ -1,3 +1,4 @@
+{{- if .Values.scaling.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -119,3 +120,4 @@ spec:
               - key: "secret.json"
                 path: "secret.json"
         {{- end }}
+  {{- end }}
