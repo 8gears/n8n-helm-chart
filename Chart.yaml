@@ -1,6 +1,6 @@
 apiVersion: v2
 name: n8n
-version: 0.6.0
+version: 0.7.0
 appVersion: 0.195.5
 type: application
 
@@ -20,6 +20,7 @@ sources:
   - https://8gears.container-registry.com/harbor/projects/1/helm-charts/n8n/versions/0.1.0
 maintainers:
   - name: Vadim Bauer
+  - name: Stefan Warnat
 
 dependencies:
   - name: redis
