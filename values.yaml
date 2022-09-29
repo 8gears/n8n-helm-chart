@@ -5,6 +5,11 @@ n8n:
 defaults:
 
 config: 
+  executions:
+    pruneData: "true" # prune executions by default
+    pruneDataMaxAge: 3760 # Per defaut we store 1 year of history
+
+    
 secret: # Dict with all n8n json config options, unlike config the values here will end up in a secret.
 
 # Typical Example of a config in combination with a secret.
@@ -68,11 +73,6 @@ secret: # Dict with all n8n json config options, unlike config the values here w
 #ssl_cert:       # SSL Cert for HTTPS Protocol - default: ''
 #security:
 #  excludeEndpoints: # Additional endpoints to exclude auth checks. Multiple endpoints can be separated by colon - default: ''
-#  basicAuth:
-#    active:     # If basic auth should be activated for editor and REST-API - default: false
-#    user:       # The name of the basic auth user - default: ''
-#    password:   # The password of the basic auth user - default: ''
-#    hash:       # If password for basic auth is hashed - default: false
 #  jwtAuth:
 #    active:               # If JWT auth should be activated for editor and REST-API - default: false
 #    jwtHeader:            # The request header containing a signed JWT - default: ''
@@ -176,8 +176,10 @@ securityContext:
 service:
   type: ClusterIP
   port: 80
-  annotations: {}
-
+  annotations: # THIS ISNT BEING WRITTEN INTO THE TEMPLATED KUBERNETES CONFIG....
+    # Backend Config created along side the ingress
+    cloud.google.com/backend-config: '{"ports":{"http":"whitelist-cloudflare-only-via-security-policies", "https":"whitelist-cloudflare-only-via-security-policies"}}'
+    
 ingress:
   enabled: false
   annotations: {}
