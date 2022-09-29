@@ -4,7 +4,7 @@ n8n:
   encryption_key: # n8n creates a random encryption key automatically on the first launch and saves it in the ~/.n8n folder. That key is used to encrypt the credentials before they get saved to the database.
 defaults:
 
-config: # Dict with all n8n json config options
+config: 
 secret: # Dict with all n8n json config options, unlike config the values here will end up in a secret.
 
 # Typical Example of a config in combination with a secret.
@@ -159,6 +159,8 @@ serviceAccount:
 
 podAnnotations: {}
 
+podLabels: {}
+
 podSecurityContext: {}
 # fsGroup: 2000
 
@@ -214,3 +216,31 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+scaling:
+  enabled: true
+  
+  worker:
+    count: 1
+    concurrency: 3
+
+  webhook:
+    enabled: false
+    count: 1
+
+  redis:
+    host: 
+    password:
+
+## Bitnami Redis
+## https://github.com/bitnami/charts/tree/master/bitnami/redis
+
+redis:
+  enabled: false
+  architecture: standalone
+
+  master:
+    persistence:
+      enabled: false
+      existingClaim: ""
+      size: 2Gi  

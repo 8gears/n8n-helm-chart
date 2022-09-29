@@ -248,6 +248,11 @@ secret:
       password: 'big secret'
 
 ```
+## Setup
+
+```shell
+helm install -f values.yaml -n n8n deploymentname .
+```
 
 ## Chart Deployment
 
