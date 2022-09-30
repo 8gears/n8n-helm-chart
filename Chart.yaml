@@ -24,6 +24,6 @@ maintainers:
 
 dependencies:
   - name: redis
-    version: 15.7.6
+    version: 17.2.0
     repository: https://charts.bitnami.com/bitnami
     condition: redis.enabled
