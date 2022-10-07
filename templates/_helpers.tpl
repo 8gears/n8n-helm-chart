@@ -51,6 +51,45 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
+Selector labels
+*/}}
+{{- define "n8n.deploymentPodEnvironments" -}}
+{{- range $key, $value := .Values.extraEnv }}
+- name: {{ $key }}
+  value: {{ $value | quote}}
+{{ end }}
+- name: "N8N_PORT" #! we better set the port once again as ENV Var, see: https://community.n8n.io/t/default-config-is-not-set-or-the-port-to-be-more-precise/3158/3?u=vad1mo
+  value: {{ get .Values.config "port" | default "5678" | quote }}
+- name: "N8N_ENCRYPTION_KEY"
+  valueFrom:
+    secretKeyRef:
+      key:  N8N_ENCRYPTION_KEY
+      name: {{ include "n8n.fullname" . }}
+{{- if or .Values.config .Values.secret }}
+- name: "N8N_CONFIG_FILES"
+  value: {{ include "n8n.configFiles" . | quote }}
+{{ end }}
+{{- if .Values.scaling.enabled }}
+- name: "QUEUE_BULL_REDIS_HOST"
+  {{- if .Values.scaling.redis.host }}
+  value: "{{ .Values.scaling.redis.host }}"
+  {{ else }}
+  value: "{{ .Release.Name }}-redis-master"
+  {{ end }}  
+- name: "EXECUTIONS_MODE"
+  value: "queue"
+{{ end }}
+{{- if .Values.scaling.redis.password }}
+- name: "QUEUE_BULL_REDIS_PASSWORD"
+  value: "{{ .Values.scaling.redis.password }}"
+{{ end }}
+{{- if .Values.scaling.webhook.enabled }}
+- name: "N8N_DISABLE_PRODUCTION_MAIN_PROCESS"
+  value: "true"
+{{ end }}
+{{- end }}
+
+{{/*
 Create the name of the service account to use
 */}}
 {{- define "n8n.serviceAccountName" -}}
