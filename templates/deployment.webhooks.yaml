@@ -52,7 +52,7 @@ spec:
               containerPort: {{ get .Values.config "port" | default 5678 }}
               protocol: TCP
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            {{- toYaml .Values.webhookResources | nindent 12 }}
           volumeMounts:
             - name: data
               mountPath: /root/.n8n

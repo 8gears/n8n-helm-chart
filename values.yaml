@@ -196,6 +196,12 @@ ingress:
   #    hosts:
   #      - chart-example.local
 
+workerResources:
+  {}
+
+webhookResources:
+  {}
+
 resources:
   {}
   # We usually recommend not to specify default resources and to leave this as a conscious
@@ -226,7 +232,7 @@ scaling:
   enabled: false
   
   worker:
-    count: 1
+    count: 2
     concurrency: 2
 
   webhook:
