@@ -251,8 +251,37 @@ secret:
 ## Setup
 
 ```shell
-helm install -f values.yaml -n n8n deploymentname .
+helm install -f values.yaml -n n8n deploymentname n8n
 ```
+
+## Scaling
+
+n8n provides a **queue-mode**, where the workload is shared between multiple instances of same n8n installation.   
+This provide a shared load over multiple instances and a limited high availability, because the controller instance remain as Single-Point-Of-Failure.  
+
+With the help of an internal/external redis server and by using the excelent BullMQ, the tasks can be shared over different instances, which also can run on different hosts.
+
+[See docs about this Queue-Mode](https://docs.n8n.io/hosting/scaling/queue-mode/)
+
+To enable this mode within this helm chart, you simple should set scaling.enable to true. This chart is configured to spawn by default 2 worker instances.
+
+```yaml
+scaling:
+  enabled: true
+```
+
+If you want to use the internal redis server, set **redis.enable** to "true".
+You can define to spawn more worker, by set scaling.worker.count to a higher number. Also it is possible to define your own external redis server.
+
+```yaml
+scaling:
+  enabled: true
+  redis:
+    host: "redis-hostname"
+    password: "redis-password-if-set"
+```
+
+At last scaling option is it possible to create dedicated webhook instances, which only process the webhooks. If you set **scaling.webhook.enabled** to "true", then webhook processing on main instance is disabled and by default a single webhook instance is started.
 
 ## Chart Deployment
 
@@ -263,3 +292,4 @@ helm repo add  --username='robot$helmcli' --password="$PASSWD" open-8gears https
 helm push --username='robot$helmcli' --password="$PASSWD" . open-8gears
 
 ```
+
