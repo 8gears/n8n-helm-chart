@@ -228,6 +228,25 @@ nodeSelector: { }
 tolerations: [ ]
 
 affinity: { }
+
+scaling:
+  enabled: false
+  
+  worker:
+    count: 2
+    concurrency: 2
+
+  webhook:
+    enabled: false
+    count: 1
+
+  redis:
+    host: 
+    password:
+
+redis:
+  enabled: false
+  # Other default redis values: https://github.com/bitnami/charts/blob/master/bitnami/redis/values.yaml
 ```
 
 # Typical Values Example
@@ -270,7 +289,6 @@ scaling:
   enabled: true
 ```
 
-If you want to use the internal redis server, set **redis.enable** to "true".
 You can define to spawn more worker, by set scaling.worker.count to a higher number. Also it is possible to define your own external redis server.
 
 ```yaml
@@ -280,6 +298,8 @@ scaling:
     host: "redis-hostname"
     password: "redis-password-if-set"
 ```
+
+If you want to use the internal redis server, set **redis.enable** to "**true**". By default no redis server is spawned.
 
 At last scaling option is it possible to create dedicated webhook instances, which only process the webhooks. If you set **scaling.webhook.enabled** to "true", then webhook processing on main instance is disabled and by default a single webhook instance is started.
 
