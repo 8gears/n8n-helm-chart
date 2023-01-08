@@ -25,3 +25,15 @@ dependencies:
     version: 17.2.0
     repository: https://charts.bitnami.com/bitnami
     condition: redis.enabled
+
+annotations:
+  artifacthub.io/changes: |
+    - kind: changed
+      description: Updated App Version to 0.210.0
+    - kind: added
+      description: Support for dedicated Workers and Webhooks Instances by Stefan Warnat aka @swarnat
+      links:
+        - name: GitHub PR
+          url: https://github.com/8gears/n8n-helm-chart/pull/24
+        - name: Stefan Warnat aka @swarnat
+          url: https://github.com/swarnat
