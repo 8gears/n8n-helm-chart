@@ -8,6 +8,7 @@ apiVersion: networking.k8s.io/v1beta1
 {{- else -}}
 apiVersion: extensions/v1beta1
 {{- end }}
+
 kind: Ingress
 metadata:
   name: {{ $fullName }}
@@ -48,6 +49,15 @@ spec:
               serviceName: {{ $fullName }}
               servicePort: {{ $svcPort }}
               {{- end }}
+          {{- if $.Values.scaling.webhook.enabled }}
+          - path: {{ . }}webhook/
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $fullName }}-webhooks
+                port:
+                  number: {{ $svcPort }}
+          {{- end }}
           {{- end }}
     {{- end }}
   {{- end }}

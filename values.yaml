@@ -4,7 +4,12 @@ n8n:
   encryption_key: # n8n creates a random encryption key automatically on the first launch and saves it in the ~/.n8n folder. That key is used to encrypt the credentials before they get saved to the database.
 defaults:
 
-config: # Dict with all n8n json config options
+config: 
+  executions:
+    pruneData: "true" # prune executions by default
+    pruneDataMaxAge: 3760 # Per defaut we store 1 year of history
+
+    
 secret: # Dict with all n8n json config options, unlike config the values here will end up in a secret.
 
 # Typical Example of a config in combination with a secret.
@@ -159,6 +164,8 @@ serviceAccount:
 
 podAnnotations: {}
 
+podLabels: {}
+
 podSecurityContext: {}
 # fsGroup: 2000
 
@@ -175,7 +182,7 @@ service:
   type: ClusterIP
   port: 80
   annotations: {}
-
+    
 ingress:
   enabled: false
   annotations: {}
@@ -188,6 +195,12 @@ ingress:
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
+
+workerResources:
+  {}
+
+webhookResources:
+  {}
 
 resources:
   {}
@@ -214,3 +227,31 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+scaling:
+  enabled: false
+  
+  worker:
+    count: 2
+    concurrency: 2
+
+  webhook:
+    enabled: false
+    count: 1
+
+  redis:
+    host: 
+    password:
+
+
+## Bitnami Redis configuration
+## https://github.com/bitnami/charts/tree/master/bitnami/redis
+redis:
+  enabled: false
+  architecture: standalone
+
+  master:
+    persistence:
+      enabled: true
+      existingClaim: ""
+      size: 2Gi  
