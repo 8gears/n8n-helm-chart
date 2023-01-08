@@ -7,9 +7,6 @@
 The Helm chart source code location is [github.com/8gears/n8n-helm-chart](https://github.com/8gears/n8n-helm-chart)
 
 
-8gears Chart Museum location is: [8gears.container-registry.com/harbor/projects/1/helm-charts/n8n/versions](https://8gears.container-registry.com/harbor/projects/1/helm-charts/n8n/versions)
-
-
 ## Requirements
 
 Before you start make sure you have the following dependencies ready and working:

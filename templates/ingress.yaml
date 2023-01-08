@@ -36,12 +36,19 @@ spec:
         paths:
           {{- range .paths }}
           - path: {{ . }}
+            {{- if semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion }}
             pathType: Prefix
+            {{- end }}
             backend:
+              {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
               service:
                 name: {{ $fullName }}
                 port:
                   number: {{ $svcPort }}
+              {{- else }}
+              serviceName: {{ $fullName }}
+              servicePort: {{ $svcPort }}
+              {{- end }}
           {{- if $.Values.scaling.webhook.enabled }}
           - path: {{ . }}webhook/
             pathType: Prefix
