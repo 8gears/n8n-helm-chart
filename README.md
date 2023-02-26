@@ -16,17 +16,18 @@ Before you start make sure you have the following dependencies ready and working
 - Helmfile (Optional)
 
 ## Configuration
+
 The `values.yaml` file is divided into a n8n specific configuration section, and a Kubernetes deployment specific section.
-
 The shown values represent Helm defaults not application defaults. The comments behind the values provide a description and display the application default.
-
 Every possible n8n config can be set that are also described in the: [n8n configuration options](https://github.com/n8n-io/n8n/blob/master/packages/cli/src/config/schema.ts).
 
 These n8n config options should be attached to Secret or Config.
 You decide what should be a secret and what should be a config the options are the same.
 
-```yaml
+# N8N Specific Config Section
+This is only an excerpt. All options are supported, see https://github.com/n8n-io/n8n/blob/master/packages/cli/src/config/schema.ts
 
+```yaml
 database:
   type:   # Type of database to use - Other possible types ['sqlite', 'mariadb', 'mysqldb', 'postgresdb'] - default: sqlite
   tablePrefix:      # Prefix for table names - default: ''
@@ -96,19 +97,26 @@ externalHookFiles:  # Files containing external hooks. Multiple files can be sep
 nodes:
   exclude:          # Nodes not to load - default: "[]"
   errorTriggerType: # Node Type to use as Error Trigger - default: n8n-nodes-base.errorTrigger
-
+# the list goes on...
 ```
 
 
 ### Values
-
+The values file consits of n8n specific sections `config` and `secret` where you paste the n8n config like shown above
 
 ```yaml
 # The n8n related part of the config
-
-
 config: # Dict with all n8n config options
+#    database:
+#      type: postgresdb
+#      postgresdb:
+#        database: n8n
+#        host: localhost
 secret: # Dict with all n8n config options, unlike config the values here will end up in a secret.
+#    database:
+#      postgresdb:
+#        password: here_db_root_password
+
 ##
 ##
 ## Common Kubernetes Config Settings

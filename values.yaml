@@ -180,6 +180,7 @@ securityContext:
 
 # here you can specify lifecycle hooks - it can be used e.g to easily add packages to the container without building
 # your own docker image
+# see https://github.com/8gears/n8n-helm-chart/pull/30
 lifecycle:
   {}
 

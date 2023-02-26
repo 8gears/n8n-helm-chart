@@ -1,7 +1,7 @@
 apiVersion: v2
 name: n8n
-version: 0.8.0
-appVersion: 0.210.0
+version: 0.9.0
+appVersion: 0.217.1
 type: application
 
 description: A Kubernetes Helm chart for n8n a free and open fair-code licensed node based Workflow Automation Tool. Easily automate tasks across different services.
@@ -28,6 +28,10 @@ dependencies:
 
 annotations:
   artifacthub.io/changes: |
+    - kind: added
+      description: Add lifecycle configuration for main deployment (#30) by @tomaszkiewicz
+      - name: GitHub PR
+        url: https://github.com/8gears/n8n-helm-chart/pull/30    
     - kind: changed
       description: Updated App Version to 0.210.0
     - kind: added
