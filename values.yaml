@@ -178,6 +178,17 @@ securityContext:
 # runAsNonRoot: true
 # runAsUser: 1000
 
+# here you can specify lifecycle hooks - it can be used e.g to easily add packages to the container without building
+# your own docker image
+lifecycle:
+  {}
+
+#  here's the sample configuration to add mysql-client to the container
+#lifecycle:
+#  postStart:
+#    exec:
+#      command: ["/bin/sh", "-c", "apk add mysql-client"]
+
 service:
   type: ClusterIP
   port: 80
