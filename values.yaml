@@ -206,6 +206,9 @@ ingress:
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
+  
+  # define a custom incressClassName, like "traefik" or "nginx"
+  className: ""
 
 workerResources:
   {}
