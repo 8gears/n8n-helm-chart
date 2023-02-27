@@ -1,10 +1,10 @@
 apiVersion: v2
 name: n8n
-version: 0.9.0
+version: 0.10.0
 appVersion: 0.217.1
 type: application
 
-description: A Kubernetes Helm chart for n8n a free and open fair-code licensed node based Workflow Automation Tool. Easily automate tasks across different services.
+description: "A Kubernetes Helm chart for n8n a free and open fair-code licensed node based Workflow Automation Tool. Easily automate tasks across different services."
 home: https://github.com/8gears/n8n-helm-chart
 icon: https://avatars1.githubusercontent.com/u/45487711?s=200&v=4
 keywords:
@@ -29,15 +29,21 @@ dependencies:
 annotations:
   artifacthub.io/changes: |
     - kind: added
-      description: Add lifecycle configuration for main deployment (#30) by @tomaszkiewicz
-      - name: GitHub PR
-        url: https://github.com/8gears/n8n-helm-chart/pull/30    
-    - kind: changed
-      description: Updated App Version to 0.210.0
+      description: "add incressClassName definition to ingress PR#31 by swarnat"
+      links:
+        - name: GitHub PR
+          url: https://github.com/8gears/n8n-helm-chart/pull/31
     - kind: added
-      description: Support for dedicated Workers and Webhooks Instances by Stefan Warnat aka @swarnat
+      description: "Add lifecycle configuration for main deployment (#30) by tomaszkiewicz"
+      links:
+        - name: GitHub PR
+          url: https://github.com/8gears/n8n-helm-chart/pull/30    
+    - kind: changed
+      description: "Updated App Version to 0.210.0"
+    - kind: added
+      description: "Support for dedicated Workers and Webhooks Instances by Stefan Warnat aka swarnat"
       links:
         - name: GitHub PR
           url: https://github.com/8gears/n8n-helm-chart/pull/24
-        - name: Stefan Warnat aka @swarnat
+        - name: "Stefan Warnat aka @swarnat"
           url: https://github.com/swarnat
