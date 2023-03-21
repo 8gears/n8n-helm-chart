@@ -58,6 +58,13 @@ Selector labels
 - name: {{ $key }}
   value: {{ $value | quote}}
 {{ end }}
+{{- range $key, $value := .Values.extraEnvSecrets }}
+- name: {{ $key }}
+  valueFrom:
+    secretKeyRef:
+      name: {{ $value.name | quote }}
+      key: {{ $value.key | quote }}
+{{ end }}
 - name: "N8N_PORT" #! we better set the port once again as ENV Var, see: https://community.n8n.io/t/default-config-is-not-set-or-the-port-to-be-more-precise/3158/3?u=vad1mo
   value: {{ get .Values.config "port" | default "5678" | quote }}
 - name: "N8N_ENCRYPTION_KEY"

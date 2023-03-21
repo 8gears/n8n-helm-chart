@@ -101,6 +101,16 @@ extraEnv: {}
 # Set this if running behind a reverse proxy and the external port is different from the port n8n runs on
 #   WEBHOOK_TUNNEL_URL: "https://n8n.myhost.com/
 
+# Set additional environment from existing secrets
+extraEnvSecrets: {}
+# for example, to reuse existing postgres authentication secrets:
+#   DB_POSTGRESDB_USER:
+#     name: postgres-user-auth
+#     key: username
+#   DB_POSTGRESDB_PASSWORD:
+#     name: postgres-user-auth
+#     key: password
+
 ##
 ##
 ##
