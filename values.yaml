@@ -200,6 +200,9 @@ lifecycle:
 #    exec:
 #      command: ["/bin/sh", "-c", "apk add mysql-client"]
 
+# here you can override a command for main container
+command: []
+
 service:
   type: ClusterIP
   port: 80
