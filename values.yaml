@@ -201,7 +201,17 @@ lifecycle:
 #      command: ["/bin/sh", "-c", "apk add mysql-client"]
 
 # here you can override a command for main container
+# it may be used to override starting script (e.g. to resolve issues like https://github.com/n8n-io/n8n/issues/6412) or
+# run additional preparation steps (e.g. installing additional software)
 command: []
+
+# sample configuration that overrides starting script and solves above issue (also it runs n8n as root, so be careful):
+#command:
+#  - tini
+#  - --
+#  - /bin/sh
+#  - -c
+#  - chmod o+rx /root; chown -R node /root/.n8n || true; chown -R node /root/.n8n; ln -s /root/.n8n /home/node; chown -R node /home/node || true; node /usr/local/bin/n8n
 
 service:
   type: ClusterIP
