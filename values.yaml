@@ -9,7 +9,7 @@ config:
     pruneData: "true" # prune executions by default
     pruneDataMaxAge: 3760 # Per defaut we store 1 year of history
 
-    
+# existingSecret: "" # Use an existing Kubernetes secret, e.g created by hand or Vault operator.
 secret: # Dict with all n8n json config options, unlike config the values here will end up in a secret.
 
 # Typical Example of a config in combination with a secret.

@@ -112,6 +112,8 @@ config: # Dict with all n8n config options
 #      postgresdb:
 #        database: n8n
 #        host: localhost
+#
+# existingSecret: "" # Use an existing Kubernetes secret, e.g created by hand or Vault operator.
 secret: # Dict with all n8n config options, unlike config the values here will end up in a secret.
 #    database:
 #      postgresdb:
