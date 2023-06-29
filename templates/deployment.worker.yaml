@@ -84,10 +84,10 @@ spec:
           configMap:
             name: {{ include "n8n.fullname" . }}
         {{- end }}
-        {{- if .Values.secret }}
+        {{- if or (.Values.secret) (.Values.existingSecret) }}
         - name: secret-volume
           secret:
-            secretName: {{ include "n8n.fullname" . }}
+            secretName: {{ if .Values.existingSecret }}{{ .Values.existingSecret }}{{ else }}{{ include "n8n.fullname" . }}{{ end }}
             items:
               - key: "secret.json"
                 path: "secret.json"
