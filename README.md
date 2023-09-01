@@ -17,15 +17,24 @@ Before you start make sure you have the following dependencies ready and working
 
 ## Configuration
 
-The `values.yaml` file is divided into a n8n specific configuration section, and a Kubernetes deployment specific section.
-The shown values represent Helm defaults not application defaults. The comments behind the values provide a description and display the application default.
-Every possible n8n config can be set that are also described in the: [n8n configuration options](https://github.com/n8n-io/n8n/blob/master/packages/cli/src/config/schema.ts).
+The `values.yaml` file is divided into a n8n specific configuration section, and a Kubernetes deployment-specific section.
 
-These n8n config options should be attached to Secret or Config.
-You decide what should be a secret and what should be a config the options are the same.
+The shown values represent Helm Chart defaults, not the application defaults. 
+In many cases, the Helm Chart defaults are empty. The comments behind the values provide a description and display the application default.
+
+These n8n config options should be attached below the root elements `secret:` or `config:` in the `values.yaml`. ( See the [typical-values-example](#typical-values-example) section).
+
+You decide what should go into `secret` and what should be a `config`. 
+There is no restriction, mix and match as you like. 
+
+
 
 # N8N Specific Config Section
-This is only an excerpt. All options are supported, see https://github.com/n8n-io/n8n/blob/master/packages/cli/src/config/schema.ts
+
+Every possible n8n config value can be set, even if it is now displayed in the excerpt below.
+All application config settings are described in the: [n8n configuration options](https://github.com/n8n-io/n8n/blob/master/packages/cli/src/config/schema.ts).
+Use n8n config as the source of truth, this Charts just forwards everything to the n8n.
+
 
 ```yaml
 database:
@@ -102,7 +111,7 @@ nodes:
 
 
 ### Values
-The values file consits of n8n specific sections `config` and `secret` where you paste the n8n config like shown above
+The values file consists of n8n specific sections `config` and `secret` where you paste the n8n config like shown above.
 
 ```yaml
 # The n8n related part of the config
@@ -286,18 +295,20 @@ helm install -f values.yaml -n n8n deploymentname n8n
 n8n provides a **queue-mode**, where the workload is shared between multiple instances of same n8n installation.   
 This provide a shared load over multiple instances and a limited high availability, because the controller instance remain as Single-Point-Of-Failure.  
 
-With the help of an internal/external redis server and by using the excelent BullMQ, the tasks can be shared over different instances, which also can run on different hosts.
+With the help of an internal/external redis server and by using the excellent BullMQ, the tasks can be shared over different instances, which also can run on different hosts.
 
 [See docs about this Queue-Mode](https://docs.n8n.io/hosting/scaling/queue-mode/)
 
-To enable this mode within this helm chart, you simple should set scaling.enable to true. This chart is configured to spawn by default 2 worker instances.
+To enable this mode within this helm chart, you simply should set `scaling.enable` to true. 
+This chart is configured to spawn by default 2 worker instances.
 
 ```yaml
 scaling:
   enabled: true
 ```
 
-You can define to spawn more worker, by set scaling.worker.count to a higher number. Also it is possible to define your own external redis server.
+You can define to spawn more worker, by set scaling.worker.count to a higher number. 
+Also, it is possible to define your own external redis server.
 
 ```yaml
 scaling:
@@ -307,15 +318,17 @@ scaling:
     password: "redis-password-if-set"
 ```
 
-If you want to use the internal redis server, set **redis.enable** to "**true**". By default no redis server is spawned.
+If you want to use the internal redis server, set `redis.enable = true`. By default, no redis server is spawned.
 
-At last scaling option is it possible to create dedicated webhook instances, which only process the webhooks. If you set **scaling.webhook.enabled** to "true", then webhook processing on main instance is disabled and by default a single webhook instance is started.
+At last scaling option is it possible to create dedicated webhook instances, which only process the webhooks. 
+If you set `scaling.webhook.enabled=true`, then webhook processing on main instance is disabled and by default a single webhook instance is started.
 
 ## Chart Deployment
 
 
-```shell script
+```shell
 
+helm package .
 helm repo add  --username='robot$helmcli' --password="$PASSWD" open-8gears https://8gears.container-registry.com/chartrepo/library
 helm push --username='robot$helmcli' --password="$PASSWD" . open-8gears
 

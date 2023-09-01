@@ -1,6 +1,6 @@
 apiVersion: v2
 name: n8n
-version: 0.12.0
+version: 0.12.1
 appVersion: 1.5.1
 type: application
 
@@ -28,6 +28,10 @@ dependencies:
 
 annotations:
   artifacthub.io/changes: |
+    - kind: changed
+      description: "fixed secret volume mnt for existing secret"
+        - name: GitHub PR
+            url: https://github.com/8gears/n8n-helm-chart/pull/51
     - kind: changed
       description: "Updated App Version to 1.5.1"
     - kind: added
