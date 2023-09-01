@@ -29,8 +29,9 @@ dependencies:
 annotations:
   artifacthub.io/changes: |
     - kind: changed
-      description: "fixed secret volume mnt for existing secret"
-        - name: GitHub PR
+      description: "Fixed secret volume mnt for existing secret"
+      links:
+        - name: "GitHub PR"
             url: https://github.com/8gears/n8n-helm-chart/pull/51
     - kind: changed
       description: "Updated App Version to 1.5.1"
@@ -41,5 +42,5 @@ annotations:
     - kind: added
       description: "Support Kubernetes 1.25"
       links:
-        - name: GitHub PR
+        - name: "GitHub PR"
           url: https://github.com/8gears/n8n-helm-chart/pull/46
