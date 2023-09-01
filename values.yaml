@@ -4,7 +4,7 @@ n8n:
   encryption_key: # n8n creates a random encryption key automatically on the first launch and saves it in the ~/.n8n folder. That key is used to encrypt the credentials before they get saved to the database.
 defaults:
 
-config: 
+config:
   executions:
     pruneData: "true" # prune executions by default
     pruneDataMaxAge: 3760 # Per defaut we store 1 year of history
@@ -214,11 +214,40 @@ command: []
 #  - -c
 #  - chmod o+rx /root; chown -R node /root/.n8n || true; chown -R node /root/.n8n; ln -s /root/.n8n /home/node; chown -R node /home/node || true; node /usr/local/bin/n8n
 
+# here you can override the livenessProbe for the main container
+# it may be used to increase the timeout for the livenessProbe (e.g. to resolve issues like
+
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: http
+  # initialDelaySeconds: 30
+  # periodSeconds: 10
+  # timeoutSeconds: 5
+  # failureThreshold: 6
+  # successThreshold: 1
+
+# here you can override the readinessProbe for the main container
+# it may be used to increase the timeout for the readinessProbe (e.g. to resolve issues like
+
+readinessProbe:
+  httpGet:
+    path: /healthz
+    port: http
+  # initialDelaySeconds: 30
+  # periodSeconds: 10
+  # timeoutSeconds: 5
+  # failureThreshold: 6
+  # successThreshold: 1
+
+# here you can add init containers to the various deployments
+initContainers: []
+
 service:
   type: ClusterIP
   port: 80
   annotations: {}
-    
+
 ingress:
   enabled: false
   annotations: {}
@@ -231,7 +260,7 @@ ingress:
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
-  
+
   # define a custom incressClassName, like "traefik" or "nginx"
   className: ""
 
@@ -269,7 +298,7 @@ affinity: {}
 
 scaling:
   enabled: false
-  
+
   worker:
     count: 2
     concurrency: 2
@@ -280,7 +309,7 @@ scaling:
     count: 1
 
   redis:
-    host: 
+    host:
     password:
 
 
@@ -294,4 +323,4 @@ redis:
     persistence:
       enabled: true
       existingClaim: ""
-      size: 2Gi  
+      size: 2Gi
