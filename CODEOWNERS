@@ -1,0 +1,4 @@
+ # The last matching pattern takes precedence.
+ # https://help.github.com/articles/about-codeowners/
+
+ *       @8gears/n8n-codeowners
