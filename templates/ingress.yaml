@@ -60,6 +60,20 @@ spec:
                 name: {{ $fullName }}-webhooks
                 port:
                   number: {{ $svcPort }}
+          - path: {{ . }}webhook-test/
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $fullName }}-webhooks
+                port:
+                  number: {{ $svcPort }}
+          - path: {{ . }}webhook-waiting/
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $fullName }}-webhooks
+                port:
+                  number: {{ $svcPort }}
           {{- end }}
           {{- end }}
     {{- end }}
