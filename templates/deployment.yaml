@@ -10,6 +10,11 @@ spec:
   {{- end }}
   strategy:
     type: {{ .Values.deploymentStrategy.type }}
+    {{- if eq .Values.deploymentStrategy.type "RollingUpdate" }}
+    rollingUpdate:
+      maxSurge: {{ default "25%" .Values.deploymentStrategy.maxSurge  }}
+      maxUnavailable: {{ default "25%" .Values.deploymentStrategy.maxUnavailable }}
+    {{- end }}
   selector:
     matchLabels:
       {{- include "n8n.selectorLabels" . | nindent 6 }}
