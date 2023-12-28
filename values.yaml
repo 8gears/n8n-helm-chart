@@ -7,7 +7,7 @@ defaults:
 config:
   executions:
     pruneData: "true" # prune executions by default
-    pruneDataMaxAge: 3760 # Per defaut we store 1 year of history
+    pruneDataMaxAge: 3760 # Per default we store 1 year of history
 
 # existingSecret and secret are exclusive, with existingSecret taking priority.
 # existingSecret: "" # Use an existing Kubernetes secret, e.g created by hand or Vault operator.
@@ -101,7 +101,7 @@ secret: # Dict with all n8n json config options, unlike config the values here w
 # Set additional environment variables on the Deployment
 extraEnv: {}
 # Set this if running behind a reverse proxy and the external port is different from the port n8n runs on
-#   WEBHOOK_TUNNEL_URL: "https://n8n.myhost.com/
+#   WEBHOOK_URL: "https://n8n.myhost.com/
 
 # Set additional environment from existing secrets
 extraEnvSecrets: {}
