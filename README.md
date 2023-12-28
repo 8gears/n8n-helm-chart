@@ -102,6 +102,7 @@ endpoints:
   rest:             # Path for rest endpoint  default: rest
   webhook:          # Path for webhook endpoint  default: webhook
   webhookTest:      # Path for test-webhook endpoint  default: webhook-test
+  webhookWaiting:   # Path for test-webhook endpoint  default: webhook-waiting
 externalHookFiles:  # Files containing external hooks. Multiple files can be separated by colon - default: ''
 nodes:
   exclude:          # Nodes not to load - default: "[]"
