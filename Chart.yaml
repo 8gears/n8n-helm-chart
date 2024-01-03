@@ -1,6 +1,6 @@
 apiVersion: v2
 name: n8n
-version: 0.20.0
+version: 0.20.1
 appVersion: 1.22.3
 type: application
 
@@ -25,40 +25,12 @@ dependencies:
     version: 18.6.1
     repository: https://charts.bitnami.com/bitnami
     condition: redis.enabled
-
 annotations:
   artifacthub.io/changes: |
-    - kind: added
-      description: "typo + WEBHOOK_URL fix. Added missing ingress routes for webhooks-. Parametric RollingUpdate, update image to 1.22.3 "
+    - kind: changed
+      description: "We now ship this Chart as OCI only, no ChartMuseum Support anymore."      
+    - kind: changed
+      description: "When using existingSecret the path to the file was not added to n8n.configFiles in the helpers."
       links:
-        - name: "GitHub PR #59 - typo + WEBHOOK_URL fix"
-          url: https://github.com/8gears/n8n-helm-chart/pull/59
-        - name: "GitHub PR #60 - added missing ingress routes for webhooks"
-          url: https://github.com/8gears/n8n-helm-chart/pull/60
-        - name: "GitHub PR #61 - Parametric RollingUpdate"
-          url: https://github.com/8gears/n8n-helm-chart/pull/61
-    - kind: changed
-      description: "Using now latest Redis 18.6.1"
-    - kind: added
-      description: "Chart 0.13.0 adds support for app version 1.7.1"
-    - kind: changed
-      description: "Correctly perform semantic version comparison"
-      links:
-        - name: "GitHub PR"
-          url: https://github.com/8gears/n8n-helm-chart/pull/54    
-    - kind: changed
-      description: "Fixed secret volume mnt for existing secret"
-      links:
-        - name: "GitHub PR"
-          url: https://github.com/8gears/n8n-helm-chart/pull/51
-    - kind: changed
-      description: "Updated App Version to 1.5.1"
-    - kind: added
-      description: "Added support for specifying initContainers and probes"
-    - kind: changed
-      description: "Updated App Version to 0.236.3"
-    - kind: added
-      description: "Support Kubernetes 1.25"
-      links:
-        - name: "GitHub PR"
-          url: https://github.com/8gears/n8n-helm-chart/pull/46
+        - name: "PR #63"
+          url: https://github.com/8gears/n8n-helm-chart/pull/63

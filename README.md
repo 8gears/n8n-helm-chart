@@ -2,39 +2,57 @@
 
 [n8n](https://github.com/n8n-io/n8n) is an extendable workflow automation tool.
 
-[![Artifact HUB](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/open-8gears)](https://artifacthub.io/packages/search?repo=open-8gears)
+[![Artifact HUB](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/n8n)](https://artifacthub.io/packages/helm/open-8gears/n8n)
 
-The Helm chart source code location is [github.com/8gears/n8n-helm-chart](https://github.com/8gears/n8n-helm-chart)
+The Helm chart source code location
+is [github.com/8gears/n8n-helm-chart](https://github.com/8gears/n8n-helm-chart)
+
+
+> [!IMPORTANT]
+> Starting Jan 2024, we serve Charts only as OCI artifacts. 
 
 
 ## Requirements
 
-Before you start make sure you have the following dependencies ready and working:
+Before you start, make sure you have the following tools ready:
 
-- Helm > 3
+- Helm >= 3.8
 - Postgres DB | MySQL | Embedded SQLite
 - Helmfile (Optional)
 
 ## Configuration
 
-The `values.yaml` file is divided into a n8n specific configuration section, and a Kubernetes deployment-specific section.
+The `values.yaml` file is divided into a n8n specific configuration section, and
+a Kubernetes deployment-specific section.
 
-The shown values represent Helm Chart defaults, not the application defaults. 
-In many cases, the Helm Chart defaults are empty. The comments behind the values provide a description and display the application default.
+The shown values represent Helm Chart defaults, not the application defaults.
+In many cases, the Helm Chart defaults are empty.
+The comments behind the values provide a description and display the application
+default.
 
-These n8n config options should be attached below the root elements `secret:` or `config:` in the `values.yaml`. ( See the [typical-values-example](#typical-values-example) section).
+These n8n config options should be attached below the root elements `secret:`
+or `config:` in the `values.yaml`.
+(See the [typical-values-example](#typical-values-example) section).
 
-You decide what should go into `secret` and what should be a `config`. 
-There is no restriction, mix and match as you like. 
+You decide what should go into `secret` and what should be a `config`.
+There is no restriction, mix and match as you like.
 
+# Installation
 
+Install chart
+
+```shell
+helm install my-n8n oci://8gears.container-registry.com/library/n8n --version 0.20.0
+```
 
 # N8N Specific Config Section
 
-Every possible n8n config value can be set, even if it is now displayed in the excerpt below.
-All application config settings are described in the: [n8n configuration options](https://github.com/n8n-io/n8n/blob/master/packages/cli/src/config/schema.ts).
-Use n8n config as the source of truth, this Charts just forwards everything to the n8n.
-
+Every possible n8n config value can be set,
+even if it is now mentioned in the excerpt below.
+All application config settings are described in the:
+[n8n configuration options](https://github.com/n8n-io/n8n/blob/master/packages/cli/src/config/schema.ts).
+Treat the n8n provided config documentation as the source of truth,
+this Charts just forwards everything to the n8n.
 
 ```yaml
 database:
@@ -110,9 +128,10 @@ nodes:
 # the list goes on...
 ```
 
-
 ### Values
-The values file consists of n8n specific sections `config` and `secret` where you paste the n8n config like shown above.
+
+The values file consists of n8n specific sections `config` and `secret` where
+you paste the n8n config like shown above.
 
 ```yaml
 # The n8n related part of the config
@@ -166,7 +185,7 @@ persistence:
   # existingClaim:
 
 # Set additional environment variables on the Deployment
-extraEnv: {}
+extraEnv: { }
 # Set this if running behind a reverse proxy and the external port is different from the port n8n runs on
 #   WEBHOOK_TUNNEL_URL: "https://n8n.myhost.com/
 
@@ -199,7 +218,7 @@ podSecurityContext: { }
 securityContext: { }
   # capabilities:
   #   drop:
-  #   - ALL
+#   - ALL
 # readOnlyRootFilesystem: true
 # runAsNonRoot: true
 # runAsUser: 1000
@@ -207,7 +226,7 @@ securityContext: { }
 service:
   type: ClusterIP
   port: 80
-  annotations: {}
+  annotations: { }
 
 ingress:
   enabled: false
@@ -229,7 +248,7 @@ resources: { }
   # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
   # limits:
   #   cpu: 100m
-  #   memory: 128Mi
+#   memory: 128Mi
 # requests:
 #   cpu: 100m
 #   memory: 128Mi
@@ -249,7 +268,7 @@ affinity: { }
 
 scaling:
   enabled: false
-  
+
   worker:
     count: 2
     concurrency: 2
@@ -259,7 +278,7 @@ scaling:
     count: 1
 
   redis:
-    host: 
+    host:
     password:
 
 redis:
@@ -268,8 +287,8 @@ redis:
 ```
 
 # Typical Values Example
-A typical example of a config in combination with a secret.
 
+A typical example of a config in combination with a secret.
 
 ```yaml
 # values.yaml
@@ -285,6 +304,7 @@ secret:
       password: 'big secret'
 
 ```
+
 ## Setup
 
 ```shell
@@ -293,22 +313,28 @@ helm install -f values.yaml -n n8n deploymentname n8n
 
 ## Scaling
 
-n8n provides a **queue-mode**, where the workload is shared between multiple instances of same n8n installation.   
-This provide a shared load over multiple instances and a limited high availability, because the controller instance remain as Single-Point-Of-Failure.  
+n8n provides a **queue-mode**, where the workload is shared between multiple
+instances of same n8n installation.   
+This provides a shared load over multiple instances and a limited high
+availability, because the controller instance remains as Single-Point-Of-Failure.
 
-With the help of an internal/external redis server and by using the excellent BullMQ, the tasks can be shared over different instances, which also can run on different hosts.
+With the help of an internal/external redis server and by using the excellent
+BullMQ, the tasks can be shared over different instances, which also can run on
+different hosts.
 
 [See docs about this Queue-Mode](https://docs.n8n.io/hosting/scaling/queue-mode/)
 
-To enable this mode within this helm chart, you simply should set `scaling.enable` to true. 
-This chart is configured to spawn by default 2 worker instances.
+To enable this mode within this helm chart, you simply should
+set `scaling.enable` to true.
+This chart is configured to spawn two worker instances.
 
 ```yaml
 scaling:
   enabled: true
 ```
 
-You can define to spawn more worker, by set scaling.worker.count to a higher number. 
+You can define to spawn more workers, by set scaling.worker.count to a higher
+number.
 Also, it is possible to define your own external redis server.
 
 ```yaml
@@ -319,19 +345,19 @@ scaling:
     password: "redis-password-if-set"
 ```
 
-If you want to use the internal redis server, set `redis.enable = true`. By default, no redis server is spawned.
+If you want to use the internal redis server, set `redis.enable = true`. By
+default, no redis server is spawned.
 
-At last scaling option is it possible to create dedicated webhook instances, which only process the webhooks. 
-If you set `scaling.webhook.enabled=true`, then webhook processing on main instance is disabled and by default a single webhook instance is started.
+At last scaling option is it possible to create dedicated webhook instances,
+which only process the webhooks.
+If you set `scaling.webhook.enabled=true`, then webhook processing on the main
+instance is disabled and by default a single webhook instance is started.
 
 ## Chart Deployment
 
-
 ```shell
-
 helm package .
-helm repo add  --username='robot$helmcli' --password="$PASSWD" open-8gears https://8gears.container-registry.com/chartrepo/library
-helm push --username='robot$helmcli' --password="$PASSWD" . open-8gears
-
+helm registry login -u $USER 8gears.container-registry.com
+helm push n8n-0.20.1.tgz oci://8gears.container-registry.com/library/n8n
 ```
 
