@@ -12,7 +12,8 @@ helmDefaults:
 
 repositories:
   - name: 8gears
-    url: https://8gears.container-registry.com/chartrepo/library
+    url: 8gears.container-registry.com/library
+    oci: true
 
 releases:
   - name: n8n
