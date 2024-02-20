@@ -1,7 +1,7 @@
 # Default helm values for n8n.
-# Default values within the n8n application can be found under https://github.com/n8n-io/n8n/blob/master/packages/cli/config/index.ts
+# Default values within the n8n application can be found under https://github.com/n8n-io/n8n/blob/master/packages/cli/src/config/index.ts
 n8n:
-  encryption_key: # n8n creates a random encryption key automatically on the first launch and saves it in the ~/.n8n folder. That key is used to encrypt the credentials before they get saved to the database.
+  encryption_key: # if not specified n8n on first launch creates a random encryption key for encrypting saved credentials and saves it in the ~/.n8n folder
 defaults:
 
 config:
@@ -26,7 +26,6 @@ secret: # Dict with all n8n json config options, unlike config the values here w
 
 ## ALL possible n8n Values
 
-#
 #database:
 #  type:             # Type of database to use - Other possible types ['sqlite', 'mariadb', 'mysqldb', 'postgresdb'] - default: sqlite
 #  tablePrefix:      # Prefix for table names - default: ''
