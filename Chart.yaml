@@ -27,9 +27,10 @@ dependencies:
     condition: redis.enabled
 annotations:
   artifacthub.io/prerelease: "true"
+  # supported kinds are added, changed, deprecated, removed, fixed and security.
   artifacthub.io/changes: |
-    - kind: changed
-    description: "Apply Security Context to all Pods"
-    links:
-    - name: "GitHub Issue"
-        url: https://github.com/8gears/n8n-helm-chart/issues/71         
+    - kind: changed 
+      description: "Apply Security Context to all Pods"
+      links:
+        - name: "Related GitHub Issue"
+            url: https://github.com/8gears/n8n-helm-chart/issues/71         
