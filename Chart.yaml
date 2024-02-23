@@ -1,7 +1,7 @@
 apiVersion: v2
 name: n8n
-version: 0.20.1
-appVersion: 1.22.3
+version: 0.22.0
+appVersion: 1.30.0
 type: application
 
 description: "A Kubernetes Helm chart for n8n a free and open fair-code licensed node based Workflow Automation Tool. Easily automate tasks across different services."
@@ -26,11 +26,10 @@ dependencies:
     repository: https://charts.bitnami.com/bitnami
     condition: redis.enabled
 annotations:
+  artifacthub.io/prerelease: "true"
   artifacthub.io/changes: |
     - kind: changed
-      description: "We now ship this Chart as OCI only, no ChartMuseum Support anymore."      
-    - kind: changed
-      description: "When using existingSecret the path to the file was not added to n8n.configFiles in the helpers."
-      links:
-        - name: "PR #63"
-          url: https://github.com/8gears/n8n-helm-chart/pull/63
+    description: "Apply Security Context to all Pods"
+    links:
+    - name: "GitHub Issue"
+        url: https://github.com/8gears/n8n-helm-chart/issues/71         

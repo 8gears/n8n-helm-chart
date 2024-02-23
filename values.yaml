@@ -184,17 +184,20 @@ podAnnotations: {}
 
 podLabels: {}
 
-podSecurityContext: {}
-# fsGroup: 2000
+#
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
 
-securityContext:
-  {}
+securityContext: {}
   # capabilities:
   #   drop:
   #   - ALL
   # readOnlyRootFilesystem: true
-# runAsNonRoot: true
-# runAsUser: 1000
+  #  runAsNonRoot: true
+  #  runAsUser: 1000
 
 # here you can specify lifecycle hooks - it can be used e.g to easily add packages to the container without building
 # your own docker image
