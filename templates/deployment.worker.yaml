@@ -69,7 +69,7 @@ spec:
             - name: config-volume
               mountPath: /n8n-config
             {{- end }}
-            {{- if .Values.secret }}
+            {{- if or (.Values.secret) (.Values.existingSecret) }}
             - name: secret-volume
               mountPath: /n8n-secret
                 {{- end }}
