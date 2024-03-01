@@ -280,6 +280,8 @@ scaling:
   redis:
     host:
     password:
+    existingSecret:
+    existingSecretKey:
 
 redis:
   enabled: false
