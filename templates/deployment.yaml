@@ -41,9 +41,19 @@ spec:
       serviceAccountName: {{ include "n8n.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      {{- if .Values.initContainers }}
+      {{- if or .Values.initContainers (and .Values.persistence.enabled (eq .Values.persistence.type "dynamic")) }}
       initContainers:
+      {{- if and .Values.persistence.enabled (eq .Values.persistence.type "dynamic") }}
+      - name: init-data-dir
+        image: busybox:1.31.1
+        command: ["/bin/sh", "-c", "mkdir -p /home/node/.n8n/"]
+        volumeMounts:
+        - name: data
+          mountPath: /home/node/.n8n
+      {{- end }}
+      {{- if .Values.initContainers }}
       {{ tpl (toYaml .Values.initContainers) . | nindent 8 }}
+      {{- end }}
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}

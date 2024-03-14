@@ -1,6 +1,6 @@
 apiVersion: v2
 name: n8n
-version: 0.22.0
+version: 0.23.0
 appVersion: 1.30.0
 type: application
 
@@ -33,4 +33,9 @@ annotations:
       description: "Apply Security Context to all Pods"
       links:
         - name: "Related GitHub Issue"
-            url: https://github.com/8gears/n8n-helm-chart/issues/71         
+          url: https://github.com/8gears/n8n-helm-chart/issues/71
+    - kind: fixed
+      description: "Fixed issue with dynamic volumes not having the correct directories laid out"
+      links:
+        - name: "Related GitHub Issue"
+          url: https://github.com/8gears/n8n-helm-chart/issues/71
