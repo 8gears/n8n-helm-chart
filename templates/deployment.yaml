@@ -45,7 +45,7 @@ spec:
       initContainers:
       {{- if and .Values.persistence.enabled (eq .Values.persistence.type "dynamic") }}
       - name: init-data-dir
-        image: busybox:1.31.1
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
         command: ["/bin/sh", "-c", "mkdir -p /home/node/.n8n/"]
         volumeMounts:
         - name: data
