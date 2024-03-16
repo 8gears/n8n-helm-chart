@@ -1,7 +1,7 @@
 apiVersion: v2
 name: n8n
-version: 0.22.1
-appVersion: 1.30.2
+version: 0.23.0
+appVersion: 1.33.1
 type: application
 
 description: "A Kubernetes Helm chart for n8n a free and open fair-code licensed node based Workflow Automation Tool. Easily automate tasks across different services."
@@ -29,13 +29,8 @@ dependencies:
     repository: https://charts.bitnami.com/bitnami
     condition: redis.enabled
 annotations:
-  artifacthub.io/prerelease: "true"
+  artifacthub.io/prerelease: "false"
   # supported kinds are added, changed, deprecated, removed, fixed and security.
   artifacthub.io/changes: |
     - kind: changed
-      description: "Update application version of n8n 1.30.2"
-    - kind: fixed
-      description: "Fixed issue with dynamic volumes not having the correct directories laid out"
-      links:
-        - name: "Related GitHub Issue"
-          url: https://github.com/8gears/n8n-helm-chart/issues/71
+      description: "Update application version of n8n 1.33.1"
