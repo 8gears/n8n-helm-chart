@@ -281,7 +281,7 @@ scaling:
     host:
     password:
     existingSecret:
-    existingSecretKey:
+    existingSecretPasswordKey:
 
 redis:
   enabled: false
