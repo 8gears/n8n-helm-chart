@@ -44,12 +44,12 @@ spec:
       {{- if or .Values.initContainers (and .Values.persistence.enabled (eq .Values.persistence.type "dynamic")) }}
       initContainers:
       {{- if and .Values.persistence.enabled (eq .Values.persistence.type "dynamic") }}
-      - name: init-data-dir
-        image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-        command: ["/bin/sh", "-c", "mkdir -p /home/node/.n8n/"]
-        volumeMounts:
-        - name: data
-          mountPath: /home/node/.n8n
+        - name: init-data-dir
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          command: ["/bin/sh", "-c", "mkdir -p /home/node/.n8n/"]
+          volumeMounts:
+            - name: data
+              mountPath: /home/node/.n8n
       {{- end }}
       {{- if .Values.initContainers }}
       {{ tpl (toYaml .Values.initContainers) . | nindent 8 }}
