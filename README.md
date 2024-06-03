@@ -1,3 +1,8 @@
+> [!IMPORTANT]
+> We would like to bring this Helm chart to the next level, in terms of automation, governance and documentation.  This can only be achieved with a diverse community. Hence, we are looking for additional maintainers and contributors to join this project. Reach out to us if you are interested in contributing.
+
+
+
 # n8n Helm Chart for Kubernetes
 
 [n8n](https://github.com/n8n-io/n8n) is an extendable workflow automation tool.
@@ -8,8 +13,6 @@ The Helm chart source code location
 is [github.com/8gears/n8n-helm-chart](https://github.com/8gears/n8n-helm-chart)
 
 
-> [!IMPORTANT]
-> Starting Jan 2024, we serve Charts only as OCI artifacts. 
 
 
 ## Requirements
