@@ -95,7 +95,7 @@ spec:
               mountPath: /n8n-secret
                 {{- end }}
             {{- if .Values.additionalVolumeMounts }}
-{{ toYaml .Values.additionalVolumeMounts | indent 8}}
+{{ toYaml .Values.additionalVolumeMounts | indent 10}}
             {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
@@ -126,5 +126,5 @@ spec:
                 path: "secret.json"
         {{- end }}
         {{- if .Values.additionalVolumes }}
-{{ toYaml .Values.additionalVolumes | indent 8}}
+{{ toYaml .Values.additionalVolumes | indent 10}}
         {{- end }}
