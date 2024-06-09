@@ -331,10 +331,10 @@ redis:
       existingClaim: ""
       size: 2Gi
 
-## specify additional volumes to mount in the core container, this can be used
-## to specify additional storage of material or to inject files from ConfigMaps
-## into the running container
-additionalVolumes: []
-
-## specify where the additional volumes are mounted in the core container
-additionalVolumeMounts: []
+additionalVolumeMounts:
+- mountPath: /public
+  name: public
+additionalVolumes:
+- hostPath:
+    path: /mnt/public
+  name: public
