@@ -287,6 +287,14 @@ scaling:
 redis:
   enabled: false
   # Other default redis values: https://github.com/bitnami/charts/blob/master/bitnami/redis/values.yaml
+
+## specify additional volumes to mount in the core container, this can be used
+## to specify additional storage of material or to inject files from ConfigMaps
+## into the running container
+additionalVolumes: []
+
+## specify where the additional volumes are mounted in the core container
+additionalVolumeMounts: []
 ```
 
 # Typical Values Example
@@ -305,7 +313,13 @@ secret:
   database:
     postgresdb:
       password: 'big secret'
-
+additionalVolumeMounts:
+  - mountPath: /public
+    name: public
+additionalVolumes:
+  - hostPath:
+      path: /mnt/public
+    name: public
 ```
 
 ## Setup
