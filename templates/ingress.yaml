@@ -74,6 +74,13 @@ spec:
                 name: {{ $fullName }}-webhooks
                 port:
                   number: {{ $svcPort }}
+          - path: {{ . }}form/
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $fullName }}-webhooks
+                port:
+                  number: {{ $svcPort }}
           {{- end }}
           {{- end }}
     {{- end }}
