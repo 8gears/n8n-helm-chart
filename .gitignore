@@ -2,3 +2,5 @@
 commands.sh
 yamls
 *.tgz
+.idea
+.vscode

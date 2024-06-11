@@ -1,0 +1,15 @@
+name: Lint and Test Charts
+
+on: pull_request
+
+jobs:
+  lint-charts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: "0"
+      - name: Lint n8n Chart
+        uses: WyriHaximus/github-action-helm3@v4
+        with:
+          exec: helm lint .
