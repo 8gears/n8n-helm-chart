@@ -51,11 +51,11 @@ helm install my-n8n oci://8gears.container-registry.com/library/n8n --version 0.
 # N8N Specific Config Section
 
 Every possible n8n config value can be set,
-even if it is now mentioned in the excerpt below.
+even if it is not mentioned in the excerpt below.
 All application config settings are described in the:
 [n8n configuration options](https://github.com/n8n-io/n8n/blob/master/packages/cli/src/config/schema.ts).
 Treat the n8n provided config documentation as the source of truth,
-this Charts just forwards everything to the n8n.
+this Charts just forwards everything to n8n.
 
 ```yaml
 database:
