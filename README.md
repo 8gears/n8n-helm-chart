@@ -20,7 +20,7 @@ is [github.com/8gears/n8n-helm-chart](https://github.com/8gears/n8n-helm-chart)
 Before you start, make sure you have the following tools ready:
 
 - Helm >= 3.8
-- Postgres DB | MySQL | Embedded SQLite
+- external Postgres DB or  external MySQL | embedded SQLite (bundled with n8n)
 - Helmfile (Optional)
 
 ## Configuration
