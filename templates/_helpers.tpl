@@ -92,6 +92,13 @@ Selector labels
 - name: "QUEUE_BULL_REDIS_PASSWORD"
   value: "{{ .Values.scaling.redis.password }}"
 {{ end }}
+{{- if and .Values.scaling.redis.existingSecret .Values.scaling.redis.existingSecretPasswordKey }}
+- name: "QUEUE_BULL_REDIS_PASSWORD"
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.scaling.redis.existingSecret }}
+      key: {{ .Values.scaling.redis.existingSecretPasswordKey }}
+{{ end }}
 {{- if .Values.scaling.webhook.enabled }}
 - name: "N8N_DISABLE_PRODUCTION_MAIN_PROCESS"
   value: "true"
