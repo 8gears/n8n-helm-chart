@@ -18,10 +18,12 @@ sources:
   - https://github.com/n8n-io/n8n
   - https://n8n.io/
 maintainers:
-  - name: 8gears AG
+  - name: 8gears
     email: contact@8gears.com
-  - name: n8n Community
+    url: https://github.com/8gears
+  - name: n8n
     email: _@8gears.com
+    url: https://github.com/n8n-io
 
 dependencies:
   - name: redis
