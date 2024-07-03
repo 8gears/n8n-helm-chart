@@ -18,7 +18,7 @@ repositories:
 releases:
   - name: n8n
     namespace: {{ .Values.namespace }}
-    chart: .
+    chart: ./charts/n8n
     values:
       - n8n:
           encryption_key: {{ .Values.encryption_key }}
