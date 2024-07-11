@@ -32,6 +32,7 @@ jobs:
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.6.0
         env:
+          CR_SKIP_EXISTING: true
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           CR_GENERATE_RELEASE_NOTES: true
 
@@ -50,5 +51,6 @@ jobs:
             if [ -z "${pkg:-}" ]; then
               break
             fi
+            echo "Pushing package - ${pkg} to repository - 8gears.container-registry.com/library/n8n"
             helm push "${pkg}" "oci://8gears.container-registry.com/library/n8n"
           done
