@@ -46,11 +46,6 @@ jobs:
 
       - name: Push charts to 8gears.container-registry.com
         run: |
-          shopt -s nullglob
-          for pkg in .cr-release-packages/*; do
-            if [ -z "${pkg:-}" ]; then
-              break
-            fi
-            echo "Pushing package - ${pkg} to repository - 8gears.container-registry.com/library/n8n"
-            helm push "${pkg}" "oci://8gears.container-registry.com/library/n8n"
-          done
+          CHART_VERSION=$(grep 'version:' charts/n8n/Chart.yaml | awk '{print $2}')                                        
+          helm package charts/n8n --dependency-update
+          helm push n8n-${CHART_VERSION}.tgz oci://8gears.container-registry.com/library/n8n
