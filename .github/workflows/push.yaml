@@ -38,4 +38,4 @@ jobs:
         run: |
           CHART_VERSION=$(grep 'version:' charts/n8n/Chart.yaml | awk '{print $2}')                                        
           helm package charts/n8n --dependency-update
-          helm push n8n-${CHART_VERSION}.tgz oci://8gears.container-registry.com/library/n8n
+          helm push "n8n-${CHART_VERSION}.tgz" "oci://8gears.container-registry.com/library/n8n"
