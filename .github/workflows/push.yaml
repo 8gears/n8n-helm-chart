@@ -36,5 +36,5 @@ jobs:
 
       - name: Push charts to 8gears.container-registry.com
         run: |                                                  
-          package_path=$(helm package charts/n8n | grep -o '/.*\.tgz')
+          package_path=$(helm package charts/n8n --dependency-update | grep -o '/.*\.tgz')
           helm push "${package_path}" "oci://8gears.container-registry.com/library/n8n"
