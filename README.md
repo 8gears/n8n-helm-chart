@@ -358,9 +358,5 @@ instance is disabled and by default a single webhook instance is started.
 
 ## Chart Deployment
 
-```shell
-helm package .
-helm registry login -u $USER 8gears.container-registry.com
-helm push n8n-0.20.1.tgz oci://8gears.container-registry.com/library/n8n
-```
-
+1. Update the `Chart.yaml` with the new version number for the chart and/or app.
+2. In GitHub create a new release with the the chart version number as the tag and title.
