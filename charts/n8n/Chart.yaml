@@ -1,6 +1,6 @@
 apiVersion: v2
 name: n8n
-version: 0.24.1
+version: 0.24.2
 appVersion: 1.48.3
 type: application
 
