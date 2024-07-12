@@ -35,6 +35,9 @@ jobs:
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: Push charts to 8gears.container-registry.com
-        run: |                                                  
+        run: |
+          helm plugin install https://github.com/losisin/helm-values-schema-json.git
+          helm schema -input charts/n8n/values.yaml
+          cp -a README.md LICENSE values.schema.json charts/n8n/
           package_path=$(helm package charts/n8n --dependency-update | grep -o '/.*\.tgz')
           helm push "${package_path}" "oci://8gears.container-registry.com/library"

@@ -3,7 +3,6 @@ name: n8n
 version: 0.24.3
 appVersion: 1.49.0
 type: application
-
 description: "A Kubernetes Helm chart for n8n a free and open fair-code licensed node based Workflow Automation Tool. Easily automate tasks across different services."
 home: https://github.com/8gears/n8n-helm-chart
 icon: https://avatars1.githubusercontent.com/u/45487711?s=200&v=4
