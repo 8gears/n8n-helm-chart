@@ -38,6 +38,7 @@ jobs:
         run: |
           helm plugin install https://github.com/losisin/helm-values-schema-json.git
           helm schema -input charts/n8n/values.yaml
-          cp -a README.md LICENSE values.schema.json charts/n8n/
+          echo "Skip copying the schema values file for now, as it needs more testing."
+          cp -a README.md LICENSE charts/n8n/
           package_path=$(helm package charts/n8n --dependency-update | grep -o '/.*\.tgz')
           helm push "${package_path}" "oci://8gears.container-registry.com/library"
