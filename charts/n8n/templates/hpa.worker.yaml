@@ -1,4 +1,5 @@
-{{- if .Values.autoscaling.enabled }}
+{{- if .Values.scaling.enabled }}
+{{- if .Values.workerAutoscaling.enabled }}
 {{- if semverCompare ">=1.25-0" .Capabilities.KubeVersion.GitVersion -}}
 apiVersion: autoscaling/v2
 {{- else -}}
@@ -47,5 +48,6 @@ spec:
         name: memory
         targetAverageUtilization: {{ .Values.workerAutoscaling.targetMemoryUtilizationPercentage }}
     {{- end }}
+{{- end }}
 {{- end }}
 {{- end }}
