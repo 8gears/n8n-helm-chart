@@ -1,0 +1,51 @@
+{{- if .Values.autoscaling.enabled }}
+{{- if semverCompare ">=1.25-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: autoscaling/v2
+{{- else -}}
+apiVersion: autoscaling/v2beta1
+{{- end }}
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "n8n.fullname" . }}-webhook
+  labels:
+    {{- include "n8n.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "n8n.fullname" . }}-webhook
+  minReplicas: {{ .Values.webhookAutoscaling.minReplicas }}
+  maxReplicas: {{ .Values.webhookAutoscaling.maxReplicas }}
+  metrics:
+{{- if semverCompare ">=1.25-0" .Capabilities.KubeVersion.GitVersion -}}
+    {{- if .Values.webhookAutoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.webhookAutoscaling.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.webhookAutoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.webhookAutoscaling.targetMemoryUtilizationPercentage }}
+    {{- end }}
+{{- else -}}
+    {{- if .Values.webhookAutoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        targetAverageUtilization: {{ .Values.webhookAutoscaling.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.webhookAutoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        targetAverageUtilization: {{ .Values.webhookAutoscaling.targetMemoryUtilizationPercentage }}
+    {{- end }}
+{{- end }}
+{{- end }}
