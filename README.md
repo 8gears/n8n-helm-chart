@@ -45,7 +45,7 @@ There is no restriction, mix and match as you like.
 Install chart
 
 ```shell
-helm install my-n8n oci://8gears.container-registry.com/library/n8n --version 0.23.1
+helm install my-n8n oci://8gears.container-registry.com/library/n8n --version 0.25.0
 ```
 
 # N8N Specific Config Section
