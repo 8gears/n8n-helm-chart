@@ -1,7 +1,7 @@
 apiVersion: v2
 name: n8n
-version: 0.24.5
-appVersion: 1.49.0
+version: 0.25.1
+appVersion: 1.55.3
 type: application
 description: "A Kubernetes Helm chart for n8n a free and open fair-code licensed node based Workflow Automation Tool. Easily automate tasks across different services."
 home: https://github.com/8gears/n8n-helm-chart
@@ -34,4 +34,4 @@ annotations:
   # supported kinds are added, changed, deprecated, removed, fixed and security.
   artifacthub.io/changes: |
     - kind: changed
-      description: "Update application version of n8n 1.49.0"
+      description: "Update application to version 1.55.3. Breaking change see https://docs.n8n.io/release-notes/#n8n1550"
