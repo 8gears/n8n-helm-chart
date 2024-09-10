@@ -34,4 +34,4 @@ annotations:
   # supported kinds are added, changed, deprecated, removed, fixed and security.
   artifacthub.io/changes: |
     - kind: changed
-      description: "Update application to version 1.55.3. Breaking change see https://docs.n8n.io/release-notes/#n8n1550"
+      description: "[PR#110](https://github.com/8gears/n8n-helm-chart/pull/110) This PR fixes the issue with webhook-test endpoint by pointing it to the main n8n service instead of webhooks service."
