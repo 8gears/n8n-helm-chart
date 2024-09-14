@@ -1,7 +1,7 @@
 apiVersion: v2
 name: n8n
-version: 0.25.1
-appVersion: 1.55.3
+version: 0.25.2
+appVersion: 1.58.2
 type: application
 description: "A Kubernetes Helm chart for n8n a free and open fair-code licensed node based Workflow Automation Tool. Easily automate tasks across different services."
 home: https://github.com/8gears/n8n-helm-chart
@@ -34,4 +34,4 @@ annotations:
   # supported kinds are added, changed, deprecated, removed, fixed and security.
   artifacthub.io/changes: |
     - kind: changed
-      description: "[PR#110](https://github.com/8gears/n8n-helm-chart/pull/110) This PR fixes the issue with webhook-test endpoint by pointing it to the main n8n service instead of webhooks service."
+      description: "Updated application to version 1.58.2"
