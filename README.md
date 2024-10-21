@@ -1,5 +1,5 @@
 > [!IMPORTANT]
-> We would like to bring this Helm chart to the next level, in terms of automation, governance and documentation.  This can only be achieved with a diverse community. Hence, we are looking for additional maintainers and contributors to impove this project, code, documentation, automation. [Reach out](https://github.com/8gears/n8n-helm-chart/discussions/90) to us if you are interested in contributing.
+> We would like to bring this Helm chart to the next level, in terms of automation, governance and documentation.  This can only be achieved with a diverse community. Hence, we are looking for additional maintainers and contributors to improve this project, code, documentation, automation. [Reach out](https://github.com/8gears/n8n-helm-chart/discussions/90) to us if you are interested in contributing.
 
 
 
