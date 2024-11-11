@@ -356,7 +356,8 @@ which only process the webhooks.
 If you set `scaling.webhook.enabled=true`, then webhook processing on the main
 instance is disabled and by default a single webhook instance is started.
 
-## Chart Deployment
+## Chart Release Workflow
 
-1. Update the `Chart.yaml` with the new version number for the chart and/or app.
-2. In GitHub create a new release with the the chart version number as the tag and title.
+1. Update the `Chart.yaml` with the new version numbers for the chart and/or app.
+2. In `Chart.yaml`update/replace the content of the `artifacthub.io/changes` section. See Artifacthub [annotation referene](https://artifacthub.io/docs/topics/annotations/helm/) 
+3. In GitHub create a new release with the the chart version number as the tag and a title.
