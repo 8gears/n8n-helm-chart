@@ -1,20 +1,16 @@
 # Default helm values for n8n.
 # Default values within the n8n application can be found under https://github.com/n8n-io/n8n/blob/master/packages/cli/src/config/index.ts
 n8n:
-  # if not specified n8n on first launch creates a random encryption key for encrypting saved credentials and saves it in the ~/.n8n folder
+  # if not specified, n8n on first launch creates a random encryption key for encrypting saved credentials and saves it in the ~/.n8n folder
   encryption_key:
 defaults:
 
-config:
-  executions:
-    # prune executions by default
-    pruneData: "true"
-    # Per default, we store 1 year of history
-    pruneDataMaxAge: 3760
+config: {}
+
 
 # existingSecret and secret are exclusive, with existingSecret taking priority.
-# existingSecret: "" # Use an existing Kubernetes secret, e.g created by hand or Vault operator.
-# Dict with all n8n json config options, unlike config the values here will end up in a secret.
+# existingSecret: "" # Use an existing Kubernetes secret, e.g., created by hand or Vault operator.
+# Dict with all n8n JSON config options, unlike config, the values here will end up in a secret.
 secret: {}
 
 # Typical Example of a config in combination with a secret.
@@ -133,7 +129,7 @@ persistence:
   # storageClass: "-"
   ## PVC annotations
   #
-  # If you need this annotation include it under values.yml file and pvc.yml template will add it.
+  # If you need this annotation include it under `values.yml` file and pvc.yml template will add it.
   # This is not maintained at Helm v3 anymore.
   # https://github.com/8gears/n8n-helm-chart/issues/8
   #
@@ -153,7 +149,7 @@ persistence:
 replicaCount: 1
 
 # here you can specify the deployment strategy as Recreate or RollingUpdate with optional maxSurge and maxUnavailable
-# If theses options are not set, default values are 25%
+# If these options are not set, default values are 25%
 # deploymentStrategy:
 #  type: RollingUpdate
 #  maxSurge: "50%"
@@ -199,7 +195,7 @@ securityContext: {}
   #  runAsNonRoot: true
   #  runAsUser: 1000
 
-# here you can specify lifecycle hooks - it can be used e.g to easily add packages to the container without building
+# here you can specify lifecycle hooks - it can be used e.g., to easily add packages to the container without building
 # your own docker image
 # see https://github.com/8gears/n8n-helm-chart/pull/30
 lifecycle:
@@ -212,8 +208,8 @@ lifecycle:
 #      command: ["/bin/sh", "-c", "apk add mysql-client"]
 
 # here you can override a command for main container
-# it may be used to override starting script (e.g. to resolve issues like https://github.com/n8n-io/n8n/issues/6412) or
-# run additional preparation steps (e.g. installing additional software)
+# it may be used to override a starting script (e.g., to resolve issues like https://github.com/n8n-io/n8n/issues/6412) or
+# run additional preparation steps (e.g., installing additional software)
 command: []
 
 # sample configuration that overrides starting script and solves above issue (also it runs n8n as root, so be careful):
@@ -225,7 +221,7 @@ command: []
 #  - chmod o+rx /root; chown -R node /root/.n8n || true; chown -R node /root/.n8n; ln -s /root/.n8n /home/node; chown -R node /home/node || true; node /usr/local/bin/n8n
 
 # here you can override the livenessProbe for the main container
-# it may be used to increase the timeout for the livenessProbe (e.g. to resolve issues like
+# it may be used to increase the timeout for the livenessProbe (e.g., to resolve issues like
 
 livenessProbe:
   httpGet:
@@ -238,7 +234,7 @@ livenessProbe:
   # successThreshold: 1
 
 # here you can override the readinessProbe for the main container
-# it may be used to increase the timeout for the readinessProbe (e.g. to resolve issues like
+# it may be used to increase the timeout for the readinessProbe (e.g., to resolve issues like
 
 readinessProbe:
   httpGet:
@@ -282,7 +278,7 @@ webhookResources:
 
 resources:
   {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
+  # We usually recommend not specifying default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
   # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
@@ -312,7 +308,7 @@ scaling:
   worker:
     count: 2
     concurrency: 2
-  # With .Values.scaling.webhook.enabled=true you disable Webhooks from the main process but you enable the processing on a different Webhook instance.
+  # With .Values.scaling.webhook.enabled=true you disable Webhooks from the main process, but you enable the processing on a different Webhook instance.
   # See https://github.com/8gears/n8n-helm-chart/issues/39#issuecomment-1579991754 for the full explanation.
   webhook:
     enabled: false
