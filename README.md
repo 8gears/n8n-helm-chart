@@ -195,8 +195,10 @@ extraEnv: { }
 # Set additional environment variables on the Deployment from k8s secrets
 envFrom: []
 # List of existing secrets to add to deployments
-# - secretRef:
-#     name: secret-name
+# Example using envFrom with AWS SSM ParameterStore via ExternalSecrets:
+# envFrom:
+#   - secretRef:
+#       name: secret-name
 
 replicaCount: 1
 
