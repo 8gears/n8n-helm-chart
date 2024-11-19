@@ -192,6 +192,12 @@ extraEnv: { }
 # Set this if running behind a reverse proxy and the external port is different from the port n8n runs on
 #   WEBHOOK_TUNNEL_URL: "https://n8n.myhost.com/
 
+# Set additional environment variables on the Deployment from k8s secrets
+envFrom: []
+# List of existing secrets to add to deployments
+# - secretRef:
+#     name: secret-name
+
 replicaCount: 1
 
 image:
