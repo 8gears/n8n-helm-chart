@@ -67,6 +67,10 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             {{- include "n8n.deploymentPodEnvironments" . | nindent 12 }}
+          {{- with .Values.envFrom }}
+          envFrom:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           lifecycle:
             {{- toYaml .Values.lifecycle | nindent 12 }}
           ports:
