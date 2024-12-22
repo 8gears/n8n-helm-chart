@@ -1,5 +1,5 @@
 > [!IMPORTANT]
-> We would like to bring this Helm chart to the next level, in terms of automation, governance and documentation.  This can only be achieved with a diverse community. Hence, we are looking for additional maintainers and contributors to join this project. [Reach out](https://github.com/8gears/n8n-helm-chart/discussions/90) to us if you are interested in contributing.
+> We would like to bring this Helm chart to the next level, in terms of automation, governance and documentation.  This can only be achieved with a diverse community. Hence, we are looking for additional maintainers and contributors to improve this project, code, documentation, automation. [Reach out](https://github.com/8gears/n8n-helm-chart/discussions/90) to us if you are interested in contributing.
 
 
 
@@ -20,7 +20,7 @@ is [github.com/8gears/n8n-helm-chart](https://github.com/8gears/n8n-helm-chart)
 Before you start, make sure you have the following tools ready:
 
 - Helm >= 3.8
-- Postgres DB | MySQL | Embedded SQLite
+- external Postgres DB or  external MySQL | embedded SQLite (bundled with n8n)
 - Helmfile (Optional)
 
 ## Configuration
@@ -45,17 +45,17 @@ There is no restriction, mix and match as you like.
 Install chart
 
 ```shell
-helm install my-n8n oci://8gears.container-registry.com/library/n8n --version 0.20.0
+helm install my-n8n oci://8gears.container-registry.com/library/n8n --version 0.25.2
 ```
 
 # N8N Specific Config Section
 
 Every possible n8n config value can be set,
-even if it is now mentioned in the excerpt below.
+even if it is not mentioned in the excerpt below.
 All application config settings are described in the:
 [n8n configuration options](https://github.com/n8n-io/n8n/blob/master/packages/cli/src/config/schema.ts).
 Treat the n8n provided config documentation as the source of truth,
-this Charts just forwards everything to the n8n.
+this Charts just forwards everything to n8n.
 
 ```yaml
 database:
@@ -370,11 +370,8 @@ which only process the webhooks.
 If you set `scaling.webhook.enabled=true`, then webhook processing on the main
 instance is disabled and by default a single webhook instance is started.
 
-## Chart Deployment
+## Chart Release Workflow
 
-```shell
-helm package .
-helm registry login -u $USER 8gears.container-registry.com
-helm push n8n-0.20.1.tgz oci://8gears.container-registry.com/library/n8n
-```
-
+1. Update the `Chart.yaml` with the new version numbers for the chart and/or app.
+2. In `Chart.yaml`update/replace the content of the `artifacthub.io/changes` section. See Artifacthub [annotation referene](https://artifacthub.io/docs/topics/annotations/helm/) 
+3. In GitHub create a new release with the the chart version number as the tag and a title.

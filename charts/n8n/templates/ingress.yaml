@@ -64,7 +64,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: {{ $fullName }}-webhooks
+                name: {{ $fullName }}
                 port:
                   number: {{ $svcPort }}
           - path: {{ . }}webhook-waiting/

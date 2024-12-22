@@ -1,0 +1,44 @@
+name: Release Charts
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  release:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+
+      # see https://github.com/helm/chart-releaser/issues/183
+      - name: Login to 8gears.container-registry.com
+        uses: docker/login-action@v3
+        with:
+          registry: 8gears.container-registry.com
+          username: ${{ secrets.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Push charts to 8gears.container-registry.com
+        run: |
+          helm plugin install https://github.com/losisin/helm-values-schema-json.git
+          helm schema -input charts/n8n/values.yaml
+          echo "Skip copying the schema values file for now, as it needs more testing."
+          cp -a README.md LICENSE charts/n8n/
+          package_path=$(helm package charts/n8n --dependency-update | grep -o '/.*\.tgz')
+          helm push "${package_path}" "oci://8gears.container-registry.com/library"

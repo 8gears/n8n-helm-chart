@@ -1,17 +1,17 @@
 # Default helm values for n8n.
 # Default values within the n8n application can be found under https://github.com/n8n-io/n8n/blob/master/packages/cli/src/config/index.ts
 n8n:
-  encryption_key: # if not specified n8n on first launch creates a random encryption key for encrypting saved credentials and saves it in the ~/.n8n folder
+  # if not specified, n8n on first launch creates a random encryption key for encrypting saved credentials and saves it in the ~/.n8n folder
+  encryption_key:
 defaults:
 
-config:
-  executions:
-    pruneData: "true" # prune executions by default
-    pruneDataMaxAge: 3760 # Per default we store 1 year of history
+config: {}
+
 
 # existingSecret and secret are exclusive, with existingSecret taking priority.
-# existingSecret: "" # Use an existing Kubernetes secret, e.g created by hand or Vault operator.
-secret: # Dict with all n8n json config options, unlike config the values here will end up in a secret.
+# existingSecret: "" # Use an existing Kubernetes secret, e.g., created by hand or Vault operator.
+# Dict with all n8n JSON config options, unlike config, the values here will end up in a secret.
+secret: {}
 
 # Typical Example of a config in combination with a secret.
 # config:
@@ -26,7 +26,7 @@ secret: # Dict with all n8n json config options, unlike config the values here w
 
 ## ALL possible n8n Values
 
-#database:
+# database:
 #  type:             # Type of database to use - Other possible types ['sqlite', 'mariadb', 'mysqldb', 'postgresdb'] - default: sqlite
 #  tablePrefix:      # Prefix for table names - default: ''
 #  postgresdb:
@@ -47,12 +47,12 @@ secret: # Dict with all n8n json config options, unlike config the values here w
 #    password:        # MySQL Password - default: ''
 #    port:            # MySQL Port - default: 3306
 #    user:            # MySQL User - default: root
-#credentials:
+# credentials:
 #  overwrite:
 #    data:        # Overwrites for credentials - default: "{}"
 #    endpoint:    # Fetch credentials from API - default: ''
 #
-#executions:
+# executions:
 #  process:                # In what process workflows should be executed - possible values [main, own] - default: own
 #  timeout:                # Max run time (seconds) before stopping the workflow execution - default: -1
 #  maxTimeout:            # Max execution time (seconds) that can be set for a workflow individually - default: 3600
@@ -62,16 +62,16 @@ secret: # Dict with all n8n json config options, unlike config the values here w
 #  pruneData:            # Delete data of past executions on a rolling basis - default: false
 #  pruneDataMaxAge:        # How old (hours) the execution data has to be to get deleted - default: 336
 #  pruneDataTimeout:        # Timeout (seconds) after execution data has been pruned - default: 3600
-#generic:
+# generic:
 #  timezone:     # The timezone to use - default: America/New_York
-#path:         # Path n8n is deployed to - default: "/"
-#host:         # Host name n8n can be reached - default: localhost
-#port:         # HTTP port n8n can be reached - default: 5678
-#listen_address: # IP address n8n should listen on - default: 0.0.0.0
-#protocol:       # HTTP Protocol via which n8n can be reached - possible values [http , https] - default: http
-#ssl_key:        # SSL Key for HTTPS Protocol - default: ''
-#ssl_cert:       # SSL Cert for HTTPS Protocol - default: ''
-#security:
+# path:         # Path n8n is deployed to - default: "/"
+# host:         # Host name n8n can be reached - default: localhost
+# port:         # HTTP port n8n can be reached - default: 5678
+# listen_address: # IP address n8n should listen on - default: 0.0.0.0
+# protocol:       # HTTP Protocol via which n8n can be reached - possible values [http , https] - default: http
+# ssl_key:        # SSL Key for HTTPS Protocol - default: ''
+# ssl_cert:       # SSL Cert for HTTPS Protocol - default: ''
+# security:
 #  excludeEndpoints: # Additional endpoints to exclude auth checks. Multiple endpoints can be separated by colon - default: ''
 #  basicAuth:
 #    active:     # If basic auth should be activated for editor and REST-API - default: false
@@ -87,13 +87,13 @@ secret: # Dict with all n8n json config options, unlike config the values here w
 #    jwtNamespace:         # JWT namespace to expect (optional) -  default: ''
 #    jwtAllowedTenantKey:  # JWT tenant key name to inspect within JWT namespace (optional) - default: ''
 #    jwtAllowedTenant:     # JWT tenant to allow (optional) - default: ''
-#endpoints:
+# endpoints:
 #  rest:       # Path for rest endpoint  default: rest
 #  webhook:    # Path for webhook endpoint  default: webhook
 #  webhookTest: # Path for test-webhook endpoint  default: webhook-test
 #  webhookWaiting: # Path for waiting-webhook endpoint  default: webhook-waiting
-#externalHookFiles: # Files containing external hooks. Multiple files can be separated by colon - default: ''
-#nodes:
+# externalHookFiles: # Files containing external hooks. Multiple files can be separated by colon - default: ''
+# nodes:
 #  exclude: # Nodes not to load - default: "[]"
 #  errorTriggerType: # Node Type to use as Error Trigger - default: n8n-nodes-base.errorTrigger
 
@@ -112,16 +112,13 @@ extraEnvSecrets: {}
 #     name: postgres-user-auth
 #     key: password
 
-##
-##
-##
-##
 ## Common Kubernetes Config Settings
 persistence:
   ## If true, use a Persistent Volume Claim, If false, use emptyDir
   ##
   enabled: false
-  type: emptyDir # what type volume, possible options are [existing, emptyDir, dynamic] dynamic for Dynamic Volume Provisioning, existing for using an existing Claim
+  # what type volume, possible options are [existing, emptyDir, dynamic] dynamic for Dynamic Volume Provisioning, existing for using an existing Claim
+  type: emptyDir
   ## Persistent Volume Storage Class
   ## If defined, storageClassName: <storageClass>
   ## If set to "-", storageClassName: "", which disables dynamic provisioning
@@ -132,7 +129,7 @@ persistence:
   # storageClass: "-"
   ## PVC annotations
   #
-  # If you need this annotation include it under values.yml file and pvc.yml template will add it.
+  # If you need this annotation include it under `values.yml` file and pvc.yml template will add it.
   # This is not maintained at Helm v3 anymore.
   # https://github.com/8gears/n8n-helm-chart/issues/8
   #
@@ -152,8 +149,8 @@ persistence:
 replicaCount: 1
 
 # here you can specify the deployment strategy as Recreate or RollingUpdate with optional maxSurge and maxUnavailable
-# If theses options are not set, default values are 25%
-#deploymentStrategy:
+# If these options are not set, default values are 25%
+# deploymentStrategy:
 #  type: RollingUpdate
 #  maxSurge: "50%"
 #  maxUnavailable: "50%"
@@ -184,7 +181,6 @@ podAnnotations: {}
 
 podLabels: {}
 
-#
 podSecurityContext:
   runAsNonRoot: true
   runAsUser: 1000
@@ -199,25 +195,25 @@ securityContext: {}
   #  runAsNonRoot: true
   #  runAsUser: 1000
 
-# here you can specify lifecycle hooks - it can be used e.g to easily add packages to the container without building
+# here you can specify lifecycle hooks - it can be used e.g., to easily add packages to the container without building
 # your own docker image
 # see https://github.com/8gears/n8n-helm-chart/pull/30
 lifecycle:
   {}
 
 #  here's the sample configuration to add mysql-client to the container
-#lifecycle:
+# lifecycle:
 #  postStart:
 #    exec:
 #      command: ["/bin/sh", "-c", "apk add mysql-client"]
 
 # here you can override a command for main container
-# it may be used to override starting script (e.g. to resolve issues like https://github.com/n8n-io/n8n/issues/6412) or
-# run additional preparation steps (e.g. installing additional software)
+# it may be used to override a starting script (e.g., to resolve issues like https://github.com/n8n-io/n8n/issues/6412) or
+# run additional preparation steps (e.g., installing additional software)
 command: []
 
 # sample configuration that overrides starting script and solves above issue (also it runs n8n as root, so be careful):
-#command:
+# command:
 #  - tini
 #  - --
 #  - /bin/sh
@@ -225,7 +221,7 @@ command: []
 #  - chmod o+rx /root; chown -R node /root/.n8n || true; chown -R node /root/.n8n; ln -s /root/.n8n /home/node; chown -R node /home/node || true; node /usr/local/bin/n8n
 
 # here you can override the livenessProbe for the main container
-# it may be used to increase the timeout for the livenessProbe (e.g. to resolve issues like
+# it may be used to increase the timeout for the livenessProbe (e.g., to resolve issues like
 
 livenessProbe:
   httpGet:
@@ -238,7 +234,7 @@ livenessProbe:
   # successThreshold: 1
 
 # here you can override the readinessProbe for the main container
-# it may be used to increase the timeout for the readinessProbe (e.g. to resolve issues like
+# it may be used to increase the timeout for the readinessProbe (e.g., to resolve issues like
 
 readinessProbe:
   httpGet:
@@ -282,7 +278,7 @@ webhookResources:
 
 resources:
   {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
+  # We usually recommend not specifying default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
   # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
@@ -290,8 +286,8 @@ resources:
   #   cpu: 100m
   #   memory: 128Mi
   # requests:
-#   cpu: 100m
-#   memory: 128Mi
+  #   cpu: 100m
+  #   memory: 128Mi
 
 autoscaling:
   enabled: false
@@ -312,7 +308,7 @@ scaling:
   worker:
     count: 2
     concurrency: 2
-  # With .Values.scaling.webhook.enabled=true you disable Webhooks from the main process but you enable the processing on a different Webhook instance.
+  # With .Values.scaling.webhook.enabled=true you disable Webhooks from the main process, but you enable the processing on a different Webhook instance.
   # See https://github.com/8gears/n8n-helm-chart/issues/39#issuecomment-1579991754 for the full explanation.
   webhook:
     enabled: false
