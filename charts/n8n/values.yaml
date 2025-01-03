@@ -177,6 +177,18 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
+# Annotations to be implemented on Deployment
+deploymentAnnotations: {}
+  # example:
+  # notification.monitor.io/slack: "true"
+  # fluxcd.io/automated: "true"
+
+# Labels to be implemented on Deployment
+deploymentLabels: {}
+  # example:
+  # environment: production
+  # team: platform
+
 podAnnotations: {}
 
 podLabels: {}
