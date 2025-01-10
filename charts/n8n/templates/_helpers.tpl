@@ -51,6 +51,17 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
+Convert config values to environment variables.
+*/}}
+{{- define "n8n.toEnv" -}}
+{{- range $key, $value := . }}
+- name: {{ printf "%s" (upper $key) }}
+  value: {{ $value | quote }}
+{{- end }}
+{{- end }}
+
+
+{{/*
 Selector labels
 */}}
 {{- define "n8n.deploymentPodEnvironments" -}}
@@ -98,12 +109,10 @@ Selector labels
 {{ end }}
 {{- end }}
 
-{{/*
-Create the name of the service account to use
-*/}}
+{{/* Create the name of the service account to use */}}
 {{- define "n8n.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create }}
-{{- default (include "n8n.fullname" .) .Values.serviceAccount.name }}
+{{- if .Values.n8n.serviceAccount.create }}
+{{- default (include "n8n.fullname" .) .Values.n8n.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
@@ -129,13 +138,37 @@ Create the name of the service account to use
 
 {{/* PVC existing, emptyDir, Dynamic */}}
 {{- define "n8n.pvc" -}}
-{{- if or (not .Values.persistence.enabled) (eq .Values.persistence.type "emptyDir") -}}
+{{- if or (not .Values.n8n.persistence.enabled) (eq .Values.n8n.persistence.type "emptyDir") -}}
           emptyDir: {}
-{{- else if and .Values.persistence.enabled .Values.persistence.existingClaim -}}
+{{- else if and .Values.n8n.persistence.enabled .Values.n8n.persistence.existingClaim -}}
           persistentVolumeClaim:
-            claimName: {{ .Values.persistence.existingClaim }}
-{{- else if and .Values.persistence.enabled (eq .Values.persistence.type "dynamic")  -}}
+            claimName: {{ .Values.n8n.persistence.existingClaim }}
+{{- else if and .Values.n8n.persistence.enabled (eq .Values.n8n.persistence.type "dynamic")  -}}
           persistentVolumeClaim:
             claimName: {{ include "n8n.fullname" . }}
 {{- end }}
 {{- end }}
+
+{{/* Create environment variables from yaml tree */}}
+{{- define "toEnvVars" -}}
+    {{- $prefix := "" }}
+    {{- if .prefix }}
+        {{- $prefix = printf "%s_" .prefix }}
+    {{- end }}
+    {{- range $key, $value := .values }}
+        {{- if kindIs "map" $value -}}
+            {{- dict "values" $value "prefix" (printf "%s%s" $prefix ($key | upper)) "isSecret" $.isSecret | include "toEnvVars" -}}
+        {{- else -}}
+            {{- if $.isSecret -}}
+{{ $prefix }}{{ $key | upper }}={{ $value | b64enc }}{{ "\n" }}
+            {{- else -}}
+{{ $prefix }}{{ $key | upper }}={{ $value }}{{ "\n" }}
+            {{- end -}}
+        {{- end -}}
+    {{- end -}}
+{{- end }}
+
+
+
+
+

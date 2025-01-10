@@ -5,15 +5,15 @@ metadata:
   labels:
     {{- include "n8n.labels" . | nindent 4 }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
+  {{- if not .Values.n8n.autoscaling.enabled }}
+  replicas: {{ .Values.n8n.replicaCount }}
   {{- end }}
   strategy:
-    type: {{ .Values.deploymentStrategy.type }}
-    {{- if eq .Values.deploymentStrategy.type "RollingUpdate" }}
+    type: {{ .Values.n8n.deploymentStrategy.type }}
+    {{- if eq .Values.n8n.deploymentStrategy.type "RollingUpdate" }}
     rollingUpdate:
-      maxSurge: {{ default "25%" .Values.deploymentStrategy.maxSurge  }}
-      maxUnavailable: {{ default "25%" .Values.deploymentStrategy.maxUnavailable }}
+      maxSurge: {{ default "25%" .Values.n8n.deploymentStrategy.maxSurge  }}
+      maxUnavailable: {{ default "25%" .Values.n8n.deploymentStrategy.maxUnavailable }}
     {{- end }}
   selector:
     matchLabels:
@@ -23,16 +23,15 @@ spec:
     metadata:
       annotations:
         checksum/config: {{ print .Values | sha256sum }}
-        {{- with .Values.podAnnotations }}
+        {{- with .Values.n8n.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
       labels:
         {{- include "n8n.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/type: master
-        {{- if .Values.podLabels }}
-          {{ toYaml .Values.podLabels | nindent 8 }}
+        {{- if .Values.n8n.podLabels }}
+          {{ toYaml .Values.n8n.podLabels | nindent 8 }}
         {{- end }}
-
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -40,10 +39,10 @@ spec:
       {{- end }}
       serviceAccountName: {{ include "n8n.serviceAccountName" . }}
       securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      {{- if or .Values.initContainers (and .Values.persistence.enabled (eq .Values.persistence.type "dynamic")) }}
+        {{- toYaml .Values.n8n.podSecurityContext | nindent 8 }}
+      {{- if or .Values.n8n.initContainers (and .Values.n8n.persistence.enabled (eq .Values.n8n.persistence.type "dynamic")) }}
       initContainers:
-      {{- if and .Values.persistence.enabled (eq .Values.persistence.type "dynamic") }}
+      {{- if and .Values.n8n.persistence.enabled (eq .Values.n8n.persistence.type "dynamic") }}
         - name: init-data-dir
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           command: ["/bin/sh", "-c", "mkdir -p /home/node/.n8n/"]
@@ -51,74 +50,56 @@ spec:
             - name: data
               mountPath: /home/node/.n8n
       {{- end }}
-      {{- if .Values.initContainers }}
-      {{ tpl (toYaml .Values.initContainers) . | nindent 8 }}
+      {{- if .Values.n8n.initContainers }}
+      {{ tpl (toYaml .Values.n8n.initContainers) . | nindent 8 }}
       {{- end }}
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}
-          {{- with .Values.command }}
+          {{- with .Values.n8n.command }}
           command:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
+            {{- toYaml .Values.n8n.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          env:
-            {{- include "n8n.deploymentPodEnvironments" . | nindent 12 }}
+          envFrom:
+            - configMapRef:
+                name: app-config-{{ include "n8n.fullname" . }}
+            - secretRef:
+                name: app-secret-{{ include "n8n.fullname" . }}
           lifecycle:
-            {{- toYaml .Values.lifecycle | nindent 12 }}
+            {{- toYaml .Values.n8n.lifecycle | nindent 12 }}
           ports:
             - name: http
-              containerPort: {{ get .Values.config "port" | default 5678 }}
+              containerPort: {{ get .Values.n8n.config "port" | default 5678 }}
               protocol: TCP
-          {{- with .Values.livenessProbe }}
+          {{- with .Values.n8n.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.readinessProbe }}
+          {{- with .Values.n8n.readinessProbe }}
           readinessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            {{- toYaml .Values.n8n.resources | nindent 12 }}
           volumeMounts:
             - name: data
-              mountPath: {{ if semverCompare ">=1.0" (.Values.image.tag | default .Chart.AppVersion) }}/home/node/.n8n{{ else }}/root/.n8n{{ end }}
-            {{- if .Values.config }}
-            - name: config-volume
-              mountPath: /n8n-config
-            {{- end }}
-            {{- if or (.Values.secret) (.Values.existingSecret) }}
-            - name: secret-volume
-              mountPath: /n8n-secret
-                {{- end }}
-      {{- with .Values.nodeSelector }}
+              mountPath: /home/node/.n8n
+      {{- with .Values.n8n.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.affinity }}
+      {{- with .Values.n8n.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.tolerations }}
+      {{- with .Values.n8n.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       volumes:
         - name: "data"
           {{ include "n8n.pvc" . }}
-        {{- if .Values.config }}
-        - name: config-volume
-          configMap:
-            name: {{ include "n8n.fullname" . }}
-        {{- end }}
-        {{- if or (.Values.secret) (.Values.existingSecret) }}
-        - name: secret-volume
-          secret:
-            secretName: {{ if .Values.existingSecret }}{{ .Values.existingSecret }}{{ else }}{{ include "n8n.fullname" . }}{{ end }}
-            items:
-              - key: "secret.json"
-                path: "secret.json"
-        {{- end }}

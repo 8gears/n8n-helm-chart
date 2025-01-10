@@ -1,4 +1,4 @@
-{{- if .Values.autoscaling.enabled }}
+{{- if .Values.n8n.autoscaling.enabled }}
 {{- if semverCompare ">=1.25-0" .Capabilities.KubeVersion.GitVersion -}}
 apiVersion: autoscaling/v2
 {{- else -}}
