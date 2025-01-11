@@ -30,7 +30,7 @@ spec:
       labels:
         {{- include "n8n.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/type: worker
-        {{- if .Values..worker.podLabels }}
+        {{- if .Values.worker.podLabels }}
           {{ toYaml .Values.worker.podLabels | nindent 8 }}
         {{- end }}
 

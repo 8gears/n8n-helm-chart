@@ -231,7 +231,7 @@ worker:
   count: 2
   concurrency: 2
   # Override or extend the copied n8n config for worker
-  config: {}
+  config:
   # Override or extend the copied n8n secrets ev for worker
   secret: {}
 

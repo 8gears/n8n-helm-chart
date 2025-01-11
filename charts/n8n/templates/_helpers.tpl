@@ -160,7 +160,7 @@ Selector labels
             {{- dict "values" $value "prefix" (printf "%s%s" $prefix ($key | upper)) "isSecret" $.isSecret | include "toEnvVars" -}}
         {{- else -}}
             {{- if $.isSecret -}}
-{{ $prefix }}{{ $key | upper }}={{ $value | b64enc }}{{ "\n" }}
+{{ $prefix }}{{ $key | upper }}: {{ $value | b64enc }}{{ "\n" }}
             {{- else -}}
 {{ $prefix }}{{ $key | upper }}={{ $value }}{{ "\n" }}
             {{- end -}}

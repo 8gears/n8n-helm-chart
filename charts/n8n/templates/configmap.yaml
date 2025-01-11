@@ -1,4 +1,4 @@
-{{- if .Values.config }}
+{{- if .Values.n8n.config }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -6,5 +6,5 @@ metadata:
   labels:
     {{- include "n8n.labels" . | nindent 4 }}
 data:
-  config.yaml: |{{ include "toEnvVars" (dict "values" .Values.config "prefix" "") | nindent 4 }}
+  config.yaml: |{{ include "toEnvVars" (dict "values" .Values.n8n.config "prefix" "") | nindent 4 }}
 {{- end }}

@@ -1,0 +1,12 @@
+n8n:
+#  editor:
+#    base_url: https://n8n-test.8gears.com
+  config:
+    n8n:
+      db:
+        type: sqlite
+
+  secret:
+    n8n:
+      encryption_key: random_string_password
+      test: string
