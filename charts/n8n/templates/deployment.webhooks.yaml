@@ -66,18 +66,18 @@ spec:
           {{- end }}
           ports:
             - name: http
-              containerPort: {{ get .Values.webhook.config "port" | default 5678 }}
+              containerPort: {{ get .Values.n8n.config "port" | default 5678 }}
               protocol: TCP
-          {{- with .Values.n8n.livenessProbe }}
+          {{- with .Values.webhook.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.n8n.readinessProbe }}
+          {{- with .Values.webhook.readinessProbe }}
           readinessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           resources:
-            {{- toYaml .Values.webhook.webhookResources | nindent 12 }}
+            {{- toYaml .Values.webhook.resources | nindent 12 }}
           volumeMounts:
             - name: data
               mountPath: /home/node/.n8n

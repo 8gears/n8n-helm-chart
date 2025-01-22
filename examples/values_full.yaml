@@ -10,8 +10,7 @@ n8n:
 
   secret:
     n8n:
-      encryption_key: random_string_password
-      test: string
+      encryption_key: "<your-secure-encryption-key>"
 
 worker:
   enabled: true

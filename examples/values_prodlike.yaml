@@ -1,13 +1,13 @@
 n8n:
   config:
     n8n:
-      encryption_key: asdf
+      encryption_key: "<your-secure-encryption-key>"
       db:
         type: postgresdb
         postgresdb:
           host: db-rw
           user: n8n
-          password: vsUruCnivOnZ1zL9urJzpBJnbMCvnfyZW6iAT0MAQ6TSGTtvC13RRJmD3AM48GLo
+          password: "<your-db-password>"
           pool:
             size: 10
           ssl:

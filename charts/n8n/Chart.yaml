@@ -30,8 +30,8 @@ dependencies:
     repository: oci://registry-1.docker.io/bitnamicharts
     condition: redis.enabled
 annotations:
-  artifacthub.io/prerelease: "false"
+  artifacthub.io/prerelease: "true"
   # supported kinds are added, changed, deprecated, removed, fixed and security.
   artifacthub.io/changes: |
     - kind: changed
-      description: "Updated application to version 1.62.5"
+      description: "Major chart redesign and also update to n8n version 1.74.1. This version is not compatible with the previous version. Please read the release notes for more details."
