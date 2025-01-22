@@ -12,7 +12,10 @@
 ##
 
 # default .Chart.Name
-#nameOverride:
+nameOverride:
+
+# default .Chart.Name or .Values.nameOverride
+fullnameOverride:
 
 ##
 ##
@@ -92,7 +95,7 @@ n8n: # The config: {} dictionary is converted to environmental variables in the 
     ## Use an existing PVC
     ##
     # existingClaim:
-
+  # Number of desired pods.
   replicaCount: 1
 
   # here you can specify the deployment strategy as Recreate or RollingUpdate with optional maxSurge and maxUnavailable
@@ -106,9 +109,6 @@ n8n: # The config: {} dictionary is converted to environmental variables in the 
     type: "Recreate"
     #  maxSurge: "50%"
     #  maxUnavailable: "50%"
-
-  nameOverride: ""
-  fullnameOverride: ""
 
   serviceAccount: # Specifies whether a service account should be created
     create: true
@@ -265,7 +265,7 @@ worker:
     ## Use an existing PVC
     ##
     # existingClaim:
-
+  # Number of desired pods.
   replicaCount: 1
 
   # here you can specify the deployment strategy as Recreate or RollingUpdate with optional maxSurge and maxUnavailable
@@ -279,9 +279,6 @@ worker:
     type: "Recreate"
     # maxSurge: "50%"
     # maxUnavailable: "50%"
-
-  nameOverride: ""
-  fullnameOverride: ""
 
   serviceAccount: # Specifies whether a service account should be created
     create: true
@@ -400,7 +397,6 @@ worker:
 # See https://github.com/8gears/n8n-helm-chart/issues/39#issuecomment-1579991754 for the full explanation.
 webhook:
   enabled: false
-  count: 1
 
   ##
   ## Webhook Kubernetes specific settings
@@ -437,6 +433,7 @@ webhook:
     ##
     # existingClaim:
 
+  # Number of desired pods.
   replicaCount: 1
 
   # here you can specify the deployment strategy as Recreate or RollingUpdate with optional maxSurge and maxUnavailable

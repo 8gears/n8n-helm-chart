@@ -7,7 +7,7 @@ metadata:
     {{- include "n8n.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.webhook.autoscaling.enabled }}
-  replicas: {{ .Values.webhook.count }}
+  replicas: {{ .Values.webhook.replicaCount }}
   {{- end }}
   strategy:
     type: {{ .Values.webhook.deploymentStrategy.type }}
@@ -47,8 +47,6 @@ spec:
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}-webhook
-          securityContext:
-            {{- toYaml .Values.webhook.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           {{- if .Values.webhook.command }}
@@ -76,6 +74,15 @@ spec:
           readinessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "n8n.fullname" . }}
+            - secretRef:
+                name: {{ include "n8n.fullname" . }}
+          lifecycle:
+            {{- toYaml .Values.webhook.lifecycle | nindent 12 }}
+          securityContext:
+            {{- toYaml .Values.webhook.securityContext | nindent 12 }}
           resources:
             {{- toYaml .Values.webhook.resources | nindent 12 }}
           volumeMounts:
