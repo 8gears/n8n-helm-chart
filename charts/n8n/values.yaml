@@ -8,6 +8,13 @@
 # 6. Redis related settings + kubernetes specific settings
 
 ##
+## General Config
+##
+
+# default .Chart.Name
+#nameOverride:
+
+##
 ##
 ## Common Kubernetes Config Settings for this entire n8n deployment
 ##
@@ -21,29 +28,22 @@ imagePullSecrets: []
 ingress:
   enabled: false
   annotations: {}
-  # kubernetes.io/ingress.class: nginx
-  # kubernetes.io/tls-acme: "true"
-  hosts:
-    - host: chart-example.local
-      paths: []
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
-
-  # define a custom incressClassName, like "traefik" or "nginx"
+  # define a custom ingress class Name, like "traefik" or "nginx"
   className: ""
-
-
+  hosts:
+    - host: workflow.example.com
+      paths: []
+  tls:
+    - hosts:
+        - workflow.example.com
+      secretName: host-domain-cert
 
 # n8n application related n8n configuration + Kubernetes specific settings
-n8n:
-  # The config: {} dictionary is converted to environmental variables in the ConfigMap.
+n8n: # The config: {} dictionary is converted to environmental variables in the ConfigMap.
   # Example: the YAML entry db.postgresdb.host: loclahost is transformed DB_POSTGRESDB_HOST=localhost
   # See https://docs.n8n.io/hosting/configuration/environment-variables/ for all values.
   config:
-    n8n:
-      # If not specified, n8n will create a random encryption key for encrypting saved credentials, and saves it in the dir ~/.n8n folder
+    n8n: # If not specified, n8n will create a random encryption key for encrypting saved credentials, and saves it in the dir ~/.n8n folder
       # if you run a stateless n8n, you should provide an encryption key here.
       encryption_key:
     #  db:
@@ -62,9 +62,7 @@ n8n:
   ##
   ## N8n Kubernetes specific settings
   ##
-  persistence:
-    ## If true, use a Persistent Volume Claim, If false, use emptyDir
-    ##
+  persistence: ## If true, use a Persistent Volume Claim, If false, use emptyDir
     enabled: false
     # what type volume, possible options are [existing, emptyDir, dynamic] dynamic for Dynamic Volume Provisioning, existing for using an existing Claim
     type: emptyDir
@@ -112,8 +110,7 @@ n8n:
   nameOverride: ""
   fullnameOverride: ""
 
-  serviceAccount:
-    # Specifies whether a service account should be created
+  serviceAccount: # Specifies whether a service account should be created
     create: true
     # Annotations to add to the service account
     annotations: {}
@@ -134,16 +131,15 @@ n8n:
   securityContext: {}
     # capabilities:
     #   drop:
-    #   - ALL
-    # readOnlyRootFilesystem: true
-    #  runAsNonRoot: true
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  #  runAsNonRoot: true
   #  runAsUser: 1000
 
   # here you can specify lifecycle hooks - it can be used e.g., to easily add packages to the container without building
   # your own docker image
   # see https://github.com/8gears/n8n-helm-chart/pull/30
-  lifecycle:
-    {}
+  lifecycle: {}
 
   #  here's the sample configuration to add mysql-client to the container
   # lifecycle:
@@ -152,8 +148,7 @@ n8n:
   #      command: ["/bin/sh", "-c", "apk add mysql-client"]
 
   # here you can override a command for main container
-  # it may be used to override a starting script (e.g., to resolve issues like https://github.com/n8n-io/n8n/issues/6412) or
-  # run additional preparation steps (e.g., installing additional software)
+  # it may be used to override a starting script (e.g., to resolve issues like https://github.com/n8n-io/n8n/issues/6412) or run additional preparation steps (e.g., installing additional software)
   command: []
 
   # sample configuration that overrides starting script and solves above issue (also it runs n8n as root, so be careful):
@@ -192,26 +187,33 @@ n8n:
 
   # here you can add init containers to the various deployments
   initContainers: []
+  #    - name: init-data-dir
+  #      image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+  #      command: [ "/bin/sh", "-c", "mkdir -p /home/node/.n8n/" ]
+  #      volumeMounts:
+  #        - name: data
+  #          mountPath: /home/node/.n8n
+
 
   service:
-    type: ClusterIP
-    port: 80
     annotations: {}
-  workerResources:
-    {}
-  webhookResources:
-    {}
-  resources:
-    {}
+    # -- Service Type of the service.
+    type: ClusterIP
+    # -- Service port
+    # @default -- 80
+    port: 80
+  workerResources: {}
+  webhookResources: {}
+  resources: {}
     # We usually recommend not specifying default resources and to leave this as a conscious
     # choice for the user. This also increases chances charts run on environments with little
     # resources, such as Minikube. If you do want to specify resources, uncomment the following
     # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
     # limits:
     #   cpu: 100m
-    #   memory: 128Mi
-    # requests:
-    #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
   #   memory: 128Mi
 
   autoscaling:
@@ -231,16 +233,14 @@ worker:
   count: 2
   concurrency: 2
   # Override or extend the copied n8n config for worker
-  config:
+  config: {}
   # Override or extend the copied n8n secrets ev for worker
   secret: {}
 
   ##
   ## Worker Kubernetes specific settings
   ##
-  persistence:
-    ## If true, use a Persistent Volume Claim, If false, use emptyDir
-    ##
+  persistence: ## If true, use a Persistent Volume Claim, If false, use emptyDir
     enabled: false
     # what type volume, possible options are [existing, emptyDir, dynamic] dynamic for Dynamic Volume Provisioning, existing for using an existing Claim
     type: emptyDir
@@ -288,8 +288,7 @@ worker:
   nameOverride: ""
   fullnameOverride: ""
 
-  serviceAccount:
-    # Specifies whether a service account should be created
+  serviceAccount: # Specifies whether a service account should be created
     create: true
     # Annotations to add to the service account
     annotations: {}
@@ -309,17 +308,16 @@ worker:
 
   securityContext: {}
     # capabilities:
-    #   drop:
-    #   - ALL
-    # readOnlyRootFilesystem: true
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
   #  runAsNonRoot: true
   #  runAsUser: 1000
 
   # here you can specify lifecycle hooks - it can be used e.g., to easily add packages to the container without building
   # your own docker image
   # see https://github.com/8gears/n8n-helm-chart/pull/30
-  lifecycle:
-    {}
+  lifecycle: {}
 
   #  here's the sample configuration to add mysql-client to the container
   # lifecycle:
@@ -327,7 +325,7 @@ worker:
   #    exec:
   #      command: ["/bin/sh", "-c", "apk add mysql-client"]
 
-  # here you can override a command for main container
+  # here you can override a command for worker container
   # it may be used to override a starting script (e.g., to resolve issues like https://github.com/n8n-io/n8n/issues/6412) or
   # run additional preparation steps (e.g., installing additional software)
   command: []
@@ -340,9 +338,11 @@ worker:
   #  - -c
   #  - chmod o+rx /root; chown -R node /root/.n8n || true; chown -R node /root/.n8n; ln -s /root/.n8n /home/node; chown -R node /home/node || true; node /usr/local/bin/n8n
 
+  # command args
+  commandArgs: []
+
   # here you can override the livenessProbe for the main container
   # it may be used to increase the timeout for the livenessProbe (e.g., to resolve issues like
-
   livenessProbe:
     httpGet:
       path: /healthz
@@ -370,28 +370,20 @@ worker:
   initContainers: []
 
   service:
+    annotations: {}
     type: ClusterIP
     port: 80
-    annotations: {}
-
-
-
-  workerResources:
-    {}
-
-  webhookResources:
-    {}
-
-  resources:
-    {}
+  workerResources: {}
+  webhookResources: {}
+  resources: {}
     # We usually recommend not specifying default resources and to leave this as a conscious
     # choice for the user. This also increases chances charts run on environments with little
     # resources, such as Minikube. If you do want to specify resources, uncomment the following
     # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
     # limits:
-    #   cpu: 100m
-    #   memory: 128Mi
-    # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
   #   cpu: 100m
   #   memory: 128Mi
 
@@ -403,15 +395,13 @@ worker:
     # targetMemoryUtilizationPercentage: 80
 
   nodeSelector: {}
-
   tolerations: []
-
   affinity: {}
 
 ## Webhook related settings
 # With .Values.scaling.webhook.enabled=true you disable Webhooks from the main process, but you enable the processing on a different Webhook instance.
 # See https://github.com/8gears/n8n-helm-chart/issues/39#issuecomment-1579991754 for the full explanation.
-webhooks:
+webhook:
   enabled: false
   count: 1
   config: {}
@@ -419,8 +409,7 @@ webhooks:
   ##
   ## Webhook Kubernetes specific settings
   ##
-  persistence:
-    ## If true, use a Persistent Volume Claim, If false, use emptyDir
+  persistence: ## If true, use a Persistent Volume Claim, If false, use emptyDir
     ##
     enabled: false
     # what type volume, possible options are [existing, emptyDir, dynamic] dynamic for Dynamic Volume Provisioning, existing for using an existing Claim
@@ -467,8 +456,7 @@ webhooks:
   nameOverride: ""
   fullnameOverride: ""
 
-  serviceAccount:
-    # Specifies whether a service account should be created
+  serviceAccount: # Specifies whether a service account should be created
     create: true
     # Annotations to add to the service account
     annotations: {}
@@ -488,17 +476,16 @@ webhooks:
 
   securityContext: {}
     # capabilities:
-    #   drop:
-    #   - ALL
-    # readOnlyRootFilesystem: true
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
   #  runAsNonRoot: true
   #  runAsUser: 1000
 
   # here you can specify lifecycle hooks - it can be used e.g., to easily add packages to the container without building
   # your own docker image
   # see https://github.com/8gears/n8n-helm-chart/pull/30
-  lifecycle:
-    {}
+  lifecycle: {}
 
   #  here's the sample configuration to add mysql-client to the container
   # lifecycle:
@@ -518,6 +505,8 @@ webhooks:
   #  - /bin/sh
   #  - -c
   #  - chmod o+rx /root; chown -R node /root/.n8n || true; chown -R node /root/.n8n; ln -s /root/.n8n /home/node; chown -R node /home/node || true; node /usr/local/bin/n8n
+  #Command Arguments
+  commandArgs: []
 
   # here you can override the livenessProbe for the main container
   # it may be used to increase the timeout for the livenessProbe (e.g., to resolve issues like
@@ -549,45 +538,70 @@ webhooks:
   initContainers: []
 
   service:
-    type: ClusterIP
-    port: 80
     annotations: {}
+    #    type: ClusterIP
+    #    port: 80
 
+  workerResources: {}
+  webhookResources: {}
 
-
-  workerResources:
-    {}
-
-  webhookResources:
-    {}
-
-  resources:
-    {}
+  resources: {}
     # We usually recommend not specifying default resources and to leave this as a conscious
     # choice for the user. This also increases chances charts run on environments with little
     # resources, such as Minikube. If you do want to specify resources, uncomment the following
     # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
     # limits:
-    #   cpu: 100m
-    #   memory: 128Mi
-    # requests:
   #   cpu: 100m
   #   memory: 128Mi
-
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
   autoscaling:
     enabled: false
     minReplicas: 1
     maxReplicas: 100
     targetCPUUtilizationPercentage: 80
     # targetMemoryUtilizationPercentage: 80
-
   nodeSelector: {}
-
   tolerations: []
-
   affinity: {}
 
+##
+## Additional resources
+##
 
+#  Takes a list of Kubernetes resources and merges each resource with a default metadata.labels map and
+#  installs the result.
+#  Use this to add any arbitrary Kubernetes manifests alongside this chart instead of kubectl and scripts.
+resources: []
+  #  - apiVersion: v1
+  #    kind: ConfigMap
+  #    metadata:
+  #      name: example-config
+  #    data:
+#      example.property.1: "value1"
+#      example.property.2: "value2"
+# As an alternative to the above, you can also use a string as the value of the data field.
+#  - |
+#    apiVersion: v1
+#    kind: ConfigMap
+#    metadata:
+#      name: example-config-string
+#    data:
+#      example.property.1: "value1"
+#      example.property.2: "value2"
+
+# Add additional templates.
+# In contrast to the resources field, these templates are not merged with the default metadata.labels map.
+# The templates are rendered with the values.yaml file as the context.
+templates: []
+#  - |
+#    apiVersion: v1
+#    kind: ConfigMap
+#    metadata:
+#      name: my-config
+#    stringData:
+#      image_name: {{ .Values.image.repository }}
 
 ## Bitnami Valkey configuration
 ## https://artifacthub.io/packages/helm/bitnami/valkey

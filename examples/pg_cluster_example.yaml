@@ -1,0 +1,21 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: db
+spec:
+  instances: 1
+  bootstrap:
+    initdb:
+      database: n8n
+      owner: n8n
+  postgresql:
+    parameters:
+      shared_buffers: "64MB"
+  resources:
+    requests:
+      memory: "512Mi"
+    limits:
+      memory: "512Mi"
+
+  storage:
+    size: 1Gi

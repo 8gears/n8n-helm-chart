@@ -9,9 +9,9 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  type: {{ .Values.n8n.service.type }}
+  type: {{ default "ClusterIP_" .Values.n8n.service.type }}
   ports:
-    - port: {{ .Values.n8n.service.port }}
+    - port: {{ default 8080 .Values.n8n.service.port }}
       targetPort: http
       protocol: TCP
       name: http

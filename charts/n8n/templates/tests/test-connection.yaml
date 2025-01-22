@@ -9,7 +9,7 @@ metadata:
 spec:
   containers:
     - name: wget
-      image: busybox
+      image: alpine
       command: ['wget']
       args: ['{{ include "n8n.fullname" . }}:{{ .Values.n8n.service.port }}']
   restartPolicy: Never

@@ -1,3 +1,5 @@
+# Full blown example with worker, webhook and redis
+# Postgresql is needed here instead of sqlite
 n8n:
 #  editor:
 #    base_url: https://n8n-test.8gears.com
@@ -11,7 +13,8 @@ n8n:
       encryption_key: random_string_password
       test: string
 
-
+worker:
+  enabled: true
 #templates:
 #  - |
 #    apiVersion: v1

@@ -1,0 +1,15 @@
+n8n:
+  config:
+    n8n:
+      encryption_key: asdf
+      db:
+        type: postgresdb
+        postgresdb:
+          host: db-rw
+          user: n8n
+          password: vsUruCnivOnZ1zL9urJzpBJnbMCvnfyZW6iAT0MAQ6TSGTtvC13RRJmD3AM48GLo
+          pool:
+            size: 10
+          ssl:
+            enabled: true
+            reject_Unauthorized: false

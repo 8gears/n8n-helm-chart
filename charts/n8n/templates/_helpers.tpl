@@ -50,16 +50,6 @@ app.kubernetes.io/name: {{ include "n8n.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
-{{/*
-Convert config values to environment variables.
-*/}}
-{{- define "n8n.toEnv" -}}
-{{- range $key, $value := . }}
-- name: {{ printf "%s" (upper $key) }}
-  value: {{ $value | quote }}
-{{- end }}
-{{- end }}
-
 
 {{/*
 Selector labels

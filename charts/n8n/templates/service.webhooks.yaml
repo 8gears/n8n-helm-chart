@@ -1,18 +1,18 @@
-{{- if .Values.webhooks.enabled }}
+{{- if .Values.webhook.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
   name: {{ include "n8n.fullname" . }}-webhooks
   labels:
     {{- include "n8n.labels" . | nindent 4 }}
-  {{- with .Values.webhooks.service.annotations }}
+  {{- with .Values.webhook.service.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  type: {{ .Values.webhooks.service.type }}
+  type: {{ get .Values.webhook.service.type | default "ClusterIP" }}
   ports:
-    - port: {{ .Values.webhooks.service.port }}
+    - port: {{ get .Values.webhook.service.port | default 80  }}
       targetPort: http
       protocol: TCP
       name: http

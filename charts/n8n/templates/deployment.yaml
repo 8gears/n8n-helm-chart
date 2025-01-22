@@ -42,14 +42,6 @@ spec:
         {{- toYaml .Values.n8n.podSecurityContext | nindent 8 }}
       {{- if or .Values.n8n.initContainers (and .Values.n8n.persistence.enabled (eq .Values.n8n.persistence.type "dynamic")) }}
       initContainers:
-      {{- if and .Values.n8n.persistence.enabled (eq .Values.n8n.persistence.type "dynamic") }}
-        - name: init-data-dir
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          command: ["/bin/sh", "-c", "mkdir -p /home/node/.n8n/"]
-          volumeMounts:
-            - name: data
-              mountPath: /home/node/.n8n
-      {{- end }}
       {{- if .Values.n8n.initContainers }}
       {{ tpl (toYaml .Values.n8n.initContainers) . | nindent 8 }}
       {{- end }}
