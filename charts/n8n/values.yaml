@@ -146,6 +146,11 @@ persistence:
   ##
   # existingClaim:
 
+hostAliases: {}
+# - hostnames:
+#   - service-example.local
+#   ip: 8.8.8.8
+
 replicaCount: 1
 
 # here you can specify the deployment strategy as Recreate or RollingUpdate with optional maxSurge and maxUnavailable
