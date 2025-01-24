@@ -1,0 +1,24 @@
+# Full blown example with worker, webhook and redis
+# Postgresql is needed here instead of sqlite
+n8n:
+#  editor:
+#    base_url: https://n8n-test.8gears.com
+  config:
+    n8n:
+      db:
+        type: sqlite
+
+  secret:
+    n8n:
+      encryption_key: "<your-secure-encryption-key>"
+
+worker:
+  enabled: true
+#templates:
+#  - |
+#    apiVersion: v1
+#    kind: ConfigMap
+#    metadata:
+#      name: raw-configmap
+#    data:
+#      someKey: "{{ .n8n.secret.n8n.encryption_key }}"

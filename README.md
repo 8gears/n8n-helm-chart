@@ -1,10 +1,9 @@
-> [!WARNING]
-> This chart is currently redesigned to better support the changed config option of n8n. Please follow the issue https://github.com/8gears/n8n-helm-chart/pull/129 for more details and the current state of development. It should be ready in January 2025.
-
-
-> [!IMPORTANT]
-> The n8n Helm chart is growing, and we need your help! We're looking for passionate maintainers and contributors to improve its automation, governance, and documentation. If you're interested in making a difference, [join the discussion](https://github.com/8gears/n8n-helm-chart/discussions/90).
-
+> [!INFO]
+> The n8n Helm chart is growing, and we need your help!
+> We're looking for additional passionate maintainers and contributors
+> to improve and maintain this chart, governance, development, documentation and CI/CD workflows.
+> If you're interested in making a difference,
+> [join the discussion](https://github.com/8gears/n8n-helm-chart/discussions/90).
 
 
 
@@ -25,13 +24,22 @@ is [github.com/8gears/n8n-helm-chart](https://github.com/8gears/n8n-helm-chart)
 Before you start, make sure you have the following tools ready:
 
 - Helm >= 3.8
-- external Postgres DB or  external MySQL | embedded SQLite (bundled with n8n)
+- external Postgres DB or embedded SQLite that is bundled with n8n
 - Helmfile (Optional)
 
-## Configuration
+## Overview
 
-The `values.yaml` file is divided into a n8n specific configuration section, and
-a Kubernetes deployment-specific section.
+The `values.yaml` file is divided into a multiple n8n and Kubernetes specific sections.
+
+1. Global values, like the image repository, image tag, etc.
+2. Ingress, (default is nginx, but you can change it to your own ingress controller)
+3. n8n app configuration + deployment specific settings
+4. worker related settings + deployment-specific settings
+5. webhook related settings + deployment-specific settings
+6. Raw Resources to passthrough your own manifistes like GatewayAPI etc.
+6. Redis related settings + kubernetes specific settings
+
+## Configuration
 
 The shown values represent Helm Chart defaults, not the application defaults.
 In many cases, the Helm Chart defaults are empty.
