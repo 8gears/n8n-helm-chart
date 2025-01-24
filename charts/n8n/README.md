@@ -28,6 +28,7 @@ A Kubernetes Helm chart for n8n a free and open fair-code licensed node based Wo
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| fullnameOverride | string | `nil` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"n8nio/n8n"` |  |
 | image.tag | string | `""` |  |
@@ -37,7 +38,8 @@ A Kubernetes Helm chart for n8n a free and open fair-code licensed node based Wo
 | ingress.enabled | bool | `false` |  |
 | ingress.hosts[0].host | string | `"workflow.example.com"` |  |
 | ingress.hosts[0].paths | list | `[]` |  |
-| ingress.tls | list | `[]` |  |
+| ingress.tls[0].hosts[0] | string | `"workflow.example.com"` |  |
+| ingress.tls[0].secretName | string | `"host-domain-cert"` |  |
 | n8n.affinity | object | `{}` |  |
 | n8n.autoscaling.enabled | bool | `false` |  |
 | n8n.autoscaling.maxReplicas | int | `100` |  |
@@ -46,12 +48,10 @@ A Kubernetes Helm chart for n8n a free and open fair-code licensed node based Wo
 | n8n.command | list | `[]` |  |
 | n8n.config.n8n.encryption_key | string | `nil` |  |
 | n8n.deploymentStrategy.type | string | `"Recreate"` |  |
-| n8n.fullnameOverride | string | `""` |  |
 | n8n.initContainers | list | `[]` |  |
 | n8n.lifecycle | object | `{}` |  |
 | n8n.livenessProbe.httpGet.path | string | `"/healthz"` |  |
 | n8n.livenessProbe.httpGet.port | string | `"http"` |  |
-| n8n.nameOverride | string | `""` |  |
 | n8n.nodeSelector | object | `{}` |  |
 | n8n.persistence.accessModes[0] | string | `"ReadWriteOnce"` |  |
 | n8n.persistence.enabled | bool | `false` |  |
@@ -70,14 +70,13 @@ A Kubernetes Helm chart for n8n a free and open fair-code licensed node based Wo
 | n8n.secret | string | `nil` |  |
 | n8n.securityContext | object | `{}` |  |
 | n8n.service.annotations | object | `{}` |  |
-| n8n.service.port | int | 80 | Service port |
-| n8n.service.type | string | `"ClusterIP"` | Service Type of the service. |
+| n8n.service.port | int | `80` | Service port |
+| n8n.service.type | string | `"ClusterIP"` | Service types allow you to specify what kind of Service you want. E.g., ClusterIP, NodePort, LoadBalancer, ExternalName |
 | n8n.serviceAccount.annotations | object | `{}` |  |
 | n8n.serviceAccount.create | bool | `true` |  |
 | n8n.serviceAccount.name | string | `""` |  |
 | n8n.tolerations | list | `[]` |  |
-| n8n.webhookResources | object | `{}` |  |
-| n8n.workerResources | object | `{}` |  |
+| nameOverride | string | `nil` |  |
 | redis.architecture | string | `"standalone"` |  |
 | redis.enabled | bool | `false` |  |
 | redis.master.persistence.enabled | bool | `true` |  |
@@ -92,8 +91,6 @@ A Kubernetes Helm chart for n8n a free and open fair-code licensed node based Wo
 | webhook.autoscaling.targetCPUUtilizationPercentage | int | `80` |  |
 | webhook.command | list | `[]` |  |
 | webhook.commandArgs | list | `[]` |  |
-| webhook.config | object | `{}` |  |
-| webhook.count | int | `1` |  |
 | webhook.deploymentStrategy.type | string | `"Recreate"` |  |
 | webhook.enabled | bool | `false` |  |
 | webhook.fullnameOverride | string | `""` |  |
@@ -117,15 +114,14 @@ A Kubernetes Helm chart for n8n a free and open fair-code licensed node based Wo
 | webhook.readinessProbe.httpGet.port | string | `"http"` |  |
 | webhook.replicaCount | int | `1` |  |
 | webhook.resources | object | `{}` |  |
-| webhook.secret | object | `{}` |  |
 | webhook.securityContext | object | `{}` |  |
 | webhook.service.annotations | object | `{}` |  |
+| webhook.service.port | int | `80` | Service port |
+| webhook.service.type | string | `"ClusterIP"` | Service types allow you to specify what kind of Service you want. E.g., ClusterIP, NodePort, LoadBalancer, ExternalName |
 | webhook.serviceAccount.annotations | object | `{}` |  |
 | webhook.serviceAccount.create | bool | `true` |  |
 | webhook.serviceAccount.name | string | `""` |  |
 | webhook.tolerations | list | `[]` |  |
-| webhook.webhookResources | object | `{}` |  |
-| webhook.workerResources | object | `{}` |  |
 | worker.affinity | object | `{}` |  |
 | worker.autoscaling.enabled | bool | `false` |  |
 | worker.autoscaling.maxReplicas | int | `100` |  |
@@ -134,16 +130,13 @@ A Kubernetes Helm chart for n8n a free and open fair-code licensed node based Wo
 | worker.command | list | `[]` |  |
 | worker.commandArgs | list | `[]` |  |
 | worker.concurrency | int | `2` |  |
-| worker.config | object | `{}` |  |
 | worker.count | int | `2` |  |
 | worker.deploymentStrategy.type | string | `"Recreate"` |  |
 | worker.enabled | bool | `false` |  |
-| worker.fullnameOverride | string | `""` |  |
 | worker.initContainers | list | `[]` |  |
 | worker.lifecycle | object | `{}` |  |
 | worker.livenessProbe.httpGet.path | string | `"/healthz"` |  |
 | worker.livenessProbe.httpGet.port | string | `"http"` |  |
-| worker.nameOverride | string | `""` |  |
 | worker.nodeSelector | object | `{}` |  |
 | worker.persistence.accessModes[0] | string | `"ReadWriteOnce"` |  |
 | worker.persistence.enabled | bool | `false` |  |
@@ -159,15 +152,14 @@ A Kubernetes Helm chart for n8n a free and open fair-code licensed node based Wo
 | worker.readinessProbe.httpGet.port | string | `"http"` |  |
 | worker.replicaCount | int | `1` |  |
 | worker.resources | object | `{}` |  |
-| worker.secret | object | `{}` |  |
 | worker.securityContext | object | `{}` |  |
 | worker.service.annotations | object | `{}` |  |
+| worker.service.port | int | `80` | Service port |
+| worker.service.type | string | `"ClusterIP"` | Service types allow you to specify what kind of Service you want. E.g., ClusterIP, NodePort, LoadBalancer, ExternalName |
 | worker.serviceAccount.annotations | object | `{}` |  |
 | worker.serviceAccount.create | bool | `true` |  |
 | worker.serviceAccount.name | string | `""` |  |
 | worker.tolerations | list | `[]` |  |
-| worker.webhookResources | object | `{}` |  |
-| worker.workerResources | object | `{}` |  |
 
 ----------------------------------------------
 Autogenerated from chart metadata using [helm-docs v1.14.2](https://github.com/norwoodj/helm-docs/releases/v1.14.2)

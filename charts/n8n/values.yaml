@@ -1,15 +1,15 @@
 # README
 # High level values structure, overview and explanation of the values.yaml file.
-# 1. chart wide values, like the image repository, image tag, etc.
-# 2. ingress, (default is nginx, but you can change it to your own ingress controller)
+# 1. Global and chart wide values, like the image repository, image tag, etc.
+# 2. Ingress, (default is nginx, but you can change it to your own ingress controller)
 # 3. n8n app configuration + kubernetes specific settings
-# 4. worker related settings + kubernetes specific settings
-# 5. webhook related settings + kubernetes specific settings
+# 4. Worker related settings + kubernetes specific settings
+# 5. Webhook related settings + kubernetes specific settings
 # 6. Redis related settings + kubernetes specific settings
 
-##
-## General Config
-##
+#
+# General Config
+#
 
 # default .Chart.Name
 nameOverride:
@@ -17,10 +17,10 @@ nameOverride:
 # default .Chart.Name or .Values.nameOverride
 fullnameOverride:
 
-##
-##
-## Common Kubernetes Config Settings for this entire n8n deployment
-##
+#
+#
+# Common Kubernetes Config Settings for this entire n8n deployment
+#
 image:
   repository: n8nio/n8n
   pullPolicy: IfNotPresent
@@ -42,42 +42,52 @@ ingress:
       secretName: host-domain-cert
 
 # n8n application related n8n configuration + Kubernetes specific settings
-n8n: # The config: {} dictionary is converted to environmental variables in the ConfigMap.
-  # Example: the YAML entry db.postgresdb.host: loclahost is transformed DB_POSTGRESDB_HOST=localhost
+# The config: {} dictionary is converted to environmental variables in the ConfigMap.
+n8n: # Example: the YAML entry db.postgresdb.host: loclahost is transformed DB_POSTGRESDB_HOST=localhost
   # See https://docs.n8n.io/hosting/configuration/environment-variables/ for all values.
   config:
-    n8n: # If not specified, n8n will create a random encryption key for encrypting saved credentials, and saves it in the dir ~/.n8n folder
-      # if you run a stateless n8n, you should provide an encryption key here.
-      encryption_key:
-    #  db:
-    #    type: postgresdb
-    #    postgresdb:
-    #      host: 192.168.0.52
+  #    n8n:
+  #    db:
+  #      type: postgresdb
+  #      postgresdb:
+  #        host: 192.168.0.52
 
   # Dictionary for secrets, unlike config:, the values here will end up in the secret file.
   # The YAML entry db.postgresdb.password: my_secret is transformed DB_POSTGRESDB_password=bXlfc2VjcmV0
   # See https://docs.n8n.io/hosting/configuration/environment-variables/
   secret:
+  #    n8n:
+  #     if you run n8n stateless, you should provide an encryption key here.
+  #      encryption_key:
+  #
   #    database:
   #      postgresdb:
   #        password: 'big secret'
 
-  ##
-  ## N8n Kubernetes specific settings
-  ##
-  persistence: ## If true, use a Persistent Volume Claim, If false, use emptyDir
+  # Extra environmental variables, so you can map from your own secrets to n8n's env vars.
+  extraEnv:
+  #    N8N_DB_POSTGRESDB_NAME:
+  #      valueFrom:
+  #        secretKeyRef:
+  #          name: db-app
+  #          key: dbname
+  #
+  # N8n Kubernetes specific settings
+  #
+  persistence:
+    # If true, use a Persistent Volume Claim, If false, use emptyDir
     enabled: false
     # what type volume, possible options are [existing, emptyDir, dynamic] dynamic for Dynamic Volume Provisioning, existing for using an existing Claim
     type: emptyDir
-    ## Persistent Volume Storage Class
-    ## If defined, storageClassName: <storageClass>
-    ## If set to "-", storageClassName: "", which disables dynamic provisioning
-    ## If undefined (the default) or set to null, no storageClassName spec is
-    ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
-    ##   GKE, AWS & OpenStack)
-    ##
+    # Persistent Volume Storage Class
+    # If defined, storageClassName: <storageClass>
+    # If set to "-", storageClassName: "", which disables dynamic provisioning
+    # If undefined (the default) or set to null, no storageClassName spec is
+    #   set, choosing the default provisioner.  (gp2 on AWS, standard on
+    #   GKE, AWS & OpenStack)
+    #
     # storageClass: "-"
-    ## PVC annotations
+    # PVC annotations
     #
     # If you need this annotation include it under `values.yml` file and pvc.yml template will add it.
     # This is not maintained at Helm v3 anymore.
@@ -85,16 +95,29 @@ n8n: # The config: {} dictionary is converted to environmental variables in the 
     #
     # annotations:
     #   helm.sh/resource-policy: keep
-    ## Persistent Volume Access Mode
-    ##
+    # Persistent Volume Access Mode
+    #
     accessModes:
       - ReadWriteOnce
-    ## Persistent Volume size
-    ##
+    # Persistent Volume size
     size: 1Gi
-    ## Use an existing PVC
-    ##
+    # Use an existing PVC
     # existingClaim:
+
+  extraVolumes: []
+  #    - name: db-ca-cert
+  #      secret:
+  #        secretName: db-ca
+  #        items:
+  #          - key: ca.crt
+  #            path: ca.crt
+
+  extraVolumeMounts: []
+  #    - name: db-ca-cert
+  #      mountPath: /etc/ssl/certs/postgresql
+  #      readOnly: true
+
+
   # Number of desired pods.
   replicaCount: 1
 
@@ -119,7 +142,6 @@ n8n: # The config: {} dictionary is converted to environmental variables in the 
     name: ""
 
   podAnnotations: {}
-
   podLabels: {}
 
   podSecurityContext:
@@ -130,7 +152,7 @@ n8n: # The config: {} dictionary is converted to environmental variables in the 
 
   securityContext: {}
     # capabilities:
-    #   drop:
+  #   drop:
   #   - ALL
   # readOnlyRootFilesystem: true
   #  runAsNonRoot: true
@@ -185,7 +207,8 @@ n8n: # The config: {} dictionary is converted to environmental variables in the 
     # failureThreshold: 6
     # successThreshold: 1
 
-  # here you can add init containers to the various deployments
+  # List of initialization containers belonging to the pod. Init containers are executed in order prior to containers being started.
+  # See https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
   initContainers: []
   #    - name: init-data-dir
   #      image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -209,7 +232,7 @@ n8n: # The config: {} dictionary is converted to environmental variables in the 
     # resources, such as Minikube. If you do want to specify resources, uncomment the following
     # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
     # limits:
-    #   cpu: 100m
+  #   cpu: 100m
   #   memory: 128Mi
   # requests:
   #   cpu: 100m
@@ -221,33 +244,36 @@ n8n: # The config: {} dictionary is converted to environmental variables in the 
     maxReplicas: 100
     targetCPUUtilizationPercentage: 80
     # targetMemoryUtilizationPercentage: 80
+
   nodeSelector: {}
   tolerations: []
   affinity: {}
 
-
-## Worker related settings
+# # # # # # # # # # # # # # # #
+#
+# Worker related settings
+#
 worker:
   enabled: false
   count: 2
   concurrency: 2
 
-  ##
-  ## Worker Kubernetes specific settings
-  ##
-  persistence: ## If true, use a Persistent Volume Claim, If false, use emptyDir
+  #
+  # Worker Kubernetes specific settings
+  #
+  persistence: # If true, use a Persistent Volume Claim, If false, use emptyDir
     enabled: false
     # what type volume, possible options are [existing, emptyDir, dynamic] dynamic for Dynamic Volume Provisioning, existing for using an existing Claim
     type: emptyDir
-    ## Persistent Volume Storage Class
-    ## If defined, storageClassName: <storageClass>
-    ## If set to "-", storageClassName: "", which disables dynamic provisioning
-    ## If undefined (the default) or set to null, no storageClassName spec is
-    ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
-    ##   GKE, AWS & OpenStack)
-    ##
+    # Persistent Volume Storage Class
+    # If defined, storageClassName: <storageClass>
+    # If set to "-", storageClassName: "", which disables dynamic provisioning
+    # If undefined (the default) or set to null, no storageClassName spec is
+    #   set, choosing the default provisioner.  (gp2 on AWS, standard on
+    #   GKE, AWS & OpenStack)
+    #
     # storageClass: "-"
-    ## PVC annotations
+    # PVC annotations
     #
     # If you need this annotation include it under `values.yml` file and pvc.yml template will add it.
     # This is not maintained at Helm v3 anymore.
@@ -255,15 +281,12 @@ worker:
     #
     # annotations:
     #   helm.sh/resource-policy: keep
-    ## Persistent Volume Access Mode
-    ##
+    # Persistent Volume Access Mode
     accessModes:
       - ReadWriteOnce
-    ## Persistent Volume size
-    ##
+    # Persistent Volume size
     size: 1Gi
-    ## Use an existing PVC
-    ##
+    # Use an existing PVC
     # existingClaim:
   # Number of desired pods.
   replicaCount: 1
@@ -299,7 +322,7 @@ worker:
     fsGroup: 1000
 
   securityContext: {}
-    # capabilities:
+  # capabilities:
   #   drop:
   #   - ALL
   # readOnlyRootFilesystem: true
@@ -358,7 +381,8 @@ worker:
     # failureThreshold: 6
     # successThreshold: 1
 
-  # here you can add init containers to the various deployments
+  # List of initialization containers belonging to the pod. Init containers are executed in order prior to containers being started.
+  # See https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
   initContainers: []
 
   service:
@@ -374,7 +398,7 @@ worker:
     # choice for the user. This also increases chances charts run on environments with little
     # resources, such as Minikube. If you do want to specify resources, uncomment the following
     # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-    # limits:
+  # limits:
   #   cpu: 100m
   #   memory: 128Mi
   # requests:
@@ -392,29 +416,28 @@ worker:
   tolerations: []
   affinity: {}
 
-## Webhook related settings
+# Webhook related settings
 # With .Values.scaling.webhook.enabled=true you disable Webhooks from the main process, but you enable the processing on a different Webhook instance.
 # See https://github.com/8gears/n8n-helm-chart/issues/39#issuecomment-1579991754 for the full explanation.
 webhook:
   enabled: false
 
-  ##
-  ## Webhook Kubernetes specific settings
-  ##
-  persistence: ## If true, use a Persistent Volume Claim, If false, use emptyDir
-    ##
+  #
+  # Webhook Kubernetes specific settings
+  #
+  persistence: # If true, use a Persistent Volume Claim, If false, use emptyDir
     enabled: false
     # what type volume, possible options are [existing, emptyDir, dynamic] dynamic for Dynamic Volume Provisioning, existing for using an existing Claim
     type: emptyDir
-    ## Persistent Volume Storage Class
-    ## If defined, storageClassName: <storageClass>
-    ## If set to "-", storageClassName: "", which disables dynamic provisioning
-    ## If undefined (the default) or set to null, no storageClassName spec is
-    ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
-    ##   GKE, AWS & OpenStack)
-    ##
+    # Persistent Volume Storage Class
+    # If defined, storageClassName: <storageClass>
+    # If set to "-", storageClassName: "", which disables dynamic provisioning
+    # If undefined (the default) or set to null, no storageClassName spec is
+    #   set, choosing the default provisioner.  (gp2 on AWS, standard on
+    #   GKE, AWS & OpenStack)
+    #
     # storageClass: "-"
-    ## PVC annotations
+    # PVC annotations
     #
     # If you need this annotation include it under `values.yml` file and pvc.yml template will add it.
     # This is not maintained at Helm v3 anymore.
@@ -422,15 +445,15 @@ webhook:
     #
     # annotations:
     #   helm.sh/resource-policy: keep
-    ## Persistent Volume Access Mode
-    ##
+    # Persistent Volume Access Mode
+    #
     accessModes:
       - ReadWriteOnce
-    ## Persistent Volume size
-    ##
+    # Persistent Volume size
+    #
     size: 1Gi
-    ## Use an existing PVC
-    ##
+    # Use an existing PVC
+    #
     # existingClaim:
 
   # Number of desired pods.
@@ -468,7 +491,7 @@ webhook:
     fsGroup: 1000
 
   securityContext: {}
-    # capabilities:
+  # capabilities:
   #   drop:
   #   - ALL
   # readOnlyRootFilesystem: true
@@ -527,7 +550,8 @@ webhook:
     # failureThreshold: 6
     # successThreshold: 1
 
-  # here you can add init containers to the various deployments
+  # List of initialization containers belonging to the pod. Init containers are executed in order prior to containers being started.
+  # See https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
   initContainers: []
 
   service:
@@ -543,7 +567,7 @@ webhook:
     # choice for the user. This also increases chances charts run on environments with little
     # resources, such as Minikube. If you do want to specify resources, uncomment the following
     # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-    # limits:
+  # limits:
   #   cpu: 100m
   #   memory: 128Mi
   # requests:
@@ -559,9 +583,9 @@ webhook:
   tolerations: []
   affinity: {}
 
-##
-## Additional resources
-##
+#
+# Additional resources
+#
 
 #  Takes a list of Kubernetes resources and merges each resource with a default metadata.labels map and
 #  installs the result.
@@ -571,7 +595,7 @@ resources: []
   #    kind: ConfigMap
   #    metadata:
   #      name: example-config
-  #    data:
+#    data:
 #      example.property.1: "value1"
 #      example.property.2: "value2"
 # As an alternative to the above, you can also use a string as the value of the data field.
@@ -596,8 +620,8 @@ templates: []
 #    stringData:
 #      image_name: {{ .Values.image.repository }}
 
-## Bitnami Valkey configuration
-## https://artifacthub.io/packages/helm/bitnami/valkey
+# Bitnami Valkey configuration
+# https://artifacthub.io/packages/helm/bitnami/valkey
 redis:
   enabled: false
   architecture: standalone

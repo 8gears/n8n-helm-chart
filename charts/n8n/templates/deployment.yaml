@@ -40,10 +40,10 @@ spec:
       serviceAccountName: {{ include "n8n.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.n8n.podSecurityContext | nindent 8 }}
-      {{- if or .Values.n8n.initContainers (and .Values.n8n.persistence.enabled (eq .Values.n8n.persistence.type "dynamic")) }}
+      {{- if or .Values.n8n.initContainers }}
       initContainers:
       {{- if .Values.n8n.initContainers }}
-      {{ tpl (toYaml .Values.n8n.initContainers) . | nindent 8 }}
+        {{ tpl (toYaml .Values.n8n.initContainers) . | nindent 10 }}
       {{- end }}
       {{- end }}
       containers:
@@ -57,10 +57,19 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           envFrom:
+            {{- if .Values.n8n.config }}
             - configMapRef:
                 name: app-config-{{ include "n8n.fullname" . }}
+            {{- end }}
+           {{- if .Values.n8n.secret }}
             - secretRef:
                 name: app-secret-{{ include "n8n.fullname" . }}
+            {{- end }}
+          env:
+            {{- range $key, $value := .Values.n8n.extraEnv }}
+            - name: {{ $key }}
+              {{- toYaml $value | nindent 14 }}
+            {{- end }}
           lifecycle:
             {{- toYaml .Values.n8n.lifecycle | nindent 12 }}
           ports:
@@ -80,6 +89,9 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /home/node/.n8n
+          {{- if .Values.n8n.extraVolumeMounts }}
+            {{- toYaml .Values.n8n.extraVolumeMounts | nindent 12 }}
+          {{- end }}
       {{- with .Values.n8n.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -95,3 +107,6 @@ spec:
       volumes:
         - name: "data"
           {{ include "n8n.pvc" . }}
+        {{- if .Values.n8n.extraVolumes }}
+          {{- toYaml .Values.n8n.extraVolumes | nindent 8 }}
+        {{- end }}

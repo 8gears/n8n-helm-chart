@@ -155,7 +155,7 @@ app.kubernetes.io/instance: {{ .Release.Name }}
             {{- if $.isSecret -}}
 {{ $prefix }}{{ $key | upper }}: {{ $value | b64enc }}{{ "\n" }}
             {{- else -}}
-{{ $prefix }}{{ $key | upper }}={{ $value }}{{ "\n" }}
+{{ $prefix }}{{ $key | upper }}: {{ $value | quote }}{{ "\n" }}
             {{- end -}}
         {{- end -}}
     {{- end -}}
