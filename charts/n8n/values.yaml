@@ -43,8 +43,7 @@ ingress:
 
 # n8n application related n8n configuration + Kubernetes specific settings
 # The config: {} dictionary is converted to environmental variables in the ConfigMap.
-n8n: # Example: the YAML entry db.postgresdb.host: loclahost is transformed DB_POSTGRESDB_HOST=localhost
-  # See https://docs.n8n.io/hosting/configuration/environment-variables/ for all values.
+n8n: # See https://docs.n8n.io/hosting/configuration/environment-variables/ for all values.
   config:
   #    n8n:
   #    db:
@@ -133,7 +132,8 @@ n8n: # Example: the YAML entry db.postgresdb.host: loclahost is transformed DB_P
     #  maxSurge: "50%"
     #  maxUnavailable: "50%"
 
-  serviceAccount: # Specifies whether a service account should be created
+  serviceAccount:
+    # Specifies whether a service account should be created
     create: true
     # Annotations to add to the service account
     annotations: {}
@@ -151,7 +151,7 @@ n8n: # Example: the YAML entry db.postgresdb.host: loclahost is transformed DB_P
     fsGroup: 1000
 
   securityContext: {}
-    # capabilities:
+  # capabilities:
   #   drop:
   #   - ALL
   # readOnlyRootFilesystem: true
@@ -227,11 +227,11 @@ n8n: # Example: the YAML entry db.postgresdb.host: loclahost is transformed DB_P
     port: 80
 
   resources: {}
-    # We usually recommend not specifying default resources and to leave this as a conscious
-    # choice for the user. This also increases chances charts run on environments with little
-    # resources, such as Minikube. If you do want to specify resources, uncomment the following
-    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-    # limits:
+  # We usually recommend not specifying default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
   #   cpu: 100m
   #   memory: 128Mi
   # requests:
@@ -261,7 +261,8 @@ worker:
   #
   # Worker Kubernetes specific settings
   #
-  persistence: # If true, use a Persistent Volume Claim, If false, use emptyDir
+  persistence:
+    # If true, use a Persistent Volume Claim, If false, use emptyDir
     enabled: false
     # what type volume, possible options are [existing, emptyDir, dynamic] dynamic for Dynamic Volume Provisioning, existing for using an existing Claim
     type: emptyDir
@@ -303,7 +304,8 @@ worker:
     # maxSurge: "50%"
     # maxUnavailable: "50%"
 
-  serviceAccount: # Specifies whether a service account should be created
+  serviceAccount:
+    # Specifies whether a service account should be created
     create: true
     # Annotations to add to the service account
     annotations: {}
@@ -394,10 +396,10 @@ worker:
     port: 80
 
   resources: {}
-    # We usually recommend not specifying default resources and to leave this as a conscious
-    # choice for the user. This also increases chances charts run on environments with little
-    # resources, such as Minikube. If you do want to specify resources, uncomment the following
-    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # We usually recommend not specifying default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
   # limits:
   #   cpu: 100m
   #   memory: 128Mi
@@ -425,7 +427,8 @@ webhook:
   #
   # Webhook Kubernetes specific settings
   #
-  persistence: # If true, use a Persistent Volume Claim, If false, use emptyDir
+  persistence:
+    # If true, use a Persistent Volume Claim, If false, use emptyDir
     enabled: false
     # what type volume, possible options are [existing, emptyDir, dynamic] dynamic for Dynamic Volume Provisioning, existing for using an existing Claim
     type: emptyDir
@@ -472,7 +475,8 @@ webhook:
   nameOverride: ""
   fullnameOverride: ""
 
-  serviceAccount: # Specifies whether a service account should be created
+  serviceAccount:
+    # Specifies whether a service account should be created
     create: true
     # Annotations to add to the service account
     annotations: {}
@@ -521,7 +525,7 @@ webhook:
   #  - /bin/sh
   #  - -c
   #  - chmod o+rx /root; chown -R node /root/.n8n || true; chown -R node /root/.n8n; ln -s /root/.n8n /home/node; chown -R node /home/node || true; node /usr/local/bin/n8n
-  #Command Arguments
+  # Command Arguments
   commandArgs: []
 
   # here you can override the livenessProbe for the main container
@@ -563,10 +567,10 @@ webhook:
     port: 80
 
   resources: {}
-    # We usually recommend not specifying default resources and to leave this as a conscious
-    # choice for the user. This also increases chances charts run on environments with little
-    # resources, such as Minikube. If you do want to specify resources, uncomment the following
-    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # We usually recommend not specifying default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
   # limits:
   #   cpu: 100m
   #   memory: 128Mi
@@ -591,10 +595,10 @@ webhook:
 #  installs the result.
 #  Use this to add any arbitrary Kubernetes manifests alongside this chart instead of kubectl and scripts.
 resources: []
-  #  - apiVersion: v1
-  #    kind: ConfigMap
-  #    metadata:
-  #      name: example-config
+#  - apiVersion: v1
+#    kind: ConfigMap
+#    metadata:
+#      name: example-config
 #    data:
 #      example.property.1: "value1"
 #      example.property.2: "value2"
