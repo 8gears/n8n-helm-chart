@@ -64,7 +64,7 @@ spec:
           {{- end }}
           ports:
             - name: http
-              containerPort: {{ get .Values.n8n.config "port" | default 5678 }}
+              containerPort: {{ get .Values.main.config "port" | default 5678 }}
               protocol: TCP
           {{- with .Values.webhook.livenessProbe }}
           livenessProbe:

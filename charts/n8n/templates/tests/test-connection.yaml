@@ -10,6 +10,10 @@ spec:
   containers:
     - name: wget
       image: alpine
-      command: ['wget']
-      args: ['{{ include "n8n.fullname" . }}:{{ .Values.n8n.service.port }}']
+      command: ['sh', '-c']
+      args:
+        - |
+          echo "Testing connection to {{ include "n8n.fullname" . }}:{{ default 80 .Values.main.service.port }}";
+          nslookup {{ include "n8n.fullname" . }};
+          wget {{ include "n8n.fullname" . }}:{{ default 80 .Values.main.service.port }};
   restartPolicy: Never

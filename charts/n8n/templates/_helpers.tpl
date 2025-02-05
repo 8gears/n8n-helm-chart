@@ -53,21 +53,21 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 
 {{/* Create the name of the service account to use */}}
 {{- define "n8n.serviceAccountName" -}}
-{{- if .Values.n8n.serviceAccount.create }}
-{{- default (include "n8n.fullname" .) .Values.n8n.serviceAccount.name }}
+{{- if .Values.main.serviceAccount.create }}
+{{- default (include "n8n.fullname" .) .Values.main.serviceAccount.name }}
 {{- else }}
-{{- default "default" .Values.n8n.serviceAccount.name }}
+{{- default "default" .Values.main.serviceAccount.name }}
 {{- end }}
 {{- end }}
 
 {{/* PVC existing, emptyDir, Dynamic */}}
 {{- define "n8n.pvc" -}}
-{{- if or (not .Values.n8n.persistence.enabled) (eq .Values.n8n.persistence.type "emptyDir") -}}
+{{- if or (not .Values.main.persistence.enabled) (eq .Values.main.persistence.type "emptyDir") -}}
           emptyDir: {}
-{{- else if and .Values.n8n.persistence.enabled .Values.n8n.persistence.existingClaim -}}
+{{- else if and .Values.main.persistence.enabled .Values.main.persistence.existingClaim -}}
           persistentVolumeClaim:
-            claimName: {{ .Values.n8n.persistence.existingClaim }}
-{{- else if and .Values.n8n.persistence.enabled (eq .Values.n8n.persistence.type "dynamic")  -}}
+            claimName: {{ .Values.main.persistence.existingClaim }}
+{{- else if and .Values.main.persistence.enabled (eq .Values.main.persistence.type "dynamic")  -}}
           persistentVolumeClaim:
             claimName: {{ include "n8n.fullname" . }}
 {{- end }}

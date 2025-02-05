@@ -70,11 +70,11 @@ spec:
             - name: http
               containerPort: {{ get .Values.worker.config "port" | default 5678 }}
               protocol: TCP
-          {{- with .Values.n8n.livenessProbe }}
+          {{- with .Values.main.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.n8n.readinessProbe }}
+          {{- with .Values.main.readinessProbe }}
           readinessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}

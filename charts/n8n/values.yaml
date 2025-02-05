@@ -2,10 +2,11 @@
 # High level values structure, overview and explanation of the values.yaml file.
 # 1. Global and chart wide values, like the image repository, image tag, etc.
 # 2. Ingress, (default is nginx, but you can change it to your own ingress controller)
-# 3. n8n app configuration + kubernetes specific settings
+# 3. Main n8n app configuration + kubernetes specific settings
 # 4. Worker related settings + kubernetes specific settings
 # 5. Webhook related settings + kubernetes specific settings
-# 6. Redis related settings + kubernetes specific settings
+# 6. Raw Resources to pass through your own manifests like GatewayAPI, ServiceMonitor etc.
+# 7. Redis related settings + kubernetes specific settings
 
 #
 # General Config
@@ -17,7 +18,7 @@ nameOverride:
 # default .Chart.Name or .Values.nameOverride
 fullnameOverride:
 
-#
+
 #
 # Common Kubernetes Config Settings for this entire n8n deployment
 #
@@ -28,6 +29,9 @@ image:
   tag: ""
 imagePullSecrets: []
 
+#
+# Ingress
+#
 ingress:
   enabled: false
   annotations: {}
@@ -41,9 +45,10 @@ ingress:
         - workflow.example.com
       secretName: host-domain-cert
 
-# n8n application related n8n configuration + Kubernetes specific settings
+# the main (n8n) application related configuration + Kubernetes specific settings
 # The config: {} dictionary is converted to environmental variables in the ConfigMap.
-n8n: # See https://docs.n8n.io/hosting/configuration/environment-variables/ for all values.
+main:
+  # See https://docs.n8n.io/hosting/configuration/environment-variables/ for all values.
   config:
   #    n8n:
   #    db:

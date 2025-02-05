@@ -1,4 +1,4 @@
-{{- if .Values.n8n.autoscaling.enabled }}
+{{- if .Values.main.autoscaling.enabled }}
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
@@ -10,23 +10,23 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: {{ include "n8n.fullname" . }}
-  minReplicas: {{ .Values.n8n.autoscaling.minReplicas }}
-  maxReplicas: {{ .Values.n8n.autoscaling.maxReplicas }}
+  minReplicas: {{ .Values.main.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.main.autoscaling.maxReplicas }}
   metrics:
-    {{- if .Values.n8n.autoscaling.targetCPUUtilizationPercentage }}
+    {{- if .Values.main.autoscaling.targetCPUUtilizationPercentage }}
     - type: Resource
       resource:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: {{ .Values.n8n.autoscaling.targetCPUUtilizationPercentage }}
+          averageUtilization: {{ .Values.main.autoscaling.targetCPUUtilizationPercentage }}
     {{- end }}
-    {{- if .Values.n8n.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- if .Values.main.autoscaling.targetMemoryUtilizationPercentage }}
     - type: Resource
       resource:
         name: memory
         target:
           type: Utilization
-          averageUtilization: {{ .Values.n8n.autoscaling.targetMemoryUtilizationPercentage }}
+          averageUtilization: {{ .Values.main.autoscaling.targetMemoryUtilizationPercentage }}
     {{- end }}
 {{- end }}

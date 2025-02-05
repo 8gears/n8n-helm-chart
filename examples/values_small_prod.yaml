@@ -1,6 +1,11 @@
-#Prodlike set up with CloudNativePG and nginx-ingress
+#Prod like set up with CloudNativePG and nginx-ingress
+image:
+  repository: 8gears.container-registry.com/ops/n8n
+  tag: 1.76.1
+imagePullSecrets:
+  - name: 8gears-registry-n8n
 
-n8n:
+main:
   config:
     db:
       type: postgresdb

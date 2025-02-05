@@ -13,8 +13,7 @@
 
 [![Artifact HUB](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/n8n)](https://artifacthub.io/packages/helm/open-8gears/n8n)
 
-The Helm chart source code location
-is [github.com/8gears/n8n-helm-chart](https://github.com/8gears/n8n-helm-chart)
+The Helm chart source code location is [github.com/8gears/n8n-helm-chart](https://github.com/8gears/n8n-helm-chart)
 
 
 
@@ -24,31 +23,43 @@ is [github.com/8gears/n8n-helm-chart](https://github.com/8gears/n8n-helm-chart)
 Before you start, make sure you have the following tools ready:
 
 - Helm >= 3.8
-- external Postgres DB or embedded SQLite that is bundled with n8n
+- external Postgres DB or embedded SQLite (bundled with n8n)
 - Helmfile (Optional)
 
 ## Overview
 
 The `values.yaml` file is divided into a multiple n8n and Kubernetes specific sections.
 
-1. Global values, like the image repository, image tag, etc.
+1. Global and chart wide values, like the image repository, image tag, etc.
 2. Ingress, (default is nginx, but you can change it to your own ingress controller)
-3. n8n app configuration + deployment specific settings
-4. worker related settings + deployment-specific settings
-5. webhook related settings + deployment-specific settings
-6. Raw Resources to passthrough your own manifistes like GatewayAPI etc.
-6. Redis related settings + kubernetes specific settings
+3. Main n8n app configuration + Kubernetes specific settings
+4. Worker related settings + Kubernetes specific settings
+5. Webhook related settings + Kubernetes specific settings
+6. Raw Resources to pass through your own manifests like GatewayAPI, ServiceMonitor etc.
+7. Redis related settings + Kubernetes specific settings
 
-## Configuration
 
-The shown values represent Helm Chart defaults, not the application defaults.
-In many cases, the Helm Chart defaults are empty.
-The comments behind the values provide a description and display the application
-default.
+## Setting Configuration Values and Environment Variables
 
-These n8n config options should be attached below the root elements `secret:`
-or `config:` in the `values.yaml`.
-(See the [typical-values-example](#typical-values-example) section).
+These n8n specific settings should be added to `main.config:` or `main.secret:` in the `values.yaml` file.
+
+See the [example](#examples) section and the example in the directory `/examples`).
+
+The YAML config and secret tree section is transformed 1:1 into ENV variables.
+```yaml
+main:
+  config:
+      n8n:
+        encryption_key: "my_secret" # ==> turns into ENV: N8N_ENCRYPTION_KEY
+      db:
+        type: postgresdb # ==> turns into ENV: N8N_DB_TYPE
+        postgresdb: # ==> turns into ENV: N8N_DB_POSTGRESDB_
+        host: 192.168.0.52 # ==> turns into ENV: N8N_DB_POSTGRESDB_HOST
+      node:
+        functions_allow_builtin: "*" # ==> turns into ENV: N8N_NODE_FUNCTIONS_ALLOW_BUILTIN
+```
+
+Consult the [n8n Environment Variables Documentation]( https://docs.n8n.io/hosting/configuration/environment-variables/)
 
 You decide what should go into `secret` and what should be a `config`.
 There is no restriction, mix and match as you like.
@@ -58,280 +69,686 @@ There is no restriction, mix and match as you like.
 Install chart
 
 ```shell
-helm install my-n8n oci://8gears.container-registry.com/library/n8n --version 0.25.2
+helm install my-n8n oci://8gears.container-registry.com/library/n8n --version 1.0.0
 ```
 
-# N8N Specific Config Section
+
+# Examples
+
+A typical example of a config in combination with a secret.
+You can find various other examples in the `examples` directory of this repository.
+
+```yaml
+#small deployment with nodeport for local testing or small deployments
+main:
+  config:
+    n8n:
+      hide_usage_page: true
+  secret:
+    n8n:
+      encryption_key: "<your-secure-encryption-key>"
+  resources:
+    limits:
+      memory: 2048Mi
+    requests:
+      memory: 512Mi
+  service:
+    type: NodePort
+    port: 5678
+```
+
+# Values File
+
+## N8N Specific Config Section
 
 Every possible n8n config value can be set,
 even if it is not mentioned in the excerpt below.
-All application config settings are described in the:
-[n8n configuration options](https://github.com/n8n-io/n8n/blob/master/packages/cli/src/config/schema.ts).
-Treat the n8n provided config documentation as the source of truth,
-this Charts just forwards everything to n8n.
+Treat the n8n provided configuration documentation as the source of truth,
+this Charts just forwards everything down to the n8n pods.
 
 ```yaml
-database:
-  type:   # Type of database to use - Other possible types ['sqlite', 'mariadb', 'mysqldb', 'postgresdb'] - default: sqlite
-  tablePrefix:      # Prefix for table names - default: ''
-  postgresdb:
-    database:       # PostgresDB Database - default: n8n
-    host:           # PostgresDB Host - default: localhost
-    password:       # PostgresDB Password - default: ''
-    port:           # PostgresDB Port - default: 5432
-    user:           # PostgresDB User - default: root
-    schema:         # PostgresDB Schema - default: public
-    ssl:
-      ca:             # SSL certificate authority - default: ''
-      cert:           # SSL certificate - default: ''
-      key:            # SSL key - default: ''
-      rejectUnauthorized:    # If unauthorized SSL connections should be rejected - default: true
-  mysqldb:
-    database:        # MySQL Database - default: n8n
-    host:            # MySQL Host - default: localhost
-    password:        # MySQL Password - default: ''
-    port:            # MySQL Port - default: 3306
-    user:            # MySQL User - default: root
-credentials:
-  overwrite:
-    data:        # Overwrites for credentials - default: "{}"
-    endpoint:    # Fetch credentials from API - default: ''
-
-executions:
-  process:              # In what process workflows should be executed - possible values [main, own] - default: own
-  timeout:              # Max run time (seconds) before stopping the workflow execution - default: -1
-  maxTimeout:           # Max execution time (seconds) that can be set for a workflow individually - default: 3600
-  saveDataOnError:      # What workflow execution data to save on error - possible values [all , none] - default: all
-  saveDataOnSuccess:    # What workflow execution data to save on success - possible values [all , none] - default: all
-  saveDataManualExecutions:    # Save data of executions when started manually via editor - default: false
-  pruneData:            # Delete data of past executions on a rolling basis - default: false
-  pruneDataMaxAge:      # How old (hours) the execution data has to be to get deleted - default: 336
-  pruneDataTimeout:     # Timeout (seconds) after execution data has been pruned - default: 3600
-generic:
-  timezone:       # The timezone to use - default: America/New_York
-path:           # Path n8n is deployed to - default: "/"
-host:           # Host name n8n can be reached - default: localhost
-port:           # HTTP port n8n can be reached - default: 5678
-listen_address: # IP address n8n should listen on - default: 0.0.0.0
-protocol:       # HTTP Protocol via which n8n can be reached - possible values [http , https] - default: http
-ssl_key:        # SSL Key for HTTPS Protocol - default: ''
-ssl_cert:       # SSL Cert for HTTPS Protocol - default: ''
-security:
-  excludeEndpoints: # Additional endpoints to exclude auth checks. Multiple endpoints can be separated by colon - default: ''
-  basicAuth:
-    active:     # If basic auth should be activated for editor and REST-API - default: false
-    user:       # The name of the basic auth user - default: ''
-    password:   # The password of the basic auth user - default: ''
-    hash:       # If password for basic auth is hashed - default: false
-  jwtAuth:
-    active:               # If JWT auth should be activated for editor and REST-API - default: false
-    jwtHeader:            # The request header containing a signed JWT - default: ''
-    jwtHeaderValuePrefix: # The request header value prefix to strip (optional) default: ''
-    jwksUri:              # The URI to fetch JWK Set for JWT authentication - default: ''
-    jwtIssuer:            # JWT issuer to expect (optional) - default: ''
-    jwtNamespace:         # JWT namespace to expect (optional) -  default: ''
-    jwtAllowedTenantKey:  # JWT tenant key name to inspect within JWT namespace (optional) - default: ''
-    jwtAllowedTenant:     # JWT tenant to allow (optional) - default: ''
-endpoints:
-  rest:             # Path for rest endpoint  default: rest
-  webhook:          # Path for webhook endpoint  default: webhook
-  webhookTest:      # Path for test-webhook endpoint  default: webhook-test
-  webhookWaiting:   # Path for test-webhook endpoint  default: webhook-waiting
-externalHookFiles:  # Files containing external hooks. Multiple files can be separated by colon - default: ''
-nodes:
-  exclude:          # Nodes not to load - default: "[]"
-  errorTriggerType: # Node Type to use as Error Trigger - default: n8n-nodes-base.errorTrigger
-# the list goes on...
-```
-
-### Values
-
-The values file consists of n8n specific sections `config` and `secret` where
-you paste the n8n config like shown above.
-
-```yaml
-# The n8n related part of the config
-config: # Dict with all n8n config options
-#    database:
-#      type: postgresdb
-#      postgresdb:
-#        database: n8n
-#        host: localhost
 #
-# existingSecret and secret are exclusive, with existingSecret taking priority.
-# existingSecret: "" # Use an existing Kubernetes secret, e.g created by hand or Vault operator.
-secret: # Dict with all n8n config options, unlike config the values here will end up in a secret.
-#    database:
-#      postgresdb:
-#        password: here_db_root_password
+# General Config
+#
 
-##
-##
-## Common Kubernetes Config Settings
-persistence:
-  ## If true, use a Persistent Volume Claim, If false, use emptyDir
-  ##
-  enabled: false
-  type: emptyDir # what type volume, possible options are [existing, emptyDir, dynamic] dynamic for Dynamic Volume Provisioning, existing for using an existing Claim
-  ## Persistent Volume Storage Class
-  ## If defined, storageClassName: <storageClass>
-  ## If set to "-", storageClassName: "", which disables dynamic provisioning
-  ## If undefined (the default) or set to null, no storageClassName spec is
-  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
-  ##   GKE, AWS & OpenStack)
-  ##
-  # storageClass: "-"
-  ## PVC annotations
-  #
-  # If you need this annotation include it under values.yml file and pvc.yml template will add it.
-  # This is not maintained at Helm v3 anymore.
-  # https://github.com/8gears/n8n-helm-chart/issues/8
-  #
-  # annotations:
-  #   helm.sh/resource-policy: keep
-  ## Persistent Volume Access Mode
-  ##
-  accessModes:
-    - ReadWriteOnce
-  ## Persistent Volume size
-  ##
-  size: 1Gi
-  ## Use an existing PVC
-  ##
-  # existingClaim:
+# default .Chart.Name
+nameOverride:
 
-# Set additional environment variables on the Deployment
-extraEnv: { }
-# Set this if running behind a reverse proxy and the external port is different from the port n8n runs on
-#   WEBHOOK_TUNNEL_URL: "https://n8n.myhost.com/
+# default .Chart.Name or .Values.nameOverride
+fullnameOverride:
 
-replicaCount: 1
 
+#
+# Common Kubernetes Config Settings for this entire n8n deployment
+#
 image:
   repository: n8nio/n8n
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
+imagePullSecrets: []
 
-imagePullSecrets: [ ]
-nameOverride: ""
-fullnameOverride: ""
-
-serviceAccount:
-  # Specifies whether a service account should be created
-  create: true
-  # Annotations to add to the service account
-  annotations: { }
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name: ""
-
-podAnnotations: { }
-
-podSecurityContext: { }
-# fsGroup: 2000
-
-securityContext: { }
-  # capabilities:
-  #   drop:
-#   - ALL
-# readOnlyRootFilesystem: true
-# runAsNonRoot: true
-# runAsUser: 1000
-
-service:
-  type: ClusterIP
-  port: 80
-  annotations: { }
-
+#
+# Ingress
+#
 ingress:
   enabled: false
-  annotations: { }
-  # kubernetes.io/ingress.class: nginx
-  # kubernetes.io/tls-acme: "true"
+  annotations: {}
+  # define a custom ingress class Name, like "traefik" or "nginx"
+  className: ""
   hosts:
-    - host: chart-example.local
-      paths: [ ]
-  tls: [ ]
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
+    - host: workflow.example.com
+      paths: []
+  tls:
+    - hosts:
+        - workflow.example.com
+      secretName: host-domain-cert
 
-resources: { }
-  # We usually recommend not to specify default resources and to leave this as a conscious
+# the main (n8n) application related configuration + Kubernetes specific settings
+# The config: {} dictionary is converted to environmental variables in the ConfigMap.
+main:
+  # See https://docs.n8n.io/hosting/configuration/environment-variables/ for all values.
+  config:
+  #    n8n:
+  #    db:
+  #      type: postgresdb
+  #      postgresdb:
+  #        host: 192.168.0.52
+
+  # Dictionary for secrets, unlike config:, the values here will end up in the secret file.
+  # The YAML entry db.postgresdb.password: my_secret is transformed DB_POSTGRESDB_password=bXlfc2VjcmV0
+  # See https://docs.n8n.io/hosting/configuration/environment-variables/
+  secret:
+  #    n8n:
+  #     if you run n8n stateless, you should provide an encryption key here.
+  #      encryption_key:
+  #
+  #    database:
+  #      postgresdb:
+  #        password: 'big secret'
+
+  # Extra environmental variables, so you can map from your own secrets to n8n's env vars.
+  extraEnv:
+  #    N8N_DB_POSTGRESDB_NAME:
+  #      valueFrom:
+  #        secretKeyRef:
+  #          name: db-app
+  #          key: dbname
+  #
+  # N8n Kubernetes specific settings
+  #
+  persistence:
+    # If true, use a Persistent Volume Claim, If false, use emptyDir
+    enabled: false
+    # what type volume, possible options are [existing, emptyDir, dynamic] dynamic for Dynamic Volume Provisioning, existing for using an existing Claim
+    type: emptyDir
+    # Persistent Volume Storage Class
+    # If defined, storageClassName: <storageClass>
+    # If set to "-", storageClassName: "", which disables dynamic provisioning
+    # If undefined (the default) or set to null, no storageClassName spec is
+    #   set, choosing the default provisioner.  (gp2 on AWS, standard on
+    #   GKE, AWS & OpenStack)
+    #
+    # storageClass: "-"
+    # PVC annotations
+    #
+    # If you need this annotation include it under `values.yml` file and pvc.yml template will add it.
+    # This is not maintained at Helm v3 anymore.
+    # https://github.com/8gears/n8n-helm-chart/issues/8
+    #
+    # annotations:
+    #   helm.sh/resource-policy: keep
+    # Persistent Volume Access Mode
+    #
+    accessModes:
+      - ReadWriteOnce
+    # Persistent Volume size
+    size: 1Gi
+    # Use an existing PVC
+    # existingClaim:
+
+  extraVolumes: []
+  #    - name: db-ca-cert
+  #      secret:
+  #        secretName: db-ca
+  #        items:
+  #          - key: ca.crt
+  #            path: ca.crt
+
+  extraVolumeMounts: []
+  #    - name: db-ca-cert
+  #      mountPath: /etc/ssl/certs/postgresql
+  #      readOnly: true
+
+
+  # Number of desired pods.
+  replicaCount: 1
+
+  # here you can specify the deployment strategy as Recreate or RollingUpdate with optional maxSurge and maxUnavailable
+  # If these options are not set, default values are 25%
+  # deploymentStrategy:
+  #  type: Recreate | RollingUpdate
+  #  maxSurge: "50%"
+  #  maxUnavailable: "50%"
+
+  deploymentStrategy:
+    type: "Recreate"
+    #  maxSurge: "50%"
+    #  maxUnavailable: "50%"
+
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+
+  podAnnotations: {}
+  podLabels: {}
+
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+
+  securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  #  runAsNonRoot: true
+  #  runAsUser: 1000
+
+  # here you can specify lifecycle hooks - it can be used e.g., to easily add packages to the container without building
+  # your own docker image
+  # see https://github.com/8gears/n8n-helm-chart/pull/30
+  lifecycle: {}
+
+  #  here's the sample configuration to add mysql-client to the container
+  # lifecycle:
+  #  postStart:
+  #    exec:
+  #      command: ["/bin/sh", "-c", "apk add mysql-client"]
+
+  # here you can override a command for main container
+  # it may be used to override a starting script (e.g., to resolve issues like https://github.com/n8n-io/n8n/issues/6412) or run additional preparation steps (e.g., installing additional software)
+  command: []
+
+  # sample configuration that overrides starting script and solves above issue (also it runs n8n as root, so be careful):
+  # command:
+  #  - tini
+  #  - --
+  #  - /bin/sh
+  #  - -c
+  #  - chmod o+rx /root; chown -R node /root/.n8n || true; chown -R node /root/.n8n; ln -s /root/.n8n /home/node; chown -R node /home/node || true; node /usr/local/bin/n8n
+
+  # here you can override the livenessProbe for the main container
+  # it may be used to increase the timeout for the livenessProbe (e.g., to resolve issues like
+
+  livenessProbe:
+    httpGet:
+      path: /healthz
+      port: http
+    # initialDelaySeconds: 30
+    # periodSeconds: 10
+    # timeoutSeconds: 5
+    # failureThreshold: 6
+    # successThreshold: 1
+
+  # here you can override the readinessProbe for the main container
+  # it may be used to increase the timeout for the readinessProbe (e.g., to resolve issues like
+
+  readinessProbe:
+    httpGet:
+      path: /healthz
+      port: http
+    # initialDelaySeconds: 30
+    # periodSeconds: 10
+    # timeoutSeconds: 5
+    # failureThreshold: 6
+    # successThreshold: 1
+
+  # List of initialization containers belonging to the pod. Init containers are executed in order prior to containers being started.
+  # See https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
+  initContainers: []
+  #    - name: init-data-dir
+  #      image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+  #      command: [ "/bin/sh", "-c", "mkdir -p /home/node/.n8n/" ]
+  #      volumeMounts:
+  #        - name: data
+  #          mountPath: /home/node/.n8n
+
+
+  service:
+    annotations: {}
+    # -- Service types allow you to specify what kind of Service you want.
+    # E.g., ClusterIP, NodePort, LoadBalancer, ExternalName
+    type: ClusterIP
+    # -- Service port
+    port: 80
+
+  resources: {}
+  # We usually recommend not specifying default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
   # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
   # limits:
   #   cpu: 100m
-#   memory: 128Mi
-# requests:
-#   cpu: 100m
-#   memory: 128Mi
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
 
-autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 100
-  targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
-
-nodeSelector: { }
-
-tolerations: [ ]
-
-affinity: { }
-
-scaling:
-  enabled: false
-
-  worker:
-    count: 2
-    concurrency: 2
-
-  webhook:
+  autoscaling:
     enabled: false
-    count: 1
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
 
-  redis:
-    host:
-    password:
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
 
+# # # # # # # # # # # # # # # #
+#
+# Worker related settings
+#
+worker:
+  enabled: false
+  count: 2
+  concurrency: 2
+
+  #
+  # Worker Kubernetes specific settings
+  #
+  persistence:
+    # If true, use a Persistent Volume Claim, If false, use emptyDir
+    enabled: false
+    # what type volume, possible options are [existing, emptyDir, dynamic] dynamic for Dynamic Volume Provisioning, existing for using an existing Claim
+    type: emptyDir
+    # Persistent Volume Storage Class
+    # If defined, storageClassName: <storageClass>
+    # If set to "-", storageClassName: "", which disables dynamic provisioning
+    # If undefined (the default) or set to null, no storageClassName spec is
+    #   set, choosing the default provisioner.  (gp2 on AWS, standard on
+    #   GKE, AWS & OpenStack)
+    #
+    # storageClass: "-"
+    # PVC annotations
+    #
+    # If you need this annotation include it under `values.yml` file and pvc.yml template will add it.
+    # This is not maintained at Helm v3 anymore.
+    # https://github.com/8gears/n8n-helm-chart/issues/8
+    #
+    # annotations:
+    #   helm.sh/resource-policy: keep
+    # Persistent Volume Access Mode
+    accessModes:
+      - ReadWriteOnce
+    # Persistent Volume size
+    size: 1Gi
+    # Use an existing PVC
+    # existingClaim:
+  # Number of desired pods.
+  replicaCount: 1
+
+  # here you can specify the deployment strategy as Recreate or RollingUpdate with optional maxSurge and maxUnavailable
+  # If these options are not set, default values are 25%
+  # deploymentStrategy:
+  #  type: RollingUpdate
+  #  maxSurge: "50%"
+  #  maxUnavailable: "50%"
+
+  deploymentStrategy:
+    type: "Recreate"
+    # maxSurge: "50%"
+    # maxUnavailable: "50%"
+
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+
+  podAnnotations: {}
+
+  podLabels: {}
+
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+
+  securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  #  runAsNonRoot: true
+  #  runAsUser: 1000
+
+  # here you can specify lifecycle hooks - it can be used e.g., to easily add packages to the container without building
+  # your own docker image
+  # see https://github.com/8gears/n8n-helm-chart/pull/30
+  lifecycle: {}
+
+  #  here's the sample configuration to add mysql-client to the container
+  # lifecycle:
+  #  postStart:
+  #    exec:
+  #      command: ["/bin/sh", "-c", "apk add mysql-client"]
+
+  # here you can override a command for worker container
+  # it may be used to override a starting script (e.g., to resolve issues like https://github.com/n8n-io/n8n/issues/6412) or
+  # run additional preparation steps (e.g., installing additional software)
+  command: []
+
+  # sample configuration that overrides starting script and solves above issue (also it runs n8n as root, so be careful):
+  # command:
+  #  - tini
+  #  - --
+  #  - /bin/sh
+  #  - -c
+  #  - chmod o+rx /root; chown -R node /root/.n8n || true; chown -R node /root/.n8n; ln -s /root/.n8n /home/node; chown -R node /home/node || true; node /usr/local/bin/n8n
+
+  # command args
+  commandArgs: []
+
+  # here you can override the livenessProbe for the main container
+  # it may be used to increase the timeout for the livenessProbe (e.g., to resolve issues like
+  livenessProbe:
+    httpGet:
+      path: /healthz
+      port: http
+    # initialDelaySeconds: 30
+    # periodSeconds: 10
+    # timeoutSeconds: 5
+    # failureThreshold: 6
+    # successThreshold: 1
+
+  # here you can override the readinessProbe for the main container
+  # it may be used to increase the timeout for the readinessProbe (e.g., to resolve issues like
+
+  readinessProbe:
+    httpGet:
+      path: /healthz
+      port: http
+    # initialDelaySeconds: 30
+    # periodSeconds: 10
+    # timeoutSeconds: 5
+    # failureThreshold: 6
+    # successThreshold: 1
+
+  # List of initialization containers belonging to the pod. Init containers are executed in order prior to containers being started.
+  # See https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
+  initContainers: []
+
+  service:
+    annotations: {}
+    # -- Service types allow you to specify what kind of Service you want.
+    # E.g., ClusterIP, NodePort, LoadBalancer, ExternalName
+    type: ClusterIP
+    # -- Service port
+    port: 80
+
+  resources: {}
+  # We usually recommend not specifying default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+
+# # # # # # # # # # # # # # # #
+#
+# Webhook related settings
+#
+webhook:
+  enabled: false
+
+  #
+  # Webhook Kubernetes specific settings
+  #
+  persistence:
+    # If true, use a Persistent Volume Claim, If false, use emptyDir
+    enabled: false
+    # what type volume, possible options are [existing, emptyDir, dynamic] dynamic for Dynamic Volume Provisioning, existing for using an existing Claim
+    type: emptyDir
+    # Persistent Volume Storage Class
+    # If defined, storageClassName: <storageClass>
+    # If set to "-", storageClassName: "", which disables dynamic provisioning
+    # If undefined (the default) or set to null, no storageClassName spec is
+    #   set, choosing the default provisioner.  (gp2 on AWS, standard on
+    #   GKE, AWS & OpenStack)
+    #
+    # storageClass: "-"
+    # PVC annotations
+    #
+    # If you need this annotation include it under `values.yml` file and pvc.yml template will add it.
+    # This is not maintained at Helm v3 anymore.
+    # https://github.com/8gears/n8n-helm-chart/issues/8
+    #
+    # annotations:
+    #   helm.sh/resource-policy: keep
+    # Persistent Volume Access Mode
+    #
+    accessModes:
+      - ReadWriteOnce
+    # Persistent Volume size
+    #
+    size: 1Gi
+    # Use an existing PVC
+    #
+    # existingClaim:
+
+  # Number of desired pods.
+  replicaCount: 1
+
+  # here you can specify the deployment strategy as Recreate or RollingUpdate with optional maxSurge and maxUnavailable
+  # If these options are not set, default values are 25%
+  # deploymentStrategy:
+  #  type: RollingUpdate
+  #  maxSurge: "50%"
+  #  maxUnavailable: "50%"
+
+  deploymentStrategy:
+    type: "Recreate"
+
+  nameOverride: ""
+  fullnameOverride: ""
+
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+
+  podAnnotations: {}
+
+  podLabels: {}
+
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+
+  securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  #  runAsNonRoot: true
+  #  runAsUser: 1000
+
+  # here you can specify lifecycle hooks - it can be used e.g., to easily add packages to the container without building
+  # your own docker image
+  # see https://github.com/8gears/n8n-helm-chart/pull/30
+  lifecycle: {}
+
+  #  here's the sample configuration to add mysql-client to the container
+  # lifecycle:
+  #  postStart:
+  #    exec:
+  #      command: ["/bin/sh", "-c", "apk add mysql-client"]
+
+  # here you can override a command for main container
+  # it may be used to override a starting script (e.g., to resolve issues like https://github.com/n8n-io/n8n/issues/6412) or
+  # run additional preparation steps (e.g., installing additional software)
+  command: []
+
+  # sample configuration that overrides starting script and solves above issue (also it runs n8n as root, so be careful):
+  # command:
+  #  - tini
+  #  - --
+  #  - /bin/sh
+  #  - -c
+  #  - chmod o+rx /root; chown -R node /root/.n8n || true; chown -R node /root/.n8n; ln -s /root/.n8n /home/node; chown -R node /home/node || true; node /usr/local/bin/n8n
+  # Command Arguments
+  commandArgs: []
+
+  # here you can override the livenessProbe for the main container
+  # it may be used to increase the timeout for the livenessProbe (e.g., to resolve issues like
+
+  livenessProbe:
+    httpGet:
+      path: /healthz
+      port: http
+    # initialDelaySeconds: 30
+    # periodSeconds: 10
+    # timeoutSeconds: 5
+    # failureThreshold: 6
+    # successThreshold: 1
+
+  # here you can override the readinessProbe for the main container
+  # it may be used to increase the timeout for the readinessProbe (e.g., to resolve issues like
+
+  readinessProbe:
+    httpGet:
+      path: /healthz
+      port: http
+    # initialDelaySeconds: 30
+    # periodSeconds: 10
+    # timeoutSeconds: 5
+    # failureThreshold: 6
+    # successThreshold: 1
+
+  # List of initialization containers belonging to the pod. Init containers are executed in order prior to containers being started.
+  # See https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
+  initContainers: []
+
+  service:
+    annotations: {}
+    # -- Service types allow you to specify what kind of Service you want.
+    # E.g., ClusterIP, NodePort, LoadBalancer, ExternalName
+    type: ClusterIP
+    # -- Service port
+    port: 80
+
+  resources: {}
+  # We usually recommend not specifying default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+#
+# Additional resources
+#
+
+#  Takes a list of Kubernetes resources and merges each resource with a default metadata.labels map and
+#  installs the result.
+#  Use this to add any arbitrary Kubernetes manifests alongside this chart instead of kubectl and scripts.
+resources: []
+#  - apiVersion: v1
+#    kind: ConfigMap
+#    metadata:
+#      name: example-config
+#    data:
+#      example.property.1: "value1"
+#      example.property.2: "value2"
+# As an alternative to the above, you can also use a string as the value of the data field.
+#  - |
+#    apiVersion: v1
+#    kind: ConfigMap
+#    metadata:
+#      name: example-config-string
+#    data:
+#      example.property.1: "value1"
+#      example.property.2: "value2"
+
+# Add additional templates.
+# In contrast to the resources field, these templates are not merged with the default metadata.labels map.
+# The templates are rendered with the values.yaml file as the context.
+templates: []
+#  - |
+#    apiVersion: v1
+#    kind: ConfigMap
+#    metadata:
+#      name: my-config
+#    stringData:
+#      image_name: {{ .Values.image.repository }}
+
+# Bitnami Valkey configuration
+# https://artifacthub.io/packages/helm/bitnami/valkey
 redis:
   enabled: false
-  # Other default redis values: https://github.com/bitnami/charts/blob/master/bitnami/redis/values.yaml
-```
+  architecture: standalone
 
-# Typical Values Example
-
-A typical example of a config in combination with a secret.
-
-```yaml
-# values.yaml
-
-config:
-  database:
-    type: postgresdb
-    postgresdb:
-      host: 192.168.0.52
-secret:
-  database:
-    postgresdb:
-      password: 'big secret'
+  master:
+    persistence:
+      enabled: true
+      existingClaim: ""
+      size: 2Gi
 
 ```
 
-## Setup
 
-```shell
-helm install -f values.yaml -n n8n deploymentname n8n
-```
-
-## Scaling
-
+## Scaling and Advanced Configuration Options
 n8n provides a **queue-mode**, where the workload is shared between multiple
-instances of same n8n installation.   
-This provides a shared load over multiple instances and a limited high
+instances of the same n8n installation.   
+This provides a shared load over multiple instances and limited high
 availability, because the controller instance remains as Single-Point-Of-Failure.
 
 With the help of an internal/external redis server and by using the excellent
