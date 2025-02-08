@@ -1,5 +1,5 @@
 > [!WARNING]
-> This chart is currently redesigned to better support the changed config option of n8n. Please follow the issue https://github.com/8gears/n8n-helm-chart/pull/125 for more details and the current progress of development. New Chart should be ready in January 2025.
+> This chart is currently redesigned (branch name [next]([url](https://github.com/8gears/n8n-helm-chart/tree/next))) to better support the changed config option of n8n. Please follow the issue https://github.com/8gears/n8n-helm-chart/pull/125 for more details and the current progress of development. New Chart should be ready in January 2025.
 
 
 > [!IMPORTANT]
