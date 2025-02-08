@@ -5,8 +5,6 @@
 > If you're interested in making a difference,
 > [join the discussion](https://github.com/8gears/n8n-helm-chart/discussions/90).
 
-
-
 # n8n Helm Chart for Kubernetes
 
 [n8n](https://github.com/n8n-io/n8n) is an extendable workflow automation tool.
@@ -38,14 +36,15 @@ The `values.yaml` file is divided into a multiple n8n and Kubernetes specific se
 6. Raw Resources to pass through your own manifests like GatewayAPI, ServiceMonitor etc.
 7. Redis related settings + Kubernetes specific settings
 
-
 ## Setting Configuration Values and Environment Variables
 
 These n8n specific settings should be added to `main.config:` or `main.secret:` in the `values.yaml` file.
 
-See the [example](#examples) section and the example in the directory `/examples`).
+See the [example](#examples) section and other example in the `/examples` directory of this repo.
 
-The YAML config and secret tree section is transformed 1:1 into ENV variables.
+> [!IMPORTANT]
+> The YAML config and secret tree are transformed 1:1 into ENV variables.
+
 ```yaml
 main:
   config:
