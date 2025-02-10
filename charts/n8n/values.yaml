@@ -330,3 +330,8 @@ redis:
       enabled: true
       existingClaim: ""
       size: 2Gi
+
+
+# Extra objects to deploy (value evaluated as a template)
+# In some cases, it can avoid the need for additional, extended or adhoc deployments.
+extraObjects: []
