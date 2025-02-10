@@ -321,8 +321,8 @@ scaling:
   redis:
     host:
     password:
-    existingSecret:
-    existingSecretPasswordKey:
+    # existingSecret:
+    # existingSecretPasswordKey:
 
 
 ## Bitnami Redis configuration
