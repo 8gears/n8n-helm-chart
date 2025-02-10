@@ -322,15 +322,16 @@ extraObjects:
   - apiVersion: v1
     kind: ConfigMap
     metadata:
-      name: my-configmap
+      name: "extra"
     data:
-      key: value
-  - apiVersion: v1
-    kind: Secret
+      something: "extra"
+  - |
+    apiVersion: v1
+    kind: ConfigMap
     metadata:
-      name: my-secret
+      name: "templated"
     data:
-      key: value
+      something: {{ printf "templated" }}
 ```
 
 ## Setup
