@@ -65,6 +65,7 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+        
           env:
             {{- include "n8n.deploymentPodEnvironments" . | nindent 12 }}
           lifecycle:
@@ -94,6 +95,9 @@ spec:
             - name: secret-volume
               mountPath: /n8n-secret
                 {{- end }}
+            {{- if .Values.additionalVolumeMounts }}
+{{ toYaml .Values.additionalVolumeMounts | indent 12}}
+            {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -121,4 +125,8 @@ spec:
             items:
               - key: "secret.json"
                 path: "secret.json"
+        {{- end }}
+
+        {{- if .Values.additionalVolumes }}
+{{ toYaml .Values.additionalVolumes | indent 8  }}
         {{- end }}
