@@ -313,6 +313,26 @@ secret:
 
 ```
 
+## Extra objects
+You can add extra objects to the deployment, like configmaps, secrets, etc. by adding them to the `extraObjects` section in the `values.yaml` file so no additional deployment/pipeline is needed.
+
+```yaml
+# values.yaml
+extraObjects:
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: my-configmap
+    data:
+      key: value
+  - apiVersion: v1
+    kind: Secret
+    metadata:
+      name: my-secret
+    data:
+      key: value
+```
+
 ## Setup
 
 ```shell

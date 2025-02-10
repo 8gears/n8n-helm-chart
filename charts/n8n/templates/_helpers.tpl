@@ -139,3 +139,12 @@ Create the name of the service account to use
             claimName: {{ include "n8n.fullname" . }}
 {{- end }}
 {{- end }}
+
+{{/* Renders a complete tree, even values that contains template. */}}
+{{- define "n8n.render" -}}
+  {{- if typeIs "string" .value }}
+    {{- tpl .value .context }}
+  {{ else }}
+    {{- tpl (.value | toYaml) .context }}
+  {{- end }}
+{{- end -}}
