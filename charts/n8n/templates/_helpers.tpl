@@ -94,6 +94,11 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 
-
+{{/* Validate Redis configuration when webhooks are enabled*/}}
+{{- define "n8n.validateRedis" -}}
+{{- if and .Values.webhook.enabled (not .Values.redis.enabled) -}}
+{{- fail "Webhook processes rely on Redis. Please set redis.enabled=true when webhook.enabled=true" -}}
+{{- end -}}
+{{- end -}}
 
 

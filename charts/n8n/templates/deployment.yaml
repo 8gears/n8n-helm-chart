@@ -22,7 +22,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: {{ print .Values | sha256sum }}
+        checksum/config: {{ print .Values.main | sha256sum }}
         {{- with .Values.main.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -65,7 +65,7 @@ spec:
             - secretRef:
                 name: app-secret-{{ include "n8n.fullname" . }}
             {{- end }}
-          env:
+          env: {{ not (empty .Values.main.extraEnv) | ternary nil "[]" }}  
             {{- range $key, $value := .Values.main.extraEnv }}
             - name: {{ $key }}
               {{- toYaml $value | nindent 14 }}

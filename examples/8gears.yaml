@@ -5,7 +5,7 @@ image:
 imagePullSecrets:
   - name: 8gears-registry-n8n
 
-main:
+n8n:
   config:
     db:
       type: postgresdb
@@ -29,7 +29,7 @@ main:
         secretKeyRef:
           name: db-app
           key: password
-  # Mount the CNPG CA Cert into N8N container
+  # Mount CA Cert to N8N container
   extraVolumeMounts:
     - name: db-ca-cert
       mountPath: /home/ssl/certs/postgresql

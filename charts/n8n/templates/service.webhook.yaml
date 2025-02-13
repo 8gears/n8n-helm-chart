@@ -10,9 +10,9 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  type: {{ get .Values.webhook.service.type | default "ClusterIP" }}
+  type: {{ .Values.webhook.service.type | default "ClusterIP" }}
   ports:
-    - port: {{ get .Values.webhook.service.port | default 80  }}
+    - port: {{ .Values.webhook.service.port | default 80  }}
       targetPort: http
       protocol: TCP
       name: http

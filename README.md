@@ -21,7 +21,7 @@ The Helm chart source code location is [github.com/8gears/n8n-helm-chart](https:
 Before you start, make sure you have the following tools ready:
 
 - Helm >= 3.8
-- external Postgres DB or embedded SQLite (bundled with n8n)
+- external Postgres DB or embedded SQLite (SQLite is bundled with n8n)
 - Helmfile (Optional)
 
 ## Overview
@@ -43,19 +43,19 @@ These n8n specific settings should be added to `main.config:` or `main.secret:` 
 See the [example](#examples) section and other example in the `/examples` directory of this repo.
 
 > [!IMPORTANT]
-> The YAML config and secret tree are transformed 1:1 into ENV variables.
+> The YAML nodes `config` and `secret` in the values.yaml are transformed 1:1 into ENV variables.
 
 ```yaml
 main:
   config:
       n8n:
-        encryption_key: "my_secret" # ==> turns into ENV: N8N_ENCRYPTION_KEY
+        encryption_key: "my_secret" # ==> turns into ENV: N8N_ENCRYPTION_KEY=my_secret
       db:
-        type: postgresdb # ==> turns into ENV: N8N_DB_TYPE
-        postgresdb: # ==> turns into ENV: N8N_DB_POSTGRESDB_
-        host: 192.168.0.52 # ==> turns into ENV: N8N_DB_POSTGRESDB_HOST
+        type: postgresdb # ==> turns into ENV: DB_TYPE=postgresdb
+        postgresdb: 
+          host: 192.168.0.52 # ==> turns into ENV: DB_POSTGRESDB_HOST=192.168.0.52
       node:
-        functions_allow_builtin: "*" # ==> turns into ENV: N8N_NODE_FUNCTIONS_ALLOW_BUILTIN
+        function_allow_builtin: "*" # ==> turns into ENV: NODE_FUNCTION_ALLOW_BUILTIN="*"
 ```
 
 Consult the [n8n Environment Variables Documentation]( https://docs.n8n.io/hosting/configuration/environment-variables/)
@@ -70,7 +70,6 @@ Install chart
 ```shell
 helm install my-n8n oci://8gears.container-registry.com/library/n8n --version 1.0.0
 ```
-
 
 # Examples
 
