@@ -165,7 +165,7 @@ main:
   #      postgresdb:
   #        password: 'big secret'
 
-  # Extra environmental variables, so you can map from your own secrets to n8n's env vars.
+  # Extra environmental variables, so you can reference other configmaps and secrets into n8n as env vars.
   extraEnv:
   #    N8N_DB_POSTGRESDB_NAME:
   #      valueFrom:
@@ -358,7 +358,8 @@ main:
 worker:
   enabled: false
   count: 2
-  concurrency: 2
+  # You can define the number of jobs a worker can run in parallel by using the concurrency flag. It defaults to 10. To change it:
+  concurrency: 10
 
   #
   # Worker Kubernetes specific settings
@@ -520,13 +521,22 @@ worker:
   tolerations: []
   affinity: {}
 
-
-# # # # # # # # # # # # # # # #
-#
 # Webhook related settings
-#
+# With .Values.scaling.webhook.enabled=true you disable Webhooks from the main process, but you enable the processing on a different Webhook instance.
+# See https://github.com/8gears/n8n-helm-chart/issues/39#issuecomment-1579991754 for the full explanation.
+# Webhook processes rely on Redis too.
 webhook:
-  enabled: false
+  enabled: false  
+  # additional (to main) config for webhook
+  config: {}
+  # additional (to main) config for webhook
+  secret: {}
+
+  # Extra environmental variables, so you can reference other configmaps and secrets into n8n as env vars.
+  extraEnv: {}
+  #   WEBHOOK_URL:
+  #   value: "http://webhook.domain.tld"
+     
 
   #
   # Webhook Kubernetes specific settings
@@ -734,18 +744,19 @@ redis:
   enabled: false
   architecture: standalone
 
-  master:
+  primary:
     persistence:
-      enabled: true
+      enabled: false
       existingClaim: ""
       size: 2Gi
 
+
 ```
 
-
 ## Scaling and Advanced Configuration Options
+
 n8n provides a **queue-mode**, where the workload is shared between multiple
-instances of the same n8n installation.   
+instances of the same n8n installation.
 This provides a shared load over multiple instances and limited high
 availability, because the controller instance remains as Single-Point-Of-Failure.
 
