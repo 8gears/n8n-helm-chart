@@ -49,7 +49,7 @@ ingress:
 # The config: {} dictionary is converted to environmental variables in the ConfigMap.
 main:
   # See https://docs.n8n.io/hosting/configuration/environment-variables/ for all values.
-  config:
+  config: {}
   #    n8n:
   #    db:
   #      type: postgresdb
@@ -59,7 +59,7 @@ main:
   # Dictionary for secrets, unlike config:, the values here will end up in the secret file.
   # The YAML entry db.postgresdb.password: my_secret is transformed DB_POSTGRESDB_password=bXlfc2VjcmV0
   # See https://docs.n8n.io/hosting/configuration/environment-variables/
-  secret:
+  secret: {}
   #    n8n:
   #     if you run n8n stateless, you should provide an encryption key here.
   #      encryption_key:
@@ -122,7 +122,7 @@ main:
   #      readOnly: true
 
 
-  # Number of desired pods.
+  # Number of desired pods. More than one pod is supported in n8n enterprise. 
   replicaCount: 1
 
   # here you can specify the deployment strategy as Recreate or RollingUpdate with optional maxSurge and maxUnavailable
@@ -429,7 +429,7 @@ worker:
 # See https://github.com/8gears/n8n-helm-chart/issues/39#issuecomment-1579991754 for the full explanation.
 # Webhook processes rely on Redis too.
 webhook:
-  enabled: false  
+  enabled: false
   # additional (to main) config for webhook
   config: {}
   # additional (to main) config for webhook
@@ -439,7 +439,7 @@ webhook:
   extraEnv: {}
   #   WEBHOOK_URL:
   #   value: "http://webhook.domain.tld"
-     
+
 
   #
   # Webhook Kubernetes specific settings
