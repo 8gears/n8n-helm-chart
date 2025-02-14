@@ -5,6 +5,19 @@
 > If you're interested in making a difference,
 > [join the discussion](https://github.com/8gears/n8n-helm-chart/discussions/90).
 
+> [!WARNING]
+> Version 1.0.0 includes breaking changes and is not backwards compatible with previous versions.
+> Please review the migration guide below before upgrading.
+
+## Migration Guide
+
+This version includes a complete redesign of the chart to better accommodate n8n configuration options.
+Key changes include:
+- Values restructured under `.Values.main`, `.Values.worker`, and `.Values.webhook`
+- Updated deployment configurations
+- New Redis integration requirements
+
+For detailed upgrade instructions, see [Issue #125](link-to-issue).
 # n8n Helm Chart for Kubernetes
 
 [n8n](https://github.com/n8n-io/n8n) is an extendable workflow automation tool.
