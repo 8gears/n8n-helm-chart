@@ -1,7 +1,7 @@
 apiVersion: v2
 name: n8n
-version: 0.25.2
-appVersion: 1.62.5
+version: 1.0.0
+appVersion: 1.76.1
 type: application
 description: "A Kubernetes Helm chart for n8n a free and open fair-code licensed node based Workflow Automation Tool. Easily automate tasks across different services."
 home: https://github.com/8gears/n8n-helm-chart
@@ -25,13 +25,13 @@ maintainers:
     url: https://github.com/n8n-io
 
 dependencies:
-  - name: redis
-    version: 18.6.1
-    repository: https://charts.bitnami.com/bitnami
+  - name: valkey
+    version: 2.2.3
+    repository: oci://registry-1.docker.io/bitnamicharts
     condition: redis.enabled
 annotations:
-  artifacthub.io/prerelease: "false"
+  artifacthub.io/prerelease: "true"
   # supported kinds are added, changed, deprecated, removed, fixed and security.
   artifacthub.io/changes: |
     - kind: changed
-      description: "Updated application to version 1.62.5"
+      description: "Major chart redesign and also update to n8n version 1.74.1. This version is not compatible with the previous version. Please read the release notes for more details."

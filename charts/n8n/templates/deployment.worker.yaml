@@ -1,4 +1,4 @@
-{{- if .Values.scaling.enabled }}
+{{- if .Values.worker.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -6,15 +6,15 @@ metadata:
   labels:
     {{- include "n8n.labels" . | nindent 4 }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.scaling.worker.count }}
+  {{- if not .Values.worker.autoscaling.enabled }}
+  replicas: {{ .Values.worker.count }}
   {{- end }}
   strategy:
-    type: {{ .Values.deploymentStrategy.type }}
-    {{- if eq .Values.deploymentStrategy.type "RollingUpdate" }}
+    type: {{ .Values.worker.deploymentStrategy.type }}
+    {{- if eq .Values.worker.deploymentStrategy.type "RollingUpdate" }}
     rollingUpdate:
-      maxSurge: {{ default "25%" .Values.deploymentStrategy.maxSurge  }}
-      maxUnavailable: {{ default "25%" .Values.deploymentStrategy.maxUnavailable }}
+      maxSurge: {{ default "25%" .Values.worker.deploymentStrategy.maxSurge  }}
+      maxUnavailable: {{ default "25%" .Values.worker.deploymentStrategy.maxUnavailable }}
     {{- end }}
   selector:
     matchLabels:
@@ -24,14 +24,14 @@ spec:
     metadata:
       annotations:
         checksum/config: {{ print .Values | sha256sum }}
-        {{- with .Values.podAnnotations }}
+        {{- with .Values.worker.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
       labels:
         {{- include "n8n.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/type: worker
-        {{- if .Values.podLabels }}
-          {{ toYaml .Values.podLabels | nindent 8 }}
+        {{- if .Values.worker.podLabels }}
+          {{ toYaml .Values.worker.podLabels | nindent 8 }}
         {{- end }}
 
     spec:
@@ -41,64 +41,61 @@ spec:
       {{- end }}
       serviceAccountName: {{ include "n8n.serviceAccountName" . }}
       securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      {{- if .Values.initContainers }}
+        {{- toYaml .Values.worker.podSecurityContext | nindent 8 }}
+      {{- if .Values.worker.initContainers }}
       initContainers:
-      {{ tpl (toYaml .Values.initContainers) . | nindent 8 }}
+      {{ tpl (toYaml .Values.worker.initContainers) . | nindent 8 }}
       {{- end }}
       containers:
-        - name: {{ .Chart.Name }}
+        - name: {{ .Chart.Name }}-worker
           securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
+            {{- toYaml .Values.worker.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if .Values.worker.command }}
+          command:
+            {{- toYaml .Values.worker.command | nindent 12 }}
+          {{- else }}
           command: ["n8n"]
-          args: ["worker", "--concurrency={{ .Values.scaling.worker.concurrency }}"]
-          env:
-            {{- include "n8n.deploymentPodEnvironments" . | nindent 12 }}
+          {{- end }}
+          {{- if .Values.worker.commandArgs }}
+          args:
+            {{- toYaml .Values.worker.commandArgs | nindent 12 }}
+          {{- else }}
+          args:
+            - "worker"
+            - "--concurrency={{ .Values.worker.concurrency }}"
+          {{- end }}
           ports:
             - name: http
-              containerPort: {{ get .Values.config "port" | default 5678 }}
+              containerPort: {{ get .Values.worker.config "port" | default 5678 }}
               protocol: TCP
+          {{- with .Values.main.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.main.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           resources:
-            {{- toYaml .Values.workerResources | nindent 12 }}
+            {{- toYaml .Values.worker.workerResources | nindent 12 }}
           volumeMounts:
             - name: data
-              mountPath: {{ if semverCompare ">=1.0" (.Values.image.tag | default .Chart.AppVersion) }}/home/node/.n8n{{ else }}/root/.n8n{{ end }}
-            {{- if .Values.config }}
-            - name: config-volume
-              mountPath: /n8n-config
-            {{- end }}
-            {{- if or (.Values.secret) (.Values.existingSecret) }}
-            - name: secret-volume
-              mountPath: /n8n-secret
-                {{- end }}
-      {{- with .Values.nodeSelector }}
+              mountPath: /home/node/.n8n
+      {{- with .Values.worker.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.affinity }}
+      {{- with .Values.worker.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.tolerations }}
+      {{- with .Values.worker.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       volumes:
         - name: "data"
           {{ include "n8n.pvc" . }}
-        {{- if .Values.config }}
-        - name: config-volume
-          configMap:
-            name: {{ include "n8n.fullname" . }}
-        {{- end }}
-        {{- if or (.Values.secret) (.Values.existingSecret) }}
-        - name: secret-volume
-          secret:
-            secretName: {{ if .Values.existingSecret }}{{ .Values.existingSecret }}{{ else }}{{ include "n8n.fullname" . }}{{ end }}
-            items:
-              - key: "secret.json"
-                path: "secret.json"
-        {{- end }}
-  {{- end }}
+{{- end }}

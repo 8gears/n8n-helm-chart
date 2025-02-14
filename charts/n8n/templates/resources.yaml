@@ -1,0 +1,48 @@
+{{/*
+raw.resource will create a resource template that can be
+merged with each item in `.Values.resources`.
+*/}}
+{{- define "raw.metadata" -}}
+metadata:
+  labels:
+    app: {{ template "n8n.name" . }}
+    chart: {{ template "n8n.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+{{- end }}
+
+{{- $metadata := fromYaml (include "raw.metadata" .) -}}
+
+{{- $resources := list -}}
+{{- range .Values.resources }}
+  {{- if typeIs "string" . }}
+    {{/* Handle multi-part */}}
+    {{- range . | splitList "---\n" }}
+      {{- with . | fromYaml }}
+        {{- $resources = append $resources . }}
+      {{- end }}
+    {{- end }}
+  {{- else }}
+    {{- $resources = append $resources . }}
+  {{- end }}
+{{- end }}
+
+{{- $templates := list -}}
+{{- range .Values.templates }}
+  {{/* Handle multi-part */}}
+  {{- range . | splitList "---\n" }}
+    {{- if . | fromYaml }}
+      {{- $templates = append $templates . }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+
+{{- range $resources }}
+---
+{{ merge . $metadata | toYaml }}
+{{- end }}
+
+{{- range $templates }}
+---
+{{ merge (tpl . $ | fromYaml) $metadata | toYaml }}
+{{- end }}

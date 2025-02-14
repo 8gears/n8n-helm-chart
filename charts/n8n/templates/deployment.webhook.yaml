@@ -1,0 +1,126 @@
+{{- if .Values.webhook.enabled }}
+{{- /* Validate Redis configuration */}}
+{{- include "n8n.validateRedis" . }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "n8n.fullname" . }}-webhook
+  labels:
+    {{- include "n8n.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.webhook.autoscaling.enabled }}
+  replicas: {{ .Values.webhook.replicaCount }}
+  {{- end }}
+  strategy:
+    type: {{ .Values.webhook.deploymentStrategy.type }}
+    {{- if eq .Values.webhook.deploymentStrategy.type "RollingUpdate" }}
+    rollingUpdate:
+      maxSurge: {{ default "25%" .Values.webhook.deploymentStrategy.maxSurge  }}
+      maxUnavailable: {{ default "25%" .Values.webhook.deploymentStrategy.maxUnavailable }}
+    {{- end }}
+  selector:
+    matchLabels:
+      {{- include "n8n.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/type: webhook
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ print .Values.webhook .Values.main | sha256sum }}
+        {{- with .Values.webhook.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "n8n.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/type: webhook
+        {{- if .Values.webhook.podLabels }}
+          {{ toYaml .Values.webhook.podLabels | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "n8n.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.webhook.podSecurityContext | nindent 8 }}
+      {{- if .Values.webhook.initContainers }}
+      initContainers:
+      {{ tpl (toYaml .Values.webhook.initContainers) . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}-webhook
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if .Values.webhook.command }}
+          command:
+            {{- toYaml .Values.webhook.command | nindent 12 }}
+          {{- else }}
+          command: ["n8n"]
+          {{- end }}
+          {{- if .Values.webhook.commandArgs }}
+          args:
+            {{- toYaml .Values.webhook.commandArgs | nindent 12 }}
+          {{- else }}
+          args:
+            - "webhook"
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ get .Values.webhook.config "port" | default 5678 }}
+              protocol: TCP
+          {{- with .Values.webhook.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.webhook.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          envFrom:
+            {{- if .Values.main.config }}
+            - configMapRef:
+                name: app-config-{{ include "n8n.fullname" . }}
+            {{- end }}
+           {{- if .Values.main.secret }}
+            - secretRef:
+                name: app-secret-{{ include "n8n.fullname" . }}
+            {{- end }}
+            {{- if .Values.webhook.config }}
+            - configMapRef:
+                name: webhook-config-{{ include "n8n.fullname" . }}
+            {{- end }}
+           {{- if .Values.webhook.secret }}
+            - secretRef:
+                name: webhook-secret-{{ include "n8n.fullname" . }}
+            {{- end }}
+
+          env: {{ not (empty .Values.webhook.extraEnv) | ternary nil "[]" }}
+            {{- range $key, $value := .Values.webhook.extraEnv }}
+            - name: {{ $key }}
+              {{- toYaml $value | nindent 14 }}
+            {{- end }}
+          lifecycle:
+            {{- toYaml .Values.webhook.lifecycle | nindent 12 }}
+          securityContext:
+            {{- toYaml .Values.webhook.securityContext | nindent 12 }}
+          resources:
+            {{- toYaml .Values.webhook.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /home/node/.n8n
+      {{- with .Values.webhook.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.webhook.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.webhook.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: "data"
+          {{ include "n8n.pvc" . }}
+{{- end }}

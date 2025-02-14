@@ -50,92 +50,55 @@ app.kubernetes.io/name: {{ include "n8n.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
-{{/*
-Selector labels
-*/}}
-{{- define "n8n.deploymentPodEnvironments" -}}
-{{- range $key, $value := .Values.extraEnv }}
-- name: {{ $key }}
-  value: {{ $value | quote}}
-{{ end }}
-{{- range $key, $value := .Values.extraEnvSecrets }}
-- name: {{ $key }}
-  valueFrom:
-    secretKeyRef:
-      name: {{ $value.name | quote }}
-      key: {{ $value.key | quote }}
-{{ end }}
-- name: "N8N_PORT" #! we better set the port once again as ENV Var, see: https://community.n8n.io/t/default-config-is-not-set-or-the-port-to-be-more-precise/3158/3?u=vad1mo
-  value: {{ get .Values.config "port" | default "5678" | quote }}
-{{- if .Values.n8n.encryption_key }}
-- name: "N8N_ENCRYPTION_KEY"
-  valueFrom:
-    secretKeyRef:
-      key:  N8N_ENCRYPTION_KEY
-      name: {{ include "n8n.fullname" . }}
-{{- end }}
-{{- if or .Values.config .Values.secret }}
-- name: "N8N_CONFIG_FILES"
-  value: {{ include "n8n.configFiles" . | quote }}
-{{ end }}
-{{- if .Values.scaling.enabled }}
-- name: "QUEUE_BULL_REDIS_HOST"
-  {{- if .Values.scaling.redis.host }}
-  value: "{{ .Values.scaling.redis.host }}"
-  {{ else }}
-  value: "{{ .Release.Name }}-redis-master"
-  {{ end }}
-- name: "EXECUTIONS_MODE"
-  value: "queue"
-{{ end }}
-{{- if .Values.scaling.redis.password }}
-- name: "QUEUE_BULL_REDIS_PASSWORD"
-  value: "{{ .Values.scaling.redis.password }}"
-{{ end }}
-{{- if .Values.scaling.webhook.enabled }}
-- name: "N8N_DISABLE_PRODUCTION_MAIN_PROCESS"
-  value: "true"
-{{ end }}
-{{- end }}
 
-{{/*
-Create the name of the service account to use
-*/}}
+{{/* Create the name of the service account to use */}}
 {{- define "n8n.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create }}
-{{- default (include "n8n.fullname" .) .Values.serviceAccount.name }}
+{{- if .Values.main.serviceAccount.create }}
+{{- default (include "n8n.fullname" .) .Values.main.serviceAccount.name }}
 {{- else }}
-{{- default "default" .Values.serviceAccount.name }}
+{{- default "default" .Values.main.serviceAccount.name }}
 {{- end }}
 {{- end }}
-
-{{/* Create a list of config files for n8n */}}
-{{- define "n8n.configFiles" -}}
-    {{- $conf_val := "" }}
-    {{- $sec_val  := "" }}
-    {{- $separator  := "" }}
-    {{- if .Values.config }}
-        {{- $conf_val = "/n8n-config/config.json" }}
-    {{- end }}
-    {{- if or .Values.secret .Values.existingSecret }}
-        {{- $sec_val = "/n8n-secret/secret.json" }}
-    {{- end }}
-    {{- if and .Values.config (or .Values.secret .Values.existingSecret) }}
-        {{- $separator  = "," }}
-    {{- end }}
-    {{- print $conf_val $separator $sec_val }}
-{{- end }}
-
 
 {{/* PVC existing, emptyDir, Dynamic */}}
 {{- define "n8n.pvc" -}}
-{{- if or (not .Values.persistence.enabled) (eq .Values.persistence.type "emptyDir") -}}
+{{- if or (not .Values.main.persistence.enabled) (eq .Values.main.persistence.type "emptyDir") -}}
           emptyDir: {}
-{{- else if and .Values.persistence.enabled .Values.persistence.existingClaim -}}
+{{- else if and .Values.main.persistence.enabled .Values.main.persistence.existingClaim -}}
           persistentVolumeClaim:
-            claimName: {{ .Values.persistence.existingClaim }}
-{{- else if and .Values.persistence.enabled (eq .Values.persistence.type "dynamic")  -}}
+            claimName: {{ .Values.main.persistence.existingClaim }}
+{{- else if and .Values.main.persistence.enabled (eq .Values.main.persistence.type "dynamic")  -}}
           persistentVolumeClaim:
             claimName: {{ include "n8n.fullname" . }}
 {{- end }}
 {{- end }}
+
+
+{{/* Create environment variables from yaml tree */}}
+{{- define "toEnvVars" -}}
+    {{- $prefix := "" }}
+    {{- if .prefix }}
+        {{- $prefix = printf "%s_" .prefix }}
+    {{- end }}
+    {{- range $key, $value := .values }}
+        {{- if kindIs "map" $value -}}
+            {{- dict "values" $value "prefix" (printf "%s%s" $prefix ($key | upper)) "isSecret" $.isSecret | include "toEnvVars" -}}
+        {{- else -}}
+            {{- if $.isSecret -}}
+{{ $prefix }}{{ $key | upper }}: {{ $value | b64enc }}{{ "\n" }}
+            {{- else -}}
+{{ $prefix }}{{ $key | upper }}: {{ $value | quote }}{{ "\n" }}
+            {{- end -}}
+        {{- end -}}
+    {{- end -}}
+{{- end }}
+
+
+{{/* Validate Redis configuration when webhooks are enabled*/}}
+{{- define "n8n.validateRedis" -}}
+{{- if and .Values.webhook.enabled (not .Values.redis.enabled) -}}
+{{- fail "Webhook processes rely on Redis. Please set redis.enabled=true when webhook.enabled=true" -}}
+{{- end -}}
+{{- end -}}
+
+

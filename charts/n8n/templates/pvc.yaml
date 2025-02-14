@@ -1,9 +1,9 @@
-{{- if and .Values.persistence.enabled (not .Values.persistence.existingClaim) }}
+{{- if and .Values.main.persistence.enabled (not .Values.main.persistence.existingClaim) }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: {{ include "n8n.fullname" . }}
-  {{- with .Values.persistence.annotations }}
+  {{- with .Values.main.persistence.annotations }}
   annotations:
     {{- range $key, $value := . }}
     {{ $key }}: {{ $value }}
@@ -13,17 +13,17 @@ metadata:
     {{- include "n8n.labels" . | nindent 4 }}
 spec:
   accessModes:
-    {{- range .Values.persistence.accessModes }}
+    {{- range .Values.main.persistence.accessModes }}
     - {{ . | quote }}
     {{- end }}
   resources:
     requests:
-      storage: {{ .Values.persistence.size }}
-  {{- if .Values.persistence.storageClass }}
-  {{- if eq "-" .Values.persistence.storageClass }}
+      storage: {{ .Values.main.persistence.size }}
+  {{- if .Values.main.persistence.storageClass }}
+  {{- if eq "-" .Values.main.persistence.storageClass }}
   storageClassName: ""
   {{- else }}
-  storageClassName: {{ .Values.persistence.storageClass }}
+  storageClassName: {{ .Values.main.persistence.storageClass }}
   {{- end }}
   {{- end }}
 {{- end }}

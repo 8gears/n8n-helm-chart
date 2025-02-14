@@ -1,0 +1,92 @@
+#Prod like set up with CloudNativePG and nginx-ingress
+image:
+  repository: 8gears.container-registry.com/ops/n8n
+  tag: 1.76.1
+imagePullSecrets:
+  - name: 8gears-registry-n8n
+
+main:
+  config:
+    db:
+      type: postgresdb
+      postgresdb:
+        host: db-rw
+        user: n8n
+#        password: password is read from cnpg db-app secretKeyRef
+        pool:
+          size: 10
+        ssl:
+          enabled: true
+          reject_Unauthorized: true
+          ca_file: "/home/ssl/certs/postgresql/ca.crt"
+  secret:
+    n8n:
+      encryption_key: "<your-secure-encryption-key>"
+
+  extraEnv:
+    DB_POSTGRESDB_PASSWORD:
+      valueFrom:
+        secretKeyRef:
+          name: db-app
+          key: password
+  # Mount the CNPG CA Cert into N8N container
+  extraVolumeMounts:
+    - name: db-ca-cert
+      mountPath: /home/ssl/certs/postgresql
+      readOnly: true
+
+  extraVolumes:
+    - name: db-ca-cert
+      secret:
+        secretName: db-ca
+        items:
+          - key: ca.crt
+            path: ca.crt
+  resources:
+    limits:
+      memory: 2048Mi
+    requests:
+      memory: 512Mi
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  hosts:
+    - host: n8n-dev.8gears.com
+      paths:
+        - /
+  tls:
+    - secretName: n8n-ingress-tls
+      hosts:
+        - n8n-dev.8gears.com
+
+
+
+# cnpg DB cluster request
+resources:
+  - apiVersion: postgresql.cnpg.io/v1
+    kind: Cluster
+    metadata:
+      name: db
+    spec:
+      instances: 1
+      bootstrap:
+        initdb:
+          database: n8n
+          owner: n8n
+      postgresql:
+        parameters:
+          shared_buffers: "64MB"
+      resources:
+        requests:
+          memory: "512Mi"
+        limits:
+          memory: "512Mi"
+      storage:
+        size: 1Gi
