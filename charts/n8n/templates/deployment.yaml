@@ -65,7 +65,7 @@ spec:
             - secretRef:
                 name: app-secret-{{ include "n8n.fullname" . }}
             {{- end }}
-          env: {{ not (empty .Values.main.extraEnv) | ternary nil "[]" }}  
+          env: {{ not (empty .Values.main.extraEnv) | ternary nil "[]" }}
             {{- range $key, $value := .Values.main.extraEnv }}
             - name: {{ $key }}
               {{- toYaml $value | nindent 14 }}
@@ -74,7 +74,7 @@ spec:
             {{- toYaml .Values.main.lifecycle | nindent 12 }}
           ports:
             - name: http
-              containerPort: {{ get .Values.main.config "port" | default 5678 }}
+              containerPort: {{ get (default (dict) .Values.main.config) "port" | default 5678 }}
               protocol: TCP
           {{- with .Values.main.livenessProbe }}
           livenessProbe:
