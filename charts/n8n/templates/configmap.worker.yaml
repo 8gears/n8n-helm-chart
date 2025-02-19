@@ -1,0 +1,10 @@
+{{- if .Values.worker.config }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: worker-config-{{ include "n8n.fullname" . }}
+  labels:
+    {{- include "n8n.labels" . | nindent 4 }}
+data:
+  {{- include "toEnvVars" (dict "values" .Values.worker.config "prefix" "") | nindent 2 }}
+{{- end }}

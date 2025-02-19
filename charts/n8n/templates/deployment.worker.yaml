@@ -52,6 +52,28 @@ spec:
             {{- toYaml .Values.worker.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          envFrom:
+            {{- if .Values.main.config }}
+            - configMapRef:
+                name: app-config-{{ include "n8n.fullname" . }}
+            {{- end }}
+           {{- if .Values.main.secret }}
+            - secretRef:
+                name: app-secret-{{ include "n8n.fullname" . }}
+            {{- end }}
+            {{- if .Values.worker.config }}
+            - configMapRef:
+                name: worker-config-{{ include "n8n.fullname" . }}
+            {{- end }}
+           {{- if .Values.worker.secret }}
+            - secretRef:
+                name: worker-secret-{{ include "n8n.fullname" . }}
+            {{- end }}
+          env: {{ not (empty .Values.worker.extraEnv) | ternary nil "[]" }}
+            {{- range $key, $value := .Values.worker.extraEnv }}
+            - name: {{ $key }}
+              {{- toYaml $value | nindent 14 }}
+            {{- end }}
           {{- if .Values.worker.command }}
           command:
             {{- toYaml .Values.worker.command | nindent 12 }}

@@ -260,6 +260,18 @@ main:
 #
 worker:
   enabled: false
+
+  # additional (to main) config for worker
+  config: {}
+
+  # additional (to main) config for worker
+  secret: {}
+
+  # Extra environmental variables, so you can reference other configmaps and secrets into n8n as env vars.
+  extraEnv: {}
+  #   WEBHOOK_URL:
+  #   value: "http://webhook.domain.tld"
+
   count: 2
   # You can define the number of jobs a worker can run in parallel by using the concurrency flag. It defaults to 10. To change it:
   concurrency: 10
