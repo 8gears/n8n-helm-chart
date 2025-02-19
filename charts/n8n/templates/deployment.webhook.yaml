@@ -66,7 +66,7 @@ spec:
           {{- end }}
           ports:
             - name: http
-              containerPort: {{ get .Values.webhook.config "port" | default 5678 }}
+              containerPort: {{ get (default (dict) .Values.webhook.config) "port" | default 5678 }}
               protocol: TCP
           {{- with .Values.webhook.livenessProbe }}
           livenessProbe:
