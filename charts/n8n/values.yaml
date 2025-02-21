@@ -146,7 +146,13 @@ main:
     # If not set and create is true, a name is generated using the fullname template
     name: ""
 
+  # Annotations to be implemented on the main service deployment
+  deploymentAnnotations: {}
+  # Labels to be implemented on the main service deployment
+  deploymentLabels: {}
+  # Annotations to be implemented on the main service pod
   podAnnotations: {}
+  # Labels to be implemented on the main service pod
   podLabels: {}
 
   podSecurityContext:
@@ -331,8 +337,13 @@ worker:
     # If not set and create is true, a name is generated using the fullname template
     name: ""
 
+  # Annotations to be implemented on the worker deployment
+  deploymentAnnotations: {}
+  # Labels to be implemented on the worker deployment
+  deploymentLabels: {}
+  # Annotations to be implemented on the worker pod
   podAnnotations: {}
-
+  # Labels to be implemented on the worker pod
   podLabels: {}
 
   podSecurityContext:
@@ -513,8 +524,13 @@ webhook:
     # If not set and create is true, a name is generated using the fullname template
     name: ""
 
+  # Annotations to be implemented on the webhook deployment
+  deploymentAnnotations: {}
+  # Labels to be implemented on the webhook deployment
+  deploymentLabels: {}
+  # Annotations to be implemented on the webhook pod
   podAnnotations: {}
-
+  # Labels to be implemented on the webhook pod
   podLabels: {}
 
   podSecurityContext:

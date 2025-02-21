@@ -5,6 +5,13 @@ metadata:
   name: {{ include "n8n.fullname" . }}-worker
   labels:
     {{- include "n8n.labels" . | nindent 4 }}
+    {{- if .Values.worker.deploymentLabels }}
+    {{- toYaml .Values.worker.deploymentLabels | nindent 4 }}
+    {{- end }}
+  {{- if .Values.worker.deploymentAnnotations }}
+  annotations:
+    {{- toYaml .Values.worker.deploymentAnnotations | nindent 4 }}
+  {{- end }}
 spec:
   {{- if not .Values.worker.autoscaling.enabled }}
   replicas: {{ .Values.worker.count }}
