@@ -85,9 +85,9 @@ app.kubernetes.io/instance: {{ .Release.Name }}
             {{- dict "values" $value "prefix" (printf "%s%s" $prefix ($key | upper)) "isSecret" $.isSecret | include "toEnvVars" -}}
         {{- else -}}
             {{- if $.isSecret -}}
-{{ $prefix }}{{ $key | upper }}: {{ $value | b64enc }}{{ "\n" }}
+{{ $prefix }}{{ $key | upper }}: {{ $value | toString | b64enc }}{{ "\n" }}
             {{- else -}}
-{{ $prefix }}{{ $key | upper }}: {{ $value | quote }}{{ "\n" }}
+{{ $prefix }}{{ $key | upper }}: {{ $value | toString | quote }}{{ "\n" }}
             {{- end -}}
         {{- end -}}
     {{- end -}}
