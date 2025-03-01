@@ -34,4 +34,4 @@ annotations:
   # supported kinds are added, changed, deprecated, removed, fixed and security.
   artifacthub.io/changes: |
     - kind: changed
-      description: "Add environment settings to worker deployment"
+      description: "Add support to add custom deployment annotations and labels"
