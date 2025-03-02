@@ -115,6 +115,10 @@ spec:
           {{- if .Values.worker.extraVolumeMounts }}
             {{- toYaml .Values.worker.extraVolumeMounts | nindent 12 }}
           {{- end }}
+      {{- with .Values.hostAliases }}
+      hostAliases:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- with .Values.worker.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

@@ -60,7 +60,7 @@ webhook:
     ASDF: "1234"
   extraEnv: 
     WEBHOOK_URL:
-      value: "http://webhook.domain.tld"
+      value: "https://hooks-n8n-dev.8gears.com"
 redis:
   enabled: true
   

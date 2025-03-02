@@ -1,6 +1,6 @@
 apiVersion: v2
 name: n8n
-version: 1.0.0-beta2
+version: 1.0.0-beta3
 appVersion: 1.81.2
 type: application
 description: "A Kubernetes Helm chart for n8n a free and open fair-code licensed node based Workflow Automation Tool. Easily automate tasks across different services."
@@ -33,5 +33,5 @@ annotations:
   artifacthub.io/prerelease: "true"
   # supported kinds are added, changed, deprecated, removed, fixed and security.
   artifacthub.io/changes: |
-    - kind: changed
-      description: "Add support to add custom deployment annotations and labels"
+    - kind: added
+      description: "Add entries to a pod's /etc/hosts file, mapping custom IP addresses to hostnames."
