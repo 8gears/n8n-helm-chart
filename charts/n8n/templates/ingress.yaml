@@ -1,6 +1,5 @@
 {{- if .Values.ingress.enabled -}}
 {{- $fullName := include "n8n.fullname" . -}}
-{{- $svcPort := .Values.main.service.port -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -37,29 +36,29 @@ spec:
               service:
                 name: {{ $fullName }}
                 port:
-                  number: {{ $svcPort }}
+                  number: {{ $.Values.main.service.port | default 80  }}
           {{- if $.Values.webhook.enabled }}
           - path: {{ . }}webhook/
             pathType: Prefix
             backend:
               service:
-                name: {{ $fullName }}-webhooks
+                name: {{ $fullName }}-webhook
                 port:
-                  number: {{ $svcPort }}
+                  number: {{ $.Values.webhook.service.port | default 80  }}
           - path: {{ . }}webhook-test/
             pathType: Prefix
             backend:
               service:
-                name: {{ $fullName }}
+                name: {{ $fullName }}-webhook
                 port:
-                  number: {{ $svcPort }}
+                  number: {{ $.Values.webhook.service.port | default 80  }}
           - path: {{ . }}webhook-waiting/
             pathType: Prefix
             backend:
               service:
-                name: {{ $fullName }}-webhooks
+                name: {{ $fullName }}-webhook
                 port:
-                  number: {{ $svcPort }}
+                  number: {{ $.Values.webhook.service.port | default 80  }}
           {{- end }}
           {{- end }}
     {{- end }}

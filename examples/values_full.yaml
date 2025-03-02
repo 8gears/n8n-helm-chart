@@ -1,4 +1,11 @@
 #Prod like set up with CloudNativePG and nginx-ingress
+
+# Define hostname anchor at the top of the file
+_shared_config:
+  hostname: &hostname n8n-dev.8gears.com
+  url: &url https://n8n-dev.8gears.com
+
+
 image:
   repository: 8gears.container-registry.com/ops/n8n
   tag: 1.76.1
@@ -7,6 +14,8 @@ imagePullSecrets:
 
 main:
   config:
+    n8n:
+      editor_base_url: *url
     executions_mode: queue
     db:
       type: postgresdb
@@ -21,8 +30,11 @@ main:
           reject_Unauthorized: true
           ca_file: "/home/ssl/certs/postgresql/ca.crt"
     # webhook related settings
-    webhook_url: "https://hooks-n8n-dev.8gears.com"
+    webhook_url: *url
     queue:
+      health:
+        check:
+          active: true
       bull:
         redis:
           host: n8n-valkey-primary
@@ -88,13 +100,13 @@ ingress:
     nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
   hosts:
-    - host: n8n-dev.8gears.com
+    - host: *hostname
       paths:
         - /
   tls:
     - secretName: n8n-ingress-tls
       hosts:
-        - n8n-dev.8gears.com
+        - *hostname
 
 
 
