@@ -104,20 +104,7 @@ Treat the n8n provided configuration documentation as the source of truth,
 this Charts just forwards everything down to the n8n pods.
 
 ```yaml
-#
-# General Config
-#
 
-# default .Chart.Name
-nameOverride:
-
-# default .Chart.Name or .Values.nameOverride
-fullnameOverride:
-
-
-#
-# Common Kubernetes Config Settings for this entire n8n deployment
-#
 image:
   repository: n8nio/n8n
   pullPolicy: IfNotPresent
@@ -125,6 +112,16 @@ image:
   tag: ""
 imagePullSecrets: []
 
+# The Name to use for the chart. Will be the prefix of all resources aka. The Chart.Name (default is 'n8n')
+nameOverride:
+# Override the full name of the deployment. When empty, the name will be "{release-name}-{chart-name}" or the value of nameOverride if specified
+fullnameOverride:
+
+# Add entries to a pod's /etc/hosts file, mapping custom IP addresses to hostnames.
+hostAliases: []
+  #- ip: 8.8.8.8
+  #  hostnames:
+#    - service-example.local
 #
 # Ingress
 #
@@ -145,7 +142,7 @@ ingress:
 # The config: {} dictionary is converted to environmental variables in the ConfigMap.
 main:
   # See https://docs.n8n.io/hosting/configuration/environment-variables/ for all values.
-  config:
+  config: {}
   #    n8n:
   #    db:
   #      type: postgresdb
@@ -155,7 +152,7 @@ main:
   # Dictionary for secrets, unlike config:, the values here will end up in the secret file.
   # The YAML entry db.postgresdb.password: my_secret is transformed DB_POSTGRESDB_password=bXlfc2VjcmV0
   # See https://docs.n8n.io/hosting/configuration/environment-variables/
-  secret:
+  secret: {}
   #    n8n:
   #     if you run n8n stateless, you should provide an encryption key here.
   #      encryption_key:
@@ -218,7 +215,7 @@ main:
   #      readOnly: true
 
 
-  # Number of desired pods.
+  # Number of desired pods. More than one pod is supported in n8n enterprise.
   replicaCount: 1
 
   # here you can specify the deployment strategy as Recreate or RollingUpdate with optional maxSurge and maxUnavailable
@@ -242,7 +239,13 @@ main:
     # If not set and create is true, a name is generated using the fullname template
     name: ""
 
+  # Annotations to be implemented on the main service deployment
+  deploymentAnnotations: {}
+  # Labels to be implemented on the main service deployment
+  deploymentLabels: {}
+  # Annotations to be implemented on the main service pod
   podAnnotations: {}
+  # Labels to be implemented on the main service pod
   podLabels: {}
 
   podSecurityContext:
@@ -356,8 +359,18 @@ main:
 #
 worker:
   enabled: false
+
+  # additional (to main) config for worker
+  config: {}
+
+  # additional (to main) config for worker
+  secret: {}
+
+  # Extra environmental variables, so you can reference other configmaps and secrets into n8n as env vars.
+  extraEnv: {}
+
   count: 2
-  # You can define the number of jobs a worker can run in parallel by using the concurrency flag. It defaults to 10. To change it:
+  # Define the number of jobs a worker can run in parallel by using the concurrency flag. Default is 10
   concurrency: 10
 
   #
@@ -415,8 +428,13 @@ worker:
     # If not set and create is true, a name is generated using the fullname template
     name: ""
 
+  # Annotations to be implemented on the worker deployment
+  deploymentAnnotations: {}
+  # Labels to be implemented on the worker deployment
+  deploymentLabels: {}
+  # Annotations to be implemented on the worker pod
   podAnnotations: {}
-
+  # Labels to be implemented on the worker pod
   podLabels: {}
 
   podSecurityContext:
@@ -523,9 +541,9 @@ worker:
 # Webhook related settings
 # With .Values.scaling.webhook.enabled=true you disable Webhooks from the main process, but you enable the processing on a different Webhook instance.
 # See https://github.com/8gears/n8n-helm-chart/issues/39#issuecomment-1579991754 for the full explanation.
-# Webhook processes rely on Redis too.
+# Webhook processes rely on Valkey/Redis too.
 webhook:
-  enabled: false  
+  enabled: false
   # additional (to main) config for webhook
   config: {}
   # additional (to main) config for webhook
@@ -535,7 +553,7 @@ webhook:
   extraEnv: {}
   #   WEBHOOK_URL:
   #   value: "http://webhook.domain.tld"
-     
+
 
   #
   # Webhook Kubernetes specific settings
@@ -597,8 +615,13 @@ webhook:
     # If not set and create is true, a name is generated using the fullname template
     name: ""
 
+  # Annotations to be implemented on the webhook deployment
+  deploymentAnnotations: {}
+  # Labels to be implemented on the webhook deployment
+  deploymentLabels: {}
+  # Annotations to be implemented on the webhook pod
   podAnnotations: {}
-
+  # Labels to be implemented on the webhook pod
   podLabels: {}
 
   podSecurityContext:
@@ -701,13 +724,13 @@ webhook:
   affinity: {}
 
 #
-# Additional resources
+# User defined supplementary K8s manifests
 #
 
-#  Takes a list of Kubernetes resources and merges each resource with a default metadata.labels map and
+#  Takes a list of Kubernetes manifests and merges each resource with a default metadata.labels map and
 #  installs the result.
 #  Use this to add any arbitrary Kubernetes manifests alongside this chart instead of kubectl and scripts.
-resources: []
+extraManifests: []
 #  - apiVersion: v1
 #    kind: ConfigMap
 #    metadata:
@@ -725,10 +748,9 @@ resources: []
 #      example.property.1: "value1"
 #      example.property.2: "value2"
 
-# Add additional templates.
-# In contrast to the resources field, these templates are not merged with the default metadata.labels map.
-# The templates are rendered with the values.yaml file as the context.
-templates: []
+# String extraManifests supports using variables directly within a string manifest.
+# Templates are rendered using the context defined in the values.yaml file, enabling dynamic and flexible content customization.
+extraTemplateManifests: []
 #  - |
 #    apiVersion: v1
 #    kind: ConfigMap
@@ -739,17 +761,15 @@ templates: []
 
 # Bitnami Valkey configuration
 # https://artifacthub.io/packages/helm/bitnami/valkey
-redis:
+valkey:
   enabled: false
-  architecture: standalone
-
-  primary:
-    persistence:
-      enabled: false
-      existingClaim: ""
-      size: 2Gi
-
-
+  #architecture: standalone
+  #
+  #primary:
+  #  persistence:
+  #    enabled: false
+  #    existingClaim: ""
+  #    size: 2Gi
 ```
 ## Migration Guide to Version 1.0.0
 

@@ -50,7 +50,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: {{ $fullName }}-webhook
+                name: {{ $fullName }}
                 port:
                   number: {{ $.Values.main.service.port  | default 80  }}
           - path: {{ . }}webhook-waiting/

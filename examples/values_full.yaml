@@ -66,12 +66,17 @@ main:
     requests:
       memory: 512Mi
 
-webhook:
+worker:
   enabled: true
   extraEnv: *extraEnv # using YAML magic (anchors) to reference main extraEnv
   extraVolumeMounts: *extraVolumeMounts # using YAML magic (anchors) to reference main extraVolumeMounts
   extraVolumes: *extraVolumes # using YAML magic (anchors) to reference main extraVolumes
 
+webhook:
+  enabled: true
+  extraEnv: *extraEnv # using YAML magic (anchors) to reference main extraEnv
+  extraVolumeMounts: *extraVolumeMounts # using YAML magic (anchors) to reference main extraVolumeMounts
+  extraVolumes: *extraVolumes # using YAML magic (anchors) to reference main extraVolumes
 
 valkey:
   enabled: true
