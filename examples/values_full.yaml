@@ -25,7 +25,7 @@ main:
     queue:
       bull:
         redis:
-          host: redis
+          host: n8n-valkey-primary
           port: 6379
   secret:
     n8n:
@@ -67,7 +67,6 @@ valkey:
   auth:
     enabled: false
   primary:
-    replicaCount: 0
     kind: Deployment
     persistence:
       enabled: false
