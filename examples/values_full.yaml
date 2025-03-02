@@ -20,6 +20,8 @@ main:
           enabled: true
           reject_Unauthorized: true
           ca_file: "/home/ssl/certs/postgresql/ca.crt"
+    # webhook related settings
+    webhook_url: "https://hooks-n8n-dev.8gears.com"
     queue:
       bull:
         redis:
@@ -56,14 +58,24 @@ main:
 
 webhook:
   enabled: true
-  config:
-    ASDF: "1234"
-  extraEnv: 
-    WEBHOOK_URL:
-      value: "https://hooks-n8n-dev.8gears.com"
-redis:
+
+valkey:
   enabled: true
-  
+  architecture: standalone
+  sentinel:
+    enabled: false
+  auth:
+    enabled: false
+  primary:
+    replicaCount: 0
+    kind: Deployment
+    persistence:
+      enabled: false
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 100m
+
 
 ingress:
   enabled: true
@@ -86,7 +98,7 @@ ingress:
 
 
 # cnpg DB cluster request
-resources:
+extraManifests:
   - apiVersion: postgresql.cnpg.io/v1
     kind: Cluster
     metadata:

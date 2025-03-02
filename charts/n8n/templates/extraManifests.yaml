@@ -1,8 +1,9 @@
 {{/*
-raw.resource will create a resource template that can be
-merged with each item in `.Values.resources`.
+extraManifests.yaml creates Kubernetes resources from values provided in
+.Values.extraManifests and .Values.extraTemplateManifests
 */}}
-{{- define "raw.metadata" -}}
+
+{{- define "extraManifests.metadata" -}}
 metadata:
   labels:
     app: {{ template "n8n.name" . }}
@@ -11,12 +12,12 @@ metadata:
     heritage: {{ .Release.Service }}
 {{- end }}
 
-{{- $metadata := fromYaml (include "raw.metadata" .) -}}
+{{- $metadata := fromYaml (include "extraManifests.metadata" .) -}}
 
 {{- $resources := list -}}
-{{- range .Values.resources }}
+{{- range .Values.extraManifests }}
   {{- if typeIs "string" . }}
-    {{/* Handle multi-part */}}
+    {{/* Handle multi-part YAML documents */}}
     {{- range . | splitList "---\n" }}
       {{- with . | fromYaml }}
         {{- $resources = append $resources . }}
@@ -28,8 +29,8 @@ metadata:
 {{- end }}
 
 {{- $templates := list -}}
-{{- range .Values.templates }}
-  {{/* Handle multi-part */}}
+{{- range .Values.extraTemplateManifests }}
+  {{/* Handle multi-part YAML documents */}}
   {{- range . | splitList "---\n" }}
     {{- if . | fromYaml }}
       {{- $templates = append $templates . }}

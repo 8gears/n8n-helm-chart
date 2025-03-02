@@ -1,6 +1,6 @@
 {{- if .Values.webhook.enabled }}
-{{- /* Validate Redis configuration */}}
-{{- include "n8n.validateRedis" . }}
+{{- /* Validate Valkey/Redis configuration */}}
+{{- include "n8n.validateValkey" . }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:

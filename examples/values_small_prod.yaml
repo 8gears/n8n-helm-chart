@@ -69,7 +69,7 @@ ingress:
 
 
 # cnpg DB cluster request
-resources:
+extraManifests:
   - apiVersion: postgresql.cnpg.io/v1
     kind: Cluster
     metadata:

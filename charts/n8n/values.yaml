@@ -6,7 +6,7 @@
 # 4. Worker related settings + kubernetes specific settings
 # 5. Webhook related settings + kubernetes specific settings
 # 6. Raw Resources to pass through your own manifests like GatewayAPI, ServiceMonitor etc.
-# 7. Redis related settings and kubernetes specific settings
+# 7. Valkey/Redis related settings and kubernetes specific settings
 
 #
 # Global common config for this entire n8n deployment
@@ -450,7 +450,7 @@ worker:
 # Webhook related settings
 # With .Values.scaling.webhook.enabled=true you disable Webhooks from the main process, but you enable the processing on a different Webhook instance.
 # See https://github.com/8gears/n8n-helm-chart/issues/39#issuecomment-1579991754 for the full explanation.
-# Webhook processes rely on Redis too.
+# Webhook processes rely on Valkey/Redis too.
 webhook:
   enabled: false
   # additional (to main) config for webhook
@@ -633,13 +633,13 @@ webhook:
   affinity: {}
 
 #
-# Additional resources
+# User defined supplementary K8s manifests
 #
 
-#  Takes a list of Kubernetes resources and merges each resource with a default metadata.labels map and
+#  Takes a list of Kubernetes manifests and merges each resource with a default metadata.labels map and
 #  installs the result.
 #  Use this to add any arbitrary Kubernetes manifests alongside this chart instead of kubectl and scripts.
-resources: []
+extraManifests: []
 #  - apiVersion: v1
 #    kind: ConfigMap
 #    metadata:
@@ -657,10 +657,9 @@ resources: []
 #      example.property.1: "value1"
 #      example.property.2: "value2"
 
-# Add additional templates.
-# In contrast to the resource field, these templates are not merged with the default metadata.labels map.
-# The templates are rendered with the values.yaml file as the context.
-templates: []
+# String extraManifests supports using variables directly within a string manifest.
+# Templates are rendered using the context defined in the values.yaml file, enabling dynamic and flexible content customization.
+extraTemplateManifests: []
 #  - |
 #    apiVersion: v1
 #    kind: ConfigMap
@@ -671,12 +670,12 @@ templates: []
 
 # Bitnami Valkey configuration
 # https://artifacthub.io/packages/helm/bitnami/valkey
-redis:
+valkey:
   enabled: false
-  architecture: standalone
-
-  primary:
-    persistence:
-      enabled: false
-      existingClaim: ""
-      size: 2Gi
+  #architecture: standalone
+  #
+  #primary:
+  #  persistence:
+  #    enabled: false
+  #    existingClaim: ""
+  #    size: 2Gi
