@@ -1,6 +1,6 @@
 apiVersion: v2
 name: n8n
-version: 1.0.2
+version: 1.0.3
 appVersion: 1.80.5
 type: application
 description: "A Kubernetes Helm chart for n8n a free and open fair-code licensed node based Workflow Automation Tool. Easily automate tasks across different services."
@@ -34,5 +34,5 @@ annotations:
   artifacthub.io/prerelease: "false"
   # supported kinds are added, changed, deprecated, removed, fixed and security.
   artifacthub.io/changes: |
-    - kind: changed
-      description: "This helmchart has a new values.yaml config, not backwards compatible."
+    - kind: fixed
+      description: "if webhook enabled /form-test go to main and /form go to webhook"
