@@ -1,4 +1,4 @@
-> [!INFO]
+> [!NOTE]
 > The n8n Helm chart is growing, and needs your help!
 > We're looking for additional passionate maintainers and contributors
 > to improve and maintain this chart, governance, development, documentation and CI/CD workflows.
