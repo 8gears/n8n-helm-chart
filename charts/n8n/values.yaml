@@ -26,9 +26,9 @@ fullnameOverride:
 
 # Add entries to a pod's /etc/hosts file, mapping custom IP addresses to hostnames.
 hostAliases: []
-  #- ip: 8.8.8.8
-  #  hostnames:
-  #    - service-example.local
+  # - ip: 8.8.8.8
+  #   hostnames:
+  #     - service-example.local
 #
 # Ingress
 #
@@ -670,10 +670,10 @@ extraTemplateManifests: []
 # https://artifacthub.io/packages/helm/bitnami/valkey
 valkey:
   enabled: false
-  #architecture: standalone
+  # architecture: standalone
   #
-  #primary:
-  #  persistence:
-  #    enabled: false
-  #    existingClaim: ""
-  #    size: 2Gi
+  # primary:
+  #   persistence:
+  #     enabled: false
+  #     existingClaim: ""
+  #     size: 2Gi
