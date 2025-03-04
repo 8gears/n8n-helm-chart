@@ -66,11 +66,11 @@ spec:
           envFrom:
             {{- if .Values.main.config }}
             - configMapRef:
-                name: app-config-{{ include "n8n.fullname" . }}
+                name: {{ include "n8n.fullname" . }}-app-config
             {{- end }}
            {{- if .Values.main.secret }}
             - secretRef:
-                name: app-secret-{{ include "n8n.fullname" . }}
+                name: {{ include "n8n.fullname" . }}-app-secret
             {{- end }}
           env: {{ not (empty .Values.main.extraEnv) | ternary nil "[]" }}
             {{- range $key, $value := .Values.main.extraEnv }}

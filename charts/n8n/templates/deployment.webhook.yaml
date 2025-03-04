@@ -86,19 +86,19 @@ spec:
           envFrom:
             {{- if .Values.main.config }}
             - configMapRef:
-                name: app-config-{{ include "n8n.fullname" . }}
+                name: {{ include "n8n.fullname" . }}-app-config
             {{- end }}
            {{- if .Values.main.secret }}
             - secretRef:
-                name: app-secret-{{ include "n8n.fullname" . }}
+                name: {{ include "n8n.fullname" . }}-app-secret
             {{- end }}
             {{- if .Values.webhook.config }}
             - configMapRef:
-                name: webhook-config-{{ include "n8n.fullname" . }}
+                name: {{ include "n8n.fullname" . }}-webhook-config
             {{- end }}
            {{- if .Values.webhook.secret }}
             - secretRef:
-                name: webhook-secret-{{ include "n8n.fullname" . }}
+                name: {{ include "n8n.fullname" . }}-webhook-secret
             {{- end }}
 
           env: {{ not (empty .Values.webhook.extraEnv) | ternary nil "[]" }}

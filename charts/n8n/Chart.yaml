@@ -1,6 +1,6 @@
 apiVersion: v2
 name: n8n
-version: 1.0.3
+version: 1.0.4
 appVersion: 1.81.4
 type: application
 description: "Helm Chart for deploying n8n on Kubernetes, a fair-code workflow automation platform with native AI capabilities for technical teams. Easily automate tasks across different services."
@@ -34,7 +34,5 @@ annotations:
   artifacthub.io/prerelease: "false"
   # supported kinds are added, changed, deprecated, removed, fixed and security.
   artifacthub.io/changes: |
-    - kind: fixed
-      description: "fixed helm upgrade requires valkey.password 1.0.0-beta2 -> 1.0.2"
     - kind: changed
-      description: "update valkey dependency to chart version 2.4.2 and app version 8.0.2"
+      description: "use fullname as prefix instead of suffix"
