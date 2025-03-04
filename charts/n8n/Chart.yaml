@@ -28,7 +28,7 @@ dependencies:
   - name: valkey
     version: 2.4.1
     repository: oci://registry-1.docker.io/bitnamicharts
-    condition: redis.enabled
+    condition: valkey.enabled
 
 annotations:
   artifacthub.io/prerelease: "false"
