@@ -61,19 +61,19 @@ spec:
           envFrom:
             {{- if .Values.main.config }}
             - configMapRef:
-                name: app-config-{{ include "n8n.fullname" . }}
+                name: {{ include "n8n.fullname" . }}-app-config
             {{- end }}
            {{- if .Values.main.secret }}
             - secretRef:
-                name: app-secret-{{ include "n8n.fullname" . }}
+                name: {{ include "n8n.fullname" . }}-app-secret
             {{- end }}
             {{- if .Values.worker.config }}
             - configMapRef:
-                name: worker-config-{{ include "n8n.fullname" . }}
+                name: {{ include "n8n.fullname" . }}-worker-config
             {{- end }}
            {{- if .Values.worker.secret }}
             - secretRef:
-                name: worker-secret-{{ include "n8n.fullname" . }}
+                name: {{ include "n8n.fullname" . }}-worker-secret
             {{- end }}
           env: {{ not (empty .Values.worker.extraEnv) | ternary nil "[]" }}
             {{- range $key, $value := .Values.worker.extraEnv }}
