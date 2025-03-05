@@ -48,6 +48,9 @@ main:
         secretKeyRef:
           name: db-app
           key: password
+    # Needed for workers to listen on default port for liveness probe.
+    QUEUE_HEALTH_CHECK_ACTIVE: 
+      value: "true"
   # Mount the CNPG CA Cert into N8N container
   extraVolumeMounts: &extraVolumeMounts
     - name: db-ca-cert
