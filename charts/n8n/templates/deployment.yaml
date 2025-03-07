@@ -125,18 +125,18 @@ spec:
             {{- end }}
           lifecycle:
             {{- toYaml .Values.main.sidecar.runner.lifecycle | nindent 12 }}
-{{/*          ports:*/}}
-{{/*            - name: http*/}}
-{{/*              containerPort: {{ get (default (dict) .Values.main.config) "port" | default 5678 }}*/}}
-{{/*              protocol: TCP*/}}
-{{/*          {{- with .Values.main.livenessProbe }}*/}}
-{{/*          livenessProbe:*/}}
-{{/*            {{- toYaml . | nindent 12 }}*/}}
-{{/*          {{- end }}*/}}
-{{/*          {{- with .Values.main.readinessProbe }}*/}}
-{{/*          readinessProbe:*/}}
-{{/*            {{- toYaml . | nindent 12 }}*/}}
-{{/*          {{- end }}*/}}
+          ports:
+            - name: healthcheck
+              containerPort: {{ get (default (dict) .Values.main.config) "n8n.runners.launcher.health.check.port" | default 5680 }}
+              protocol: TCP
+          {{- with .Values.main.sidecar.runner.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.main.sidecar.runner.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           resources:
             {{- toYaml .Values.main.sidecar.runner.resources | nindent 12 }}
           volumeMounts:

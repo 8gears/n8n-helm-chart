@@ -279,6 +279,32 @@ main:
       # see https://github.com/8gears/n8n-helm-chart/pull/30
       lifecycle: {}
 
+      # here you can override the livenessProbe for the runner container
+      # it may be used to increase the timeout for the livenessProbe (e.g., to resolve issues like
+
+      livenessProbe:
+        httpGet:
+          path: /healthz
+          port: healthcheck
+        # initialDelaySeconds: 30
+        # periodSeconds: 10
+        # timeoutSeconds: 5
+        # failureThreshold: 6
+        # successThreshold: 1
+
+      # here you can override the readinessProbe for the runner container
+      # it may be used to increase the timeout for the readinessProbe (e.g., to resolve issues like
+
+      readinessProbe:
+        httpGet:
+          path: /healthz
+          port: healthcheck
+        # initialDelaySeconds: 30
+        # periodSeconds: 10
+        # timeoutSeconds: 5
+        # failureThreshold: 6
+        # successThreshold: 1
+
       resources: {}
       # We usually recommend not specifying default resources and to leave this as a conscious
       # choice for the user. This also increases chances charts run on environments with little
