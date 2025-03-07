@@ -99,6 +99,53 @@ spec:
           {{- if .Values.main.extraVolumeMounts }}
             {{- toYaml .Values.main.extraVolumeMounts | nindent 12 }}
           {{- end }}
+        {{- if .Values.main.sidecar.runner.enabled }}
+        - name: {{ .Chart.Name }}-runner
+          {{- with .Values.main.sidecar.runner.command }}
+          command:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          securityContext:
+            {{- toYaml .Values.main.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          envFrom:
+            {{- if .Values.main.config }}
+            - configMapRef:
+                name: {{ include "n8n.fullname" . }}-app-config
+            {{- end }}
+           {{- if .Values.main.secret }}
+            - secretRef:
+                name: {{ include "n8n.fullname" . }}-app-secret
+            {{- end }}
+          env: {{ not (empty .Values.main.extraEnv) | ternary nil "[]" }}
+            {{- range $key, $value := .Values.main.extraEnv }}
+            - name: {{ $key }}
+              {{- toYaml $value | nindent 14 }}
+            {{- end }}
+          lifecycle:
+            {{- toYaml .Values.main.sidecar.runner.lifecycle | nindent 12 }}
+{{/*          ports:*/}}
+{{/*            - name: http*/}}
+{{/*              containerPort: {{ get (default (dict) .Values.main.config) "port" | default 5678 }}*/}}
+{{/*              protocol: TCP*/}}
+{{/*          {{- with .Values.main.livenessProbe }}*/}}
+{{/*          livenessProbe:*/}}
+{{/*            {{- toYaml . | nindent 12 }}*/}}
+{{/*          {{- end }}*/}}
+{{/*          {{- with .Values.main.readinessProbe }}*/}}
+{{/*          readinessProbe:*/}}
+{{/*            {{- toYaml . | nindent 12 }}*/}}
+{{/*          {{- end }}*/}}
+          resources:
+            {{- toYaml .Values.main.sidecar.runner.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /home/node/.n8n
+          {{- if .Values.main.extraVolumeMounts }}
+            {{- toYaml .Values.main.extraVolumeMounts | nindent 12 }}
+          {{- end }}
+        {{- end }}
       {{- with .Values.hostAliases }}
       hostAliases:
         {{- toYaml . | nindent 8 }}
