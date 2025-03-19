@@ -10,7 +10,7 @@
 > [!WARNING]
 > Version 1.0.0 of this Chart includes breaking changes and is not backwards compatible with previous versions.
 > Please review the migration guide below before upgrading.
-> 
+>
 
 
 # n8n Helm Chart for Kubernetes
@@ -57,7 +57,7 @@ main:
         encryption_key: "my_secret" # ==> turns into ENV: N8N_ENCRYPTION_KEY=my_secret
       db:
         type: postgresdb # ==> turns into ENV: DB_TYPE=postgresdb
-        postgresdb: 
+        postgresdb:
           host: 192.168.0.52 # ==> turns into ENV: DB_POSTGRESDB_HOST=192.168.0.52
       node:
         function_allow_builtin: "*" # ==> turns into ENV: NODE_FUNCTION_ALLOW_BUILTIN="*"
@@ -375,7 +375,6 @@ worker:
   # Extra environmental variables, so you can reference other configmaps and secrets into n8n as env vars.
   extraEnv: {}
 
-  count: 2
   # Define the number of jobs a worker can run in parallel by using the concurrency flag. Default is 10
   concurrency: 10
 
@@ -410,6 +409,7 @@ worker:
     size: 1Gi
     # Use an existing PVC
     # existingClaim:
+
   # Number of desired pods.
   replicaCount: 1
 
@@ -808,7 +808,7 @@ scaling:
   enabled: true
 ```
 
-You can define to spawn more workers, by set scaling.worker.count to a higher
+You can define to spawn more workers, by set scaling.worker.replicaCount to a higher
 number.
 Also, it is possible to define your own external redis server.
 
@@ -831,5 +831,5 @@ instance is disabled and by default a single webhook instance is started.
 ## Chart Release Workflow
 
 1. Update the `Chart.yaml` with the new version numbers for the chart and/or app.
-2. In `Chart.yaml`update/replace the content of the `artifacthub.io/changes` section. See Artifacthub [annotation referene](https://artifacthub.io/docs/topics/annotations/helm/) 
+2. In `Chart.yaml`update/replace the content of the `artifacthub.io/changes` section. See Artifacthub [annotation referene](https://artifacthub.io/docs/topics/annotations/helm/)
 3. In GitHub create a new release with the the chart version number as the tag and a title.

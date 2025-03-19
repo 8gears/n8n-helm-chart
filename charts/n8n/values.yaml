@@ -276,7 +276,6 @@ worker:
   # Extra environmental variables, so you can reference other configmaps and secrets into n8n as env vars.
   extraEnv: {}
 
-  count: 2
   # Define the number of jobs a worker can run in parallel by using the concurrency flag. Default is 10
   concurrency: 10
 
@@ -311,6 +310,7 @@ worker:
     size: 1Gi
     # Use an existing PVC
     # existingClaim:
+
   # Number of desired pods.
   replicaCount: 1
 
