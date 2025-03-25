@@ -1,7 +1,7 @@
 [![Artifact HUB](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/n8n)](https://artifacthub.io/packages/helm/open-8gears/n8n)
 
 > [!NOTE]
-> The n8n Helm chart is growing in pooularity.
+> The n8n Helm chart is growing in popularity.
 > We're looking for additional passionate maintainers and contributors
 > to improve and maintain this chart, governance, development, documentation and CI/CD workflows.
 > If you're interested in making a difference,
