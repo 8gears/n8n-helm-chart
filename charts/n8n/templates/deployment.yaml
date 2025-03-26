@@ -1,4 +1,5 @@
 {{- if not .Values.main.statefulSet.enabled }}
+{{- include "n8n.validateValues" . }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:

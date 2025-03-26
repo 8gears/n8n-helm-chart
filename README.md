@@ -361,6 +361,98 @@ main:
   tolerations: []
   affinity: {}
 
+## Deployment Modes
+
+### Main Component
+
+The main n8n component can be deployed in two modes:
+
+1. **Deployment (default)**:
+   - Suitable for Community Edition
+   - Limited to 1 replica when using persistent storage (PVC)
+   - Can use multiple replicas only with `emptyDir` storage (data will be lost on pod restart)
+
+```yaml
+main:
+  replicaCount: 1  # Must be 1 with persistent storage
+  statefulSet:
+    enabled: false
+  persistence:
+    enabled: true
+    type: dynamic
+    size: 10Gi
+```
+
+2. **StatefulSet**:
+   - Required for multiple replicas with persistent storage
+   - Requires n8n Enterprise license
+   - Each pod gets its own persistent volume
+
+```yaml
+main:
+  replicaCount: 3  # Can be >1 with StatefulSet
+  statefulSet:
+    enabled: true
+  persistence:
+    enabled: true
+    type: dynamic
+    size: 10Gi
+  extraEnv:
+    N8N_MULTI_MAIN_SETUP_ENABLED:
+      value: "true"  # Required for multiple replicas
+```
+
+### Worker Component
+
+The worker component can be deployed either as Deployment or StatefulSet:
+
+```yaml
+worker:
+  enabled: true
+  count: 2
+  statefulSet:
+    enabled: true  # or false for Deployment
+  persistence:
+    enabled: true
+    size: 5Gi
+```
+
+### Webhook Component
+
+The webhook component is deployed as a Deployment and has the same limitations as the main component when using persistent storage:
+
+1. **With Persistent Storage**:
+   - Limited to 1 replica when using PVC
+   - Data is preserved between pod restarts
+
+```yaml
+webhook:
+  enabled: true
+  replicaCount: 1  # Must be 1 with persistent storage
+  persistence:
+    enabled: true
+    type: dynamic
+    size: 5Gi
+```
+
+2. **Without Persistent Storage or with emptyDir**:
+   - Can use multiple replicas
+   - Data is lost on pod restarts
+
+```yaml
+webhook:
+  enabled: true
+  replicaCount: 3  # Can be >1
+  persistence:
+    enabled: true
+    type: emptyDir  # or enabled: false
+  deploymentStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+```
+
 ## High Availability Setup
 
 The chart supports two deployment modes for the main n8n component:
@@ -517,6 +609,7 @@ worker:
 
   # here you can override the livenessProbe for the main container
   # it may be used to increase the timeout for the livenessProbe (e.g., to resolve issues like
+
   livenessProbe:
     httpGet:
       path: /healthz
@@ -543,6 +636,12 @@ worker:
   # List of initialization containers belonging to the pod. Init containers are executed in order prior to containers being started.
   # See https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
   initContainers: []
+  #    - name: init-data-dir
+  #      image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+  #      command: [ "/bin/sh", "-c", "mkdir -p /home/node/.n8n/" ]
+  #      volumeMounts:
+  #        - name: data
+  #          mountPath: /home/node/.n8n
 
   service:
     annotations: {}
