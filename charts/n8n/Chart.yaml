@@ -36,3 +36,6 @@ annotations:
   artifacthub.io/changes: |
     - kind: changed
       description: "unify worker replica variable with other deployments"
+    - kind: changed
+      description: "check if redis hostname is set in webhook valkey check instead of .Values.valkey.enabled"
+
