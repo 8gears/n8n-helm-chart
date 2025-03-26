@@ -125,3 +125,15 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- fail "Webhook processes rely on Valkey. Please set valkey.enabled=true when webhook.enabled=true" -}}
 {{- end -}}
 {{- end }}
+
+{{/*
+Validate values for n8n deployment
+*/}}
+{{- define "n8n.validateValues" -}}
+{{- if and (not .Values.main.statefulSet.enabled) (gt (int .Values.main.replicaCount) 1) (ne .Values.main.persistence.type "emptyDir") -}}
+{{- fail "\nERROR: Invalid configuration\nWhen using Deployment (statefulSet.enabled=false) with persistent storage, replicaCount must be 1.\nTo use multiple replicas either:\n  1. Enable StatefulSet (requires Enterprise license)\n  2. Use emptyDir for persistence (data will be lost on pod restart)" -}}
+{{- end -}}
+{{- if and .Values.webhook.enabled .Values.webhook.persistence.enabled (ne .Values.webhook.persistence.type "emptyDir") (gt (int .Values.webhook.replicaCount) 1) -}}
+{{- fail "\nERROR: Invalid webhook configuration\nWhen using persistent storage for webhook component, replicaCount must be 1.\nTo use multiple replicas either:\n  1. Disable persistence\n  2. Use emptyDir for persistence (data will be lost on pod restart)" -}}
+{{- end -}}
+{{- end -}}
