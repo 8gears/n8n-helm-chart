@@ -10,8 +10,10 @@
 > [!WARNING]
 > Version 1.0.0 of this Chart includes breaking changes and is not backwards compatible with previous versions.
 > Please review the migration guide below before upgrading.
-> 
 
+> [!IMPORTANT]
+> Using StatefulSet with multiple main replicas requires n8n Enterprise license.
+> Without Enterprise license, use Deployment with a single main replica.
 
 # n8n Helm Chart for Kubernetes
 
@@ -359,8 +361,37 @@ main:
   tolerations: []
   affinity: {}
 
-# # # # # # # # # # # # # # # #
-#
+## High Availability Setup
+
+The chart supports two deployment modes for the main n8n component:
+
+### StatefulSet Mode (Enterprise)
+
+Requires n8n Enterprise license. Enables running multiple main replicas for high availability:
+
+```yaml
+main:
+  statefulSet:
+    enabled: true
+  replicaCount: 2
+  extraEnv:
+    N8N_MULTI_MAIN_SETUP_ENABLED:
+      value: "true"  # Only works with Enterprise license
+```
+
+### Deployment Mode (Community)
+
+Default mode for Community edition. Uses a single main replica:
+
+```yaml
+main:
+  statefulSet:
+    enabled: false
+  replicaCount: 1
+```
+
+Note: Worker and webhook components can be scaled independently regardless of the license type.
+
 # Worker related settings
 #
 worker:
@@ -776,7 +807,7 @@ valkey:
   #    enabled: false
   #    existingClaim: ""
   #    size: 2Gi
-```
+
 ## Migration Guide to Version 1.0.0
 
 This version includes a complete redesign of the chart to better accommodate n8n configuration options.
