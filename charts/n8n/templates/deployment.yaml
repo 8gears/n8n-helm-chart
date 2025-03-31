@@ -75,7 +75,7 @@ spec:
           env: {{ not (empty .Values.main.extraEnv) | ternary nil "[]" }}
             {{- range $key, $value := .Values.main.extraEnv }}
             - name: {{ $key }}
-              {{- toYaml $value | nindent 14 }}
+              value: {{- toYaml $value | nindent 14 }}
             {{- end }}
           lifecycle:
             {{- toYaml .Values.main.lifecycle | nindent 12 }}
