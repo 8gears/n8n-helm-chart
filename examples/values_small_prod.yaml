@@ -1,7 +1,7 @@
 #Prod like set up with CloudNativePG and nginx-ingress
 image:
   repository: 8gears.container-registry.com/ops/n8n
-  tag: 1.76.1
+  tag: 1.81.4
 imagePullSecrets:
   - name: 8gears-registry-n8n
 
