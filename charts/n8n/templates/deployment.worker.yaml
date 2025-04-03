@@ -109,8 +109,10 @@ spec:
           resources:
             {{- toYaml .Values.worker.resources | nindent 12 }}
           volumeMounts:
+            {{- if .Values.worker.persistence.enabled }}
             - name: data
               mountPath: /home/node/.n8n
+            {{- end }}
           {{- if .Values.worker.extraVolumeMounts }}
             {{- toYaml .Values.worker.extraVolumeMounts | nindent 12 }}
           {{- end }}
@@ -131,8 +133,10 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       volumes:
+        {{- if .Values.worker.persistence.enabled }}
         - name: "data"
           {{ include "n8n.pvc" . }}
+        {{- end }}
         {{- if .Values.worker.extraVolumes }}
           {{- toYaml .Values.worker.extraVolumes | nindent 8 }}
         {{- end }}
