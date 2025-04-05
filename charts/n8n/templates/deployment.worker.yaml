@@ -136,4 +136,8 @@ spec:
         {{- if .Values.worker.extraVolumes }}
           {{- toYaml .Values.worker.extraVolumes | nindent 8 }}
         {{- end }}
+      {{- if .Values.worker.dnsConfig }}
+      dnsConfig:
+        {{- toYaml .Values.worker.dnsConfig | nindent 8 }}
+      {{- end }}
 {{- end }}
