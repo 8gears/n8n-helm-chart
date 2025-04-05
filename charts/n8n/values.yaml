@@ -260,6 +260,13 @@ main:
   tolerations: []
   affinity: {}
 
+  # dnsConfig allows to specify DNS configuration for the pod.
+  # See https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config
+  dnsConfig: {}
+    # options:
+    #   - name: ndots
+    #     value: "2"
+
 # # # # # # # # # # # # # # # #
 #
 # Worker related settings
@@ -445,6 +452,13 @@ worker:
   tolerations: []
   affinity: {}
 
+  # dnsConfig allows to specify DNS configuration for the pod.
+  # See https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config
+  dnsConfig: {}
+    # options:
+    #   - name: ndots
+    #     value: "2"
+
 # Webhook related settings
 # With .Values.scaling.webhook.enabled=true you disable Webhooks from the main process, but you enable the processing on a different Webhook instance.
 # See https://github.com/8gears/n8n-helm-chart/issues/39#issuecomment-1579991754 for the full explanation.
@@ -629,6 +643,13 @@ webhook:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+
+  # dnsConfig allows to specify DNS configuration for the pod.
+  # See https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config
+  dnsConfig: {}
+    # options:
+    #   - name: ndots
+    #     value: "2"
 
 #
 # User defined supplementary K8s manifests
