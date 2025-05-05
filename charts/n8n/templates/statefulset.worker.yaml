@@ -55,7 +55,7 @@ spec:
             - configMapRef:
                 name: {{ include "n8n.fullname" . }}-app-config
             {{- end }}
-           {{- if .Values.main.secret }}
+            {{- if .Values.main.secret }}
             - secretRef:
                 name: {{ include "n8n.fullname" . }}-app-secret
             {{- end }}
@@ -63,7 +63,7 @@ spec:
             - configMapRef:
                 name: {{ include "n8n.fullname" . }}-worker-config
             {{- end }}
-           {{- if .Values.worker.secret }}
+            {{- if .Values.worker.secret }}
             - secretRef:
                 name: {{ include "n8n.fullname" . }}-worker-secret
             {{- end }}
