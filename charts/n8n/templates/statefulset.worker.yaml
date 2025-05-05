@@ -13,7 +13,7 @@ metadata:
     {{- toYaml .Values.worker.deploymentAnnotations | nindent 4 }}
   {{- end }}
 spec:
-  replicas: {{ .Values.worker.count }}
+  replicas: {{ .Values.worker.replicaCount }}
   serviceName: {{ include "n8n.fullname" . }}-worker
   selector:
     matchLabels:
