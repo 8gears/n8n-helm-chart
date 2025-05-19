@@ -1,0 +1,33 @@
+{{- if .Values.webhook.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "n8n.fullname" . }}-webhook
+  labels:
+    {{- include "n8n.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "n8n.fullname" . }}-webhook
+  minReplicas: {{ .Values.webhook.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.webhook.autoscaling.maxReplicas }}
+  metrics:
+    {{- if .Values.webhook.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.webhook.autoscaling.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.webhook.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.webhook.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- end }}
+{{- end }}
+
