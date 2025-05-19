@@ -1,4 +1,5 @@
 {{- if and .Values.worker.enabled (not .Values.worker.statefulSet.enabled) }}
+{{- include "n8n.validateValues" . }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
