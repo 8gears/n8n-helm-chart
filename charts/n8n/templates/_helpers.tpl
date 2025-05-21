@@ -107,6 +107,8 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- if and .Values.main.useStatefulSet .Values.main.persistence.enabled .Values.main.persistence.existingClaim -}}
 {{- fail "StatefulSets cannot use existingClaim. When useStatefulSet=true, remove persistence.existingClaim as StatefulSets manage their own PVCs through volumeClaimTemplates" -}}
 {{- end -}}
+{{- if and .Values.main.useStatefulSet (not .Values.main.persistence.enabled) -}}
+{{- fail "StatefulSets require persistence to be enabled. When useStatefulSet=true, set persistence.enabled=true" -}}
 {{- end -}}
-
+{{- end -}}
 
