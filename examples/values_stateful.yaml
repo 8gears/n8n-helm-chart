@@ -6,8 +6,11 @@ main:
   replicaCount: 3
   
   # Enable persistence for each replica
+  # Note: When using StatefulSet, do NOT specify 'existingClaim' as StatefulSets
+  # manage their own PersistentVolumeClaims through volumeClaimTemplates
   persistence:
     enabled: true
+    # For StatefulSets, we use dynamic provisioning through volumeClaimTemplates
     type: dynamic
     size: 5Gi
     accessModes:

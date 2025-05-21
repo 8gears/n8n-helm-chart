@@ -102,4 +102,11 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end -}}
 {{- end -}}
 
+{{/* Validate StatefulSet and PVC configuration compatibility */}}
+{{- define "n8n.validateStatefulSet" -}}
+{{- if and .Values.main.useStatefulSet .Values.main.persistence.enabled .Values.main.persistence.existingClaim -}}
+{{- fail "StatefulSets cannot use existingClaim. When useStatefulSet=true, remove persistence.existingClaim as StatefulSets manage their own PVCs through volumeClaimTemplates" -}}
+{{- end -}}
+{{- end -}}
+
 

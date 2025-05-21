@@ -1,4 +1,5 @@
 {{- if .Values.main.useStatefulSet }}
+{{- include "n8n.validateStatefulSet" . -}}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
