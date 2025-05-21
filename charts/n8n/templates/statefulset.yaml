@@ -110,15 +110,6 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if not .Values.main.persistence.enabled }}
-      volumes:
-        - name: "data"
-          emptyDir: {}
-        {{- if .Values.main.extraVolumes }}
-          {{- toYaml .Values.main.extraVolumes | nindent 8 }}
-        {{- end }}
-      {{- end }}
-  {{- if .Values.main.persistence.enabled }}
   volumeClaimTemplates:
     - metadata:
         name: data
@@ -144,4 +135,3 @@ spec:
         {{- end }}
         {{- end }}
   {{- end }}
-{{- end }}
