@@ -67,7 +67,7 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- else if and .Values.main.persistence.enabled .Values.main.persistence.existingClaim -}}
           persistentVolumeClaim:
             claimName: {{ .Values.main.persistence.existingClaim }}
-{{- else if and .Values.main.persistence.enabled (eq .Values.main.persistence.type "dynamic")  -}}
+{{- else if and .Values.main.persistence.enabled (eq .Values.main.persistence.type "dynamic") (not .Values.main.useStatefulSet) -}}
           persistentVolumeClaim:
             claimName: {{ include "n8n.fullname" . }}
 {{- end }}

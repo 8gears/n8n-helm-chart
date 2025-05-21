@@ -1,3 +1,4 @@
+{{- if not .Values.main.useStatefulSet }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -121,3 +122,4 @@ spec:
         {{- if .Values.main.extraVolumes }}
           {{- toYaml .Values.main.extraVolumes | nindent 8 }}
         {{- end }}
+{{- end }}
