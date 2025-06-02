@@ -36,4 +36,3 @@ annotations:
   artifacthub.io/changes: |
     - kind: fixed
       description: "fix https://github.com/8gears/n8n-helm-chart/issues/176"
-
