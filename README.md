@@ -167,6 +167,13 @@ main:
   #      postgresdb:
   #        password: 'big secret'
 
+  # A list of environment variables to import from configMapRef or secretRef.
+  extraEnvFrom: []
+  #   - configMapRef:
+  #       name: n8n-config
+  #   - secretRef:
+  #       name: n8n-config
+
   # Extra environmental variables, so you can reference other configmaps and secrets into n8n as env vars.
   extraEnv:
   #    N8N_DB_POSTGRESDB_NAME:
@@ -372,6 +379,9 @@ worker:
   # additional (to main) config for worker
   secret: {}
 
+  # A list of environment variables to import from configMapRef or secretRef.
+  extraEnvFrom: []
+
   # Extra environmental variables, so you can reference other configmaps and secrets into n8n as env vars.
   extraEnv: {}
 
@@ -554,6 +564,9 @@ webhook:
   config: {}
   # additional (to main) config for webhook
   secret: {}
+
+  # A list of environment variables to import from configMapRef or secretRef.
+  extraEnvFrom: []
 
   # Extra environmental variables, so you can reference other configmaps and secrets into n8n as env vars.
   extraEnv: {}
