@@ -34,5 +34,7 @@ annotations:
   artifacthub.io/prerelease: "false"
   # supported kinds are added, changed, deprecated, removed, fixed and security.
   artifacthub.io/changes: |
-    - kind: fixed
-      description: "fix https://github.com/8gears/n8n-helm-chart/issues/176"
+    - kind: added
+      description: "Incorporate features and bug fixes from n8n 1.86.0"
+    - kind: added
+      description: "Add additional example helm values for how to add n8n main configuration settings to the values"
