@@ -98,11 +98,11 @@ spec:
             - name: http
               containerPort: {{ get (default (dict) .Values.worker.config) "port" | default 5678 }}
               protocol: TCP
-          {{- with .Values.main.livenessProbe }}
+          {{- with .Values.worker.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.main.readinessProbe }}
+          {{- with .Values.worker.readinessProbe }}
           readinessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
