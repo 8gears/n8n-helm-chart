@@ -51,6 +51,11 @@ main:
   # See https://docs.n8n.io/hosting/configuration/environment-variables/ for all values.
   config: {}
   #    n8n:
+  #     license:
+  #       activation:
+  #         key: <N8N_LICENSE_ACTIVATION_KEY>
+  #     log:
+  #       level: info
   #    db:
   #      type: postgresdb
   #      postgresdb:
