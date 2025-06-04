@@ -38,3 +38,4 @@ annotations:
       description: "Incorporate features and bug fixes from n8n 1.86.0"
     - kind: added
       description: "Add additional example helm values for how to add n8n main configuration settings to the values"
+
