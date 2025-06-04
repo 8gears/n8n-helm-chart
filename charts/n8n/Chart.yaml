@@ -34,5 +34,5 @@ annotations:
   artifacthub.io/prerelease: "false"
   # supported kinds are added, changed, deprecated, removed, fixed and security.
   artifacthub.io/changes: |
-    - kind: fixed
-      description: "fix https://github.com/8gears/n8n-helm-chart/issues/176"
+    #- kind: changed
+    #  description: "fix .."
