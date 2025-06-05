@@ -67,7 +67,7 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- else if and .Values.main.persistence.enabled .Values.main.persistence.existingClaim -}}
           persistentVolumeClaim:
             claimName: {{ .Values.main.persistence.existingClaim }}
-{{- else if and .Values.main.persistence.enabled (eq .Values.main.persistence.type "dynamic")  -}}
+{{- else if and .Values.main.persistence.enabled (eq .Values.main.persistence.type "dynamic") (not .Values.main.useStatefulSet) -}}
           persistentVolumeClaim:
             claimName: {{ include "n8n.fullname" . }}
 {{- end }}
@@ -102,4 +102,13 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end -}}
 {{- end -}}
 
+{{/* Validate StatefulSet and PVC configuration compatibility */}}
+{{- define "n8n.validateStatefulSet" -}}
+{{- if and .Values.main.useStatefulSet .Values.main.persistence.enabled .Values.main.persistence.existingClaim -}}
+{{- fail "StatefulSets cannot use existingClaim. When useStatefulSet=true, remove persistence.existingClaim as StatefulSets manage their own PVCs through volumeClaimTemplates" -}}
+{{- end -}}
+{{- if and .Values.main.useStatefulSet (not .Values.main.persistence.enabled) -}}
+{{- fail "StatefulSets require persistence to be enabled. When useStatefulSet=true, set persistence.enabled=true" -}}
+{{- end -}}
+{{- end -}}
 
