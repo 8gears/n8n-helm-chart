@@ -36,4 +36,3 @@ annotations:
   artifacthub.io/changes: |
     - kind: added 
       description: "add support autoscaling workers and webhooks"
-

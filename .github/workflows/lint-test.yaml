@@ -3,6 +3,17 @@ name: Lint and Test Charts
 on: pull_request
 
 jobs:
+  linter-artifacthub:
+    runs-on: ubuntu-latest
+    container:
+      image: artifacthub/ah
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Run ah lint
+        working-directory: ./charts/n8n
+        run: ah lint
   lint-test:
     runs-on: ubuntu-latest
     steps:
