@@ -258,7 +258,7 @@ main:
     # targetMemoryUtilizationPercentage: 80
 
   # specify a runtimeClass for the pod
-  runtimeClassName: ""
+  runtimeClassName: null
 
   nodeSelector: {}
   tolerations: []
@@ -633,7 +633,7 @@ webhook:
     maxReplicas: 100
     targetCPUUtilizationPercentage: 80
     # targetMemoryUtilizationPercentage: 80
-  runtimeClassName: ""
+  runtimeClassName: null
   nodeSelector: {}
   tolerations: []
   affinity: {}
