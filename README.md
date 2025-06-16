@@ -63,6 +63,12 @@ For proper StatefulSet usage with multiple replicas, it's recommended to:
 > [!IMPORTANT]
 > StatefulSets manage their own PersistentVolumeClaims through `volumeClaimTemplates`. Using `persistence.existingClaim` with `useStatefulSet: true` will result in an error. When using StatefulSets, configure the persistence settings using `persistence.enabled: true`, `persistence.storageClass`, and other parameters.
 
+### Service Configuration for StatefulSets
+
+When using StatefulSets (`useStatefulSet: true`), the chart creates two services:
+- A headless Service (`{release-name}-n8n-headless`) for StatefulSet pod management
+- A regular Service (`{release-name}-n8n-svc`) for external access to the application
+
 See the example at `examples/values_stateful.yaml` for a sample configuration.
 
 ## Setting Configuration Values and Environment Variables

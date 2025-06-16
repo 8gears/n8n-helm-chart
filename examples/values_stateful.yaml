@@ -1,6 +1,8 @@
 #stateful deployment for multiple replicas with persistent state per replica
 main:
   # Use StatefulSet to give each replica its own persistent volume
+  # This will create both a headless service for StatefulSet management
+  # and a regular service for external access
   useStatefulSet: true
   # Number of replicas for horizontal scaling
   replicaCount: 3

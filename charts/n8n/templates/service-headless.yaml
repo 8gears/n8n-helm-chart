@@ -1,20 +1,24 @@
+{{- if .Values.main.useStatefulSet }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "n8n.fullname" . }}{{ if .Values.main.useStatefulSet }}-svc{{ end }}
+  name: {{ include "n8n.fullname" . }}-headless
   labels:
     {{- include "n8n.labels" . | nindent 4 }}
+    app.kubernetes.io/component: headless
   {{- with .Values.main.service.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  type: {{ default "ClusterIP_" .Values.main.service.type }}
+  type: ClusterIP
+  clusterIP: None
   ports:
-    - port: {{ default 80 .Values.main.service.port }}
+    - port: {{ get (default (dict) .Values.main.config) "port" | default 5678 }}
       targetPort: http
       protocol: TCP
       name: http
   selector:
     {{- include "n8n.selectorLabels" . | nindent 4 }}
     app.kubernetes.io/type: master
+{{- end }}
