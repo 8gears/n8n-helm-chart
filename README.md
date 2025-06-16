@@ -11,10 +11,6 @@
 > Version 1.0.0 of this Chart includes breaking changes and is not backwards compatible with previous versions.
 > Please review the migration guide below before upgrading.
 
-> [!IMPORTANT]
-> Using StatefulSet with multiple main replicas requires n8n Enterprise license.
-> Without Enterprise license, use Deployment with a single main replica.
-
 # n8n Helm Chart for Kubernetes
 
 [n8n](https://github.com/n8n-io/n8n) is an extendable workflow automation tool.
@@ -360,6 +356,7 @@ main:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+```
 
 ## Deployment Modes
 
@@ -457,6 +454,10 @@ webhook:
 
 The chart supports two deployment modes for the main n8n component:
 
+> [!IMPORTANT]
+> Using StatefulSet with multiple main replicas requires n8n Enterprise license.
+> Without Enterprise license, use Deployment with a single main replica.
+
 ### StatefulSet Mode (Enterprise)
 
 Requires n8n Enterprise license. Enables running multiple main replicas for high availability:
@@ -484,8 +485,8 @@ main:
 
 Note: Worker and webhook components can be scaled independently regardless of the license type.
 
-# Worker related settings
-#
+### Worker related settings
+```yaml
 worker:
   enabled: false
 
@@ -673,11 +674,14 @@ worker:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+```
+### Webhook related settings
 
-# Webhook related settings
-# With .Values.scaling.webhook.enabled=true you disable Webhooks from the main process, but you enable the processing on a different Webhook instance.
-# See https://github.com/8gears/n8n-helm-chart/issues/39#issuecomment-1579991754 for the full explanation.
-# Webhook processes rely on Valkey/Redis too.
+With `.Values.scaling.webhook.enabled=true` you disable Webhooks from the main process, but you enable the processing on a different Webhook instance.
+#### See https://github.com/8gears/n8n-helm-chart/issues/39#issuecomment-1579991754 for the full explanation.
+
+### Webhook processes rely on Valkey/Redis too.
+```yaml
 webhook:
   enabled: false
   # additional (to main) config for webhook
@@ -858,14 +862,12 @@ webhook:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+```
+### User defined supplementary K8s manifests
 
-#
-# User defined supplementary K8s manifests
-#
-
-#  Takes a list of Kubernetes manifests and merges each resource with a default metadata.labels map and
-#  installs the result.
-#  Use this to add any arbitrary Kubernetes manifests alongside this chart instead of kubectl and scripts.
+Takes a list of Kubernetes manifests and merges each resource with a default metadata.labels map and  installs the result.
+Use this to add any arbitrary Kubernetes manifests alongside this chart instead of kubectl and scripts.
+```yaml
 extraManifests: []
 #  - apiVersion: v1
 #    kind: ConfigMap
@@ -894,9 +896,11 @@ extraTemplateManifests: []
 #      name: my-config
 #    stringData:
 #      image_name: {{ .Values.image.repository }}
+```
 
-# Bitnami Valkey configuration
-# https://artifacthub.io/packages/helm/bitnami/valkey
+### Bitnami Valkey configuration
+ https://artifacthub.io/packages/helm/bitnami/valkey
+```yaml
 valkey:
   enabled: false
   #architecture: standalone
@@ -906,7 +910,7 @@ valkey:
   #    enabled: false
   #    existingClaim: ""
   #    size: 2Gi
-
+```
 ## Migration Guide to Version 1.0.0
 
 This version includes a complete redesign of the chart to better accommodate n8n configuration options.
