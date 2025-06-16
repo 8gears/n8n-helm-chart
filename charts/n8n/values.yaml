@@ -446,7 +446,7 @@ worker:
     # targetMemoryUtilizationPercentage: 80
 
   # specify a runtimeClass for the worker pod
-  runtimeClassName: ""
+  runtimeClassName: null
 
   nodeSelector: {}
   tolerations: []
