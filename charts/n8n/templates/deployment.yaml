@@ -45,6 +45,9 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "n8n.serviceAccountName" . }}
+      {{- with .Values.main.runtimeClassName }}
+      runtimeClassName: {{ . }}
+      {{- end }}
       securityContext:
         {{- toYaml .Values.main.podSecurityContext | nindent 8 }}
       {{- if or .Values.main.initContainers }}

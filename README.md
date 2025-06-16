@@ -355,6 +355,7 @@ main:
     targetCPUUtilizationPercentage: 80
     # targetMemoryUtilizationPercentage: 80
 
+  runtimeClassName: ""
   nodeSelector: {}
   tolerations: []
   affinity: {}
@@ -540,6 +541,7 @@ worker:
     targetCPUUtilizationPercentage: 80
     # targetMemoryUtilizationPercentage: 80
 
+  runtimeClassName: ""
   nodeSelector: {}
   tolerations: []
   affinity: {}
@@ -725,10 +727,10 @@ webhook:
     maxReplicas: 100
     targetCPUUtilizationPercentage: 80
     # targetMemoryUtilizationPercentage: 80
+  runtimeClassName: ""
   nodeSelector: {}
   tolerations: []
   affinity: {}
-
 #
 # User defined supplementary K8s manifests
 #
