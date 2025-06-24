@@ -38,4 +38,3 @@ annotations:
       description: "FIX: deployment.yaml - error converting YAML to JSON: yaml: line 46: could not find expected ':' #177 https://github.com/8gears/n8n-helm-chart/pull/177"
     - kind: changed
       description: "bump n8n version to 1.99.1"
-
