@@ -7,10 +7,10 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: artifacthub/ah
+      options: --user root
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
-
+        uses:  actions/checkout@v4
       - name: Run ah lint
         working-directory: ./charts/n8n
         run: ah lint
@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses:  actions/checkout@v4
         with:
           fetch-depth: 0
 
