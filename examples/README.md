@@ -10,4 +10,8 @@ for to help you get started with a setup for your particular use case.
 * aws - n8n on AWS with EKS, ingress-nginx
 * simple-prod -  simple production setup with AWS
 
+## Render Examples
 
+```shell
+helm template n8n charts/n8n -f examples/values_full.yaml > manifests.yaml
+```

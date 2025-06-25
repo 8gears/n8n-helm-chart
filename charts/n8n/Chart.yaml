@@ -1,6 +1,6 @@
 apiVersion: v2
 name: n8n
-version: 1.0.9
+version: 1.0.10
 appVersion: 1.99.1
 type: application
 description: "Helm Chart for deploying n8n on Kubernetes, a fair-code workflow automation platform with native AI capabilities for technical teams. Easily automate tasks across different services."
@@ -35,6 +35,4 @@ annotations:
   # supported kinds are added, changed, deprecated, removed, fixed and security.
   artifacthub.io/changes: |
     - kind: fixed
-      description: "FIX: deployment.yaml - error converting YAML to JSON: yaml: line 46: could not find expected ':' #177 https://github.com/8gears/n8n-helm-chart/pull/177"
-    - kind: changed
-      description: "bump n8n version to 1.99.1"
+      description: "rollback of a fix that actually broke things: https://github.com/8gears/n8n-helm-chart/issues/200"
