@@ -40,10 +40,10 @@ ingress:
   hosts:
     - host: workflow.example.com
       paths: []
-  tls:
-    - hosts:
-        - workflow.example.com
-      secretName: host-domain-cert
+  tls: []
+    #- hosts:
+    #    - workflow.example.com
+    #  secretName: host-domain-cert
 
 # the main (n8n) application related configuration + Kubernetes specific settings
 # The config: {} dictionary is converted to environmental variables in the ConfigMap.
