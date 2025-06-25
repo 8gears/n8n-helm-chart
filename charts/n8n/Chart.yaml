@@ -35,4 +35,4 @@ annotations:
   # supported kinds are added, changed, deprecated, removed, fixed and security.
   artifacthub.io/changes: |
     - kind: added
-      description: "support envFrom in values file"
+      description: "support extraEnvFrom in values file"
