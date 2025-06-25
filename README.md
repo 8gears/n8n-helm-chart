@@ -163,7 +163,7 @@ main:
   #     if you run n8n stateless, you should provide an encryption key here.
   #      encryption_key:
   #
-  #    database:
+  #    db:
   #      postgresdb:
   #        password: 'big secret'
 
