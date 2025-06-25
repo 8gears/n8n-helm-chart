@@ -41,7 +41,7 @@ ingress:
     - host: workflow.example.com
       paths: []
   tls: []
-    #- hosts:
+    # - hosts:
     #    - workflow.example.com
     #  secretName: host-domain-cert
 
