@@ -67,6 +67,13 @@ spec:
                 name: {{ $fullName }}-webhook
                 port:
                   number: {{ $.Values.webhook.service.port | default 80  }}
+          - path: {{ . }}mcp/
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $fullName }}-webhook
+                port:
+                  number: {{ $.Values.webhook.service.port | default 80  }}
           {{- end }}
           {{- end }}
     {{- end }}
