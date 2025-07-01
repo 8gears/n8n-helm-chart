@@ -88,7 +88,7 @@ spec:
             - configMapRef:
                 name: {{ include "n8n.fullname" . }}-app-config
             {{- end }}
-           {{- if .Values.main.secret }}
+            {{- if .Values.main.secret }}
             - secretRef:
                 name: {{ include "n8n.fullname" . }}-app-secret
             {{- end }}
@@ -96,11 +96,13 @@ spec:
             - configMapRef:
                 name: {{ include "n8n.fullname" . }}-webhook-config
             {{- end }}
-           {{- if .Values.webhook.secret }}
+            {{- if .Values.webhook.secret }}
             - secretRef:
                 name: {{ include "n8n.fullname" . }}-webhook-secret
             {{- end }}
-
+            {{- if .Values.webhook.extraEnvFrom }}
+              {{- toYaml .Values.webhook.extraEnvFrom | nindent 12 }}
+            {{- end }}
           env: {{ not (empty .Values.webhook.extraEnv) | ternary nil "[]" }}
             {{- range $key, $value := .Values.webhook.extraEnv }}
             - name: {{ $key }}
