@@ -1,5 +1,4 @@
-{{- if .Values.mcp.config }}
-{{- if .Values.webhook.enabled }}
+{{- if and .Values.mcp.enabled .Values.webhook.enabled  }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -8,5 +7,4 @@ metadata:
     {{- include "n8n.labels" . | nindent 4 }}
 data:
   {{- include "toEnvVars" (dict "values" .Values.mcp.config "prefix" "") | nindent 2 }}
-{{- end }}
 {{- end }}
