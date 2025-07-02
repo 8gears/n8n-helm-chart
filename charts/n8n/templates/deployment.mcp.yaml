@@ -67,7 +67,7 @@ spec:
             {{- toYaml .Values.mcp.commandArgs | nindent 12 }}
           {{- else }}
           args:
-            - "mcp"
+            - "webhook"
           {{- end }}
           ports:
             - name: http
