@@ -1,4 +1,5 @@
 {{- if .Values.main.autoscaling.enabled }}
+{{- include "n8n.validateValues" . }}
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
