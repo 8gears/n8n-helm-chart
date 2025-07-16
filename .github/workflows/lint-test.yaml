@@ -61,4 +61,4 @@ jobs:
       - name: Validate StatefulSet template
         if: steps.list-changed.outputs.changed == 'true'
         run: |
-          helm template n8n ./charts/n8n --set main.deploymentMode=statefulset | grep -q 'kind: StatefulSet'
+          helm template n8n ./charts/n8n --set main.statefulSet.enabled=true | grep -q 'kind: StatefulSet'
