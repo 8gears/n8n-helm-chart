@@ -1,10 +1,9 @@
-{{- if not .Values.main.statefulSet.enabled }}
+{{- if .Values.main.statefulSet.enabled }}
 {{- include "n8n.validateValues" . }}
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: {{ include "n8n.fullname" . }}
-  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "n8n.labels" . | nindent 4 }}
     {{- if .Values.main.deploymentLabels }}
@@ -18,13 +17,7 @@ spec:
   {{- if not .Values.main.autoscaling.enabled }}
   replicas: {{ .Values.main.replicaCount }}
   {{- end }}
-  strategy:
-    type: {{ .Values.main.deploymentStrategy.type }}
-    {{- if eq .Values.main.deploymentStrategy.type "RollingUpdate" }}
-    rollingUpdate:
-      maxSurge: {{ default "25%" .Values.main.deploymentStrategy.maxSurge  }}
-      maxUnavailable: {{ default "25%" .Values.main.deploymentStrategy.maxUnavailable }}
-    {{- end }}
+  serviceName: {{ include "n8n.fullname" . }}
   selector:
     matchLabels:
       {{- include "n8n.selectorLabels" . | nindent 6 }}
@@ -52,16 +45,10 @@ spec:
         {{- toYaml .Values.main.podSecurityContext | nindent 8 }}
       {{- if or .Values.main.initContainers }}
       initContainers:
-      {{- if .Values.main.initContainers }}
-        {{ tpl (toYaml .Values.main.initContainers) . | nindent 10 }}
-      {{- end }}
+      {{ tpl (toYaml .Values.main.initContainers) . | nindent 8 }}
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}
-          {{- with .Values.main.command }}
-          command:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
           securityContext:
             {{- toYaml .Values.main.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -80,11 +67,17 @@ spec:
             - name: {{ $key }}
               {{- toYaml $value | nindent 14 }}
             {{- end }}
+          {{- if .Values.main.command }}
+          command:
+            {{- toYaml .Values.main.command | nindent 12 }}
+          {{- end }}
+          {{- if .Values.main.lifecycle }}
           lifecycle:
             {{- toYaml .Values.main.lifecycle | nindent 12 }}
+          {{- end }}
           ports:
             - name: http
-              containerPort: {{ get (default (dict) .Values.main.config.n8n) "port" | default 5678 }}
+              containerPort: {{ get (default (dict) .Values.main.config) "port" | default 5678 }}
               protocol: TCP
           {{- with .Values.main.livenessProbe }}
           livenessProbe:
@@ -96,14 +89,14 @@ spec:
           {{- end }}
           resources:
             {{- toYaml .Values.main.resources | nindent 12 }}
+          {{- if .Values.main.persistence.enabled }}
           volumeMounts:
-            {{- if .Values.main.persistence.enabled }}
             - name: data
               mountPath: /home/node/.n8n
-            {{- end }}
-            {{- if .Values.main.extraVolumeMounts }}
+          {{- end }}
+          {{- if .Values.main.extraVolumeMounts }}
             {{- toYaml .Values.main.extraVolumeMounts | nindent 12 }}
-            {{- end }}
+          {{- end }}
       {{- with .Values.hostAliases }}
       hostAliases:
         {{- toYaml . | nindent 8 }}
@@ -120,12 +113,24 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if .Values.main.persistence.enabled }}
-      volumes:
-        - name: "data"
-          {{ include "n8n.pvc" . }}
-      {{- end }}
-        {{- if .Values.main.extraVolumes }}
-          {{- toYaml .Values.main.extraVolumes | nindent 8 }}
+  {{- if .Values.main.persistence.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          {{- range .Values.main.persistence.accessModes }}
+          - {{ . | quote }}
+          {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.main.persistence.size }}
+        {{- if .Values.main.persistence.storageClass }}
+        {{- if eq "-" .Values.main.persistence.storageClass }}
+        storageClassName: ""
+        {{- else }}
+        storageClassName: {{ .Values.main.persistence.storageClass }}
         {{- end }}
+        {{- end }}
+  {{- end }}
 {{- end }}

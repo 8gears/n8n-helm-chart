@@ -1,6 +1,7 @@
 {{- if .Values.webhook.enabled }}
 {{- /* Validate Valkey/Redis configuration */}}
 {{- include "n8n.validateValkey" . }}
+{{- include "n8n.validateValues" . }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -33,7 +34,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: {{ print .Values.webhook .Values.main | sha256sum }}
+        checksum/config: {{ print .Values.webhook | sha256sum }}
         {{- with .Values.webhook.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -57,6 +58,8 @@ spec:
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}-webhook
+          securityContext:
+            {{- toYaml .Values.webhook.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           {{- if .Values.webhook.command }}
@@ -101,7 +104,6 @@ spec:
             - secretRef:
                 name: {{ include "n8n.fullname" . }}-webhook-secret
             {{- end }}
-
           env: {{ not (empty .Values.webhook.extraEnv) | ternary nil "[]" }}
             {{- range $key, $value := .Values.webhook.extraEnv }}
             - name: {{ $key }}
@@ -109,13 +111,13 @@ spec:
             {{- end }}
           lifecycle:
             {{- toYaml .Values.webhook.lifecycle | nindent 12 }}
-          securityContext:
-            {{- toYaml .Values.webhook.securityContext | nindent 12 }}
           resources:
             {{- toYaml .Values.webhook.resources | nindent 12 }}
+          {{- if .Values.webhook.persistence.enabled }}
           volumeMounts:
             - name: data
               mountPath: /home/node/.n8n
+          {{- end }}
           {{- if .Values.webhook.extraVolumeMounts }}
             {{- toYaml .Values.webhook.extraVolumeMounts | nindent 12 }}
           {{- end }}
@@ -136,8 +138,10 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       volumes:
+        {{- if .Values.webhook.persistence.enabled }}
         - name: "data"
-          {{ include "n8n.pvc" . }}
+          {{ include "n8n.webhook.pvc" . }}
+        {{- end }}
         {{- if .Values.webhook.extraVolumes }}
           {{- toYaml .Values.webhook.extraVolumes | nindent 8 }}
         {{- end }}

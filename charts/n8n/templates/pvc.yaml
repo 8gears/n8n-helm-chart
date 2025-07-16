@@ -1,9 +1,9 @@
+{{- include "n8n.validateValues" . }}
 {{- if and .Values.main.persistence.enabled (not .Values.main.persistence.existingClaim) }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ include "n8n.fullname" . }}
-  namespace: {{ .Release.Namespace }}
+  name: {{ include "n8n.fullname" . }}-main
   {{- with .Values.main.persistence.annotations }}
   annotations:
     {{- range $key, $value := . }}
@@ -25,6 +25,66 @@ spec:
   storageClassName: ""
   {{- else }}
   storageClassName: {{ .Values.main.persistence.storageClass }}
+  {{- end }}
+  {{- end }}
+{{- end }}
+
+{{- if and .Values.webhook.persistence.enabled (not .Values.webhook.persistence.existingClaim) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "n8n.fullname" . }}-webhook
+  {{- with .Values.webhook.persistence.annotations }}
+  annotations:
+    {{- range $key, $value := . }}
+    {{ $key }}: {{ $value }}
+    {{- end }}
+  {{- end }}
+  labels:
+    {{- include "n8n.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    {{- range .Values.webhook.persistence.accessModes }}
+    - {{ . | quote }}
+    {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.webhook.persistence.size }}
+  {{- if .Values.webhook.persistence.storageClass }}
+  {{- if eq "-" .Values.webhook.persistence.storageClass }}
+  storageClassName: ""
+  {{- else }}
+  storageClassName: {{ .Values.webhook.persistence.storageClass }}
+  {{- end }}
+  {{- end }}
+{{- end }}
+
+{{- if and .Values.worker.enabled .Values.worker.persistence.enabled (not .Values.worker.persistence.existingClaim) (not .Values.worker.statefulSet.enabled) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "n8n.fullname" . }}-worker
+  {{- with .Values.worker.persistence.annotations }}
+  annotations:
+    {{- range $key, $value := . }}
+    {{ $key }}: {{ $value }}
+    {{- end }}
+  {{- end }}
+  labels:
+    {{- include "n8n.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    {{- range .Values.worker.persistence.accessModes }}
+    - {{ . | quote }}
+    {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.worker.persistence.size }}
+  {{- if .Values.worker.persistence.storageClass }}
+  {{- if eq "-" .Values.worker.persistence.storageClass }}
+  storageClassName: ""
+  {{- else }}
+  storageClassName: {{ .Values.worker.persistence.storageClass }}
   {{- end }}
   {{- end }}
 {{- end }}
