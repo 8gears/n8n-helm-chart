@@ -12,10 +12,16 @@ metadata:
 spec:
   type: {{ default "ClusterIP_" .Values.main.service.type }}
   ports:
+    {{ if .Values.main.service.type | eq "NodePort" -}}
+    - port: {{ default 80 .Values.main.service.port }}
+      targetPort: {{ default 80 .Values.main.service.port }}
+      nodePort: {{ default 30080 .Values.main.service.nodePort }}
+    {{- else }}
     - port: {{ default 80 .Values.main.service.port }}
       targetPort: http
       protocol: TCP
       name: http
+    {{- end }}
   selector:
     {{- include "n8n.selectorLabels" . | nindent 4 }}
     app.kubernetes.io/type: master
