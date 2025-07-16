@@ -12,10 +12,11 @@ metadata:
 spec:
   type: {{ default "ClusterIP_" .Values.main.service.type }}
   ports:
-    {{ if .Values.main.service.type | eq "NodePort" -}}
+    {{- if eq .Values.main.service.type "NodePort" }} 
     - port: {{ default 80 .Values.main.service.port }}
       targetPort: {{ default 80 .Values.main.service.port }}
       nodePort: {{ default 30080 .Values.main.service.nodePort }}
+      name: http
     {{- else }}
     - port: {{ default 80 .Values.main.service.port }}
       targetPort: http
