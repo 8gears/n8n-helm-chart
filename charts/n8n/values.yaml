@@ -200,10 +200,10 @@ main:
   # here you can override the livenessProbe for the main container
   # it may be used to increase the timeout for the livenessProbe (e.g., to resolve issues like
 
-  livenessProbe: {}
-    # httpGet:
-    #   path: /healthz
-    #   port: http
+  livenessProbe:
+    httpGet:
+      path: /healthz
+      port: http
     # initialDelaySeconds: 30
     # periodSeconds: 10
     # timeoutSeconds: 5
@@ -213,10 +213,10 @@ main:
   # here you can override the readinessProbe for the main container
   # it may be used to increase the timeout for the readinessProbe (e.g., to resolve issues like
 
-  readinessProbe: {}
-    # httpGet:
-    #   path: /healthz
-    #   port: http
+  readinessProbe:
+    httpGet:
+      path: /healthz
+      port: http
     # initialDelaySeconds: 30
     # periodSeconds: 10
     # timeoutSeconds: 5
@@ -393,10 +393,10 @@ worker:
 
   # here you can override the livenessProbe for the main container
   # it may be used to increase the timeout for the livenessProbe (e.g., to resolve issues like
-  livenessProbe: {}
-    # httpGet:
-    #   path: /healthz
-    #   port: http
+  livenessProbe:
+    httpGet:
+      path: /healthz
+      port: http
     # initialDelaySeconds: 30
     # periodSeconds: 10
     # timeoutSeconds: 5
@@ -406,10 +406,10 @@ worker:
   # here you can override the readinessProbe for the main container
   # it may be used to increase the timeout for the readinessProbe (e.g., to resolve issues like
 
-  readinessProbe: {}
-    # httpGet:
-    #   path: /healthz
-    #   port: http
+  readinessProbe:
+    httpGet:
+      path: /healthz
+      port: http
     # initialDelaySeconds: 30
     # periodSeconds: 10
     # timeoutSeconds: 5
@@ -580,10 +580,10 @@ webhook:
   # here you can override the livenessProbe for the main container
   # it may be used to increase the timeout for the livenessProbe (e.g., to resolve issues like
 
-  livenessProbe: {}
-    # httpGet:
-    #   path: /healthz
-    #   port: http
+  livenessProbe:
+    httpGet:
+      path: /healthz
+      port: http
     # initialDelaySeconds: 30
     # periodSeconds: 10
     # timeoutSeconds: 5
@@ -593,10 +593,10 @@ webhook:
   # here you can override the readinessProbe for the main container
   # it may be used to increase the timeout for the readinessProbe (e.g., to resolve issues like
 
-  readinessProbe: {}
-    # httpGet:
-    #   path: /healthz
-    #   port: http
+  readinessProbe:
+    httpGet:
+      path: /healthz
+      port: http
     # initialDelaySeconds: 30
     # periodSeconds: 10
     # timeoutSeconds: 5
