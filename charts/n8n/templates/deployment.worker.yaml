@@ -96,7 +96,7 @@ spec:
           {{- end }}
           ports:
             - name: http
-              containerPort: {{ get (default (dict) .Values.worker.config) "port" | default 5678 }}
+              containerPort: {{ get (default (dict) .Values.worker.config.n8n) "port" | default 5678 }}
               protocol: TCP
           {{- with .Values.worker.livenessProbe }}
           livenessProbe:
