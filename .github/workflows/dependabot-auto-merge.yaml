@@ -1,0 +1,61 @@
+name: Dependabot Auto-Merge
+
+on:
+  pull_request:
+    branches: [ main, master ]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  dependabot-auto-merge:
+    runs-on: ubuntu-latest
+    if: ${{ github.actor == 'dependabot[bot]' }}
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      # Wait for lint-test job to pass
+      - name: Wait for lint-test
+        uses: lewagon/wait-on-check-action@v1.3.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          check-name: 'lint-test'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 20
+      
+      # Wait for linter-artifacthub job to pass
+      - name: Wait for linter-artifacthub
+        uses: lewagon/wait-on-check-action@v1.3.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          check-name: 'linter-artifacthub'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 20
+      
+      # Wait for conventional commits check to pass
+      - name: Wait for conventional commits check
+        uses: lewagon/wait-on-check-action@v1.3.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          check-name: 'Conventional Commits'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 20
+      
+      # Approve the PR
+      - name: Approve Pull Request
+        run: gh pr review --approve "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      # Enable auto-merge
+      - name: Enable auto-merge
+        run: gh pr merge --auto --merge "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
