@@ -1,0 +1,138 @@
+{{- if .Values.main.useStatefulSet }}
+{{- include "n8n.validateStatefulSet" . -}}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "n8n.fullname" . }}
+  labels:
+    {{- include "n8n.labels" . | nindent 4 }}
+    {{- if .Values.main.deploymentLabels }}
+    {{- toYaml .Values.main.deploymentLabels | nindent 4 }}
+    {{- end }}
+  {{- if .Values.main.deploymentAnnotations }}
+  annotations:
+    {{- toYaml .Values.main.deploymentAnnotations | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if not .Values.main.autoscaling.enabled }}
+  replicas: {{ .Values.main.replicaCount }}
+  {{- end }}
+  serviceName: {{ include "n8n.fullname" . }}-headless
+  selector:
+    matchLabels:
+      {{- include "n8n.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/type: master
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ print .Values.main | sha256sum }}
+        {{- with .Values.main.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "n8n.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/type: master
+        {{- if .Values.main.podLabels }}
+          {{ toYaml .Values.main.podLabels | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "n8n.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.main.podSecurityContext | nindent 8 }}
+      {{- if or .Values.main.initContainers }}
+      initContainers:
+      {{- if .Values.main.initContainers }}
+        {{ tpl (toYaml .Values.main.initContainers) . | nindent 10 }}
+      {{- end }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          {{- with .Values.main.command }}
+          command:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          securityContext:
+            {{- toYaml .Values.main.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          envFrom:
+            {{- if .Values.main.config }}
+            - configMapRef:
+                name: {{ include "n8n.fullname" . }}-app-config
+            {{- end }}
+           {{- if .Values.main.secret }}
+            - secretRef:
+                name: {{ include "n8n.fullname" . }}-app-secret
+            {{- end }}
+          env: {{ not (empty .Values.main.extraEnv) | ternary nil "[]" }}
+            {{- range $key, $value := .Values.main.extraEnv }}
+            - name: {{ $key }}
+              {{- toYaml $value | nindent 14 }}
+            {{- end }}
+          lifecycle:
+            {{- toYaml .Values.main.lifecycle | nindent 12 }}
+          ports:
+            - name: http
+              containerPort: {{ get (default (dict) .Values.main.config) "port" | default 5678 }}
+              protocol: TCP
+          {{- with .Values.main.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.main.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.main.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /home/node/.n8n
+          {{- if .Values.main.extraVolumeMounts }}
+            {{- toYaml .Values.main.extraVolumeMounts | nindent 12 }}
+          {{- end }}
+      {{- with .Values.hostAliases }}
+      hostAliases:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.main.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.main.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.main.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+        {{- with .Values.main.persistence.annotations }}
+        annotations:
+          {{- range $key, $value := . }}
+          {{ $key }}: {{ $value }}
+          {{- end }}
+        {{- end }}
+      spec:
+        accessModes:
+          {{- range .Values.main.persistence.accessModes }}
+          - {{ . | quote }}
+          {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.main.persistence.size }}
+        {{- if .Values.main.persistence.storageClass }}
+        {{- if eq "-" .Values.main.persistence.storageClass }}
+        storageClassName: ""
+        {{- else }}
+        storageClassName: {{ .Values.main.persistence.storageClass }}
+        {{- end }}
+        {{- end }}
+  {{- end }}
