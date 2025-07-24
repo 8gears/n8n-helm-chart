@@ -60,7 +60,7 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 {{- end }}
 
-{{/* PVC existing, emptyDir, Dynamic */}}
+{{/* PVC existing, emptyDir, Dynamic for main component */}}
 {{- define "n8n.pvc" -}}
 {{- if or (not .Values.main.persistence.enabled) (eq .Values.main.persistence.type "emptyDir") -}}
           emptyDir: {}
@@ -69,10 +69,35 @@ app.kubernetes.io/instance: {{ .Release.Name }}
             claimName: {{ .Values.main.persistence.existingClaim }}
 {{- else if and .Values.main.persistence.enabled (eq .Values.main.persistence.type "dynamic")  -}}
           persistentVolumeClaim:
-            claimName: {{ include "n8n.fullname" . }}
+            claimName: {{ include "n8n.fullname" . }}-main
 {{- end }}
 {{- end }}
 
+{{/* PVC existing, emptyDir, Dynamic for webhook component */}}
+{{- define "n8n.webhook.pvc" -}}
+{{- if or (not .Values.webhook.persistence.enabled) (eq .Values.webhook.persistence.type "emptyDir") -}}
+          emptyDir: {}
+{{- else if and .Values.webhook.persistence.enabled .Values.webhook.persistence.existingClaim -}}
+          persistentVolumeClaim:
+            claimName: {{ .Values.webhook.persistence.existingClaim }}
+{{- else if and .Values.webhook.persistence.enabled (eq .Values.webhook.persistence.type "dynamic")  -}}
+          persistentVolumeClaim:
+            claimName: {{ include "n8n.fullname" . }}-webhook
+{{- end }}
+{{- end }}
+
+{{/* PVC existing, emptyDir, Dynamic for worker component */}}
+{{- define "n8n.worker.pvc" -}}
+{{- if or (not .Values.worker.persistence.enabled) (eq .Values.worker.persistence.type "emptyDir") -}}
+          emptyDir: {}
+{{- else if and .Values.worker.persistence.enabled .Values.worker.persistence.existingClaim -}}
+          persistentVolumeClaim:
+            claimName: {{ .Values.worker.persistence.existingClaim }}
+{{- else if and .Values.worker.persistence.enabled (eq .Values.worker.persistence.type "dynamic")  -}}
+          persistentVolumeClaim:
+            claimName: {{ include "n8n.fullname" . }}-worker
+{{- end }}
+{{- end }}
 
 {{/* Create environment variables from yaml tree */}}
 {{- define "toEnvVars" -}}
@@ -100,6 +125,16 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- if and .Values.webhook.enabled (not $envVars.QUEUE_BULL_REDIS_HOST) -}}
 {{- fail "Webhook processes rely on Valkey. Please set a Redis/Valkey host when webhook.enabled=true" -}}
 {{- end -}}
+{{- end }}
+
+{{/*
+Validate values for n8n deployment
+*/}}
+{{- define "n8n.validateValues" -}}
+{{- if and (not .Values.main.statefulSet.enabled) (gt (int .Values.main.replicaCount) 1) (ne .Values.main.persistence.type "emptyDir") -}}
+{{- fail "\nERROR: Invalid configuration\nWhen using Deployment (statefulSet.enabled=false) with persistent storage, replicaCount must be 1.\nTo use multiple replicas either:\n  1. Enable StatefulSet (requires Enterprise license)\n  2. Use emptyDir for persistence (data will be lost on pod restart)" -}}
 {{- end -}}
-
-
+{{- if and .Values.webhook.enabled .Values.webhook.persistence.enabled (ne .Values.webhook.persistence.type "emptyDir") (gt (int .Values.webhook.replicaCount) 1) -}}
+{{- fail "\nERROR: Invalid webhook configuration\nWhen using persistent storage for webhook component, replicaCount must be 1.\nTo use multiple replicas either:\n  1. Disable persistence\n  2. Use emptyDir for persistence (data will be lost on pod restart)" -}}
+{{- end -}}
+{{- end -}}
