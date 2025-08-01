@@ -134,7 +134,7 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if .Values.webhook.terminationGracePeriodSeconds }}
+      {{- if hasKey .Values.webhook "terminationGracePeriodSeconds" }}
       terminationGracePeriodSeconds: {{ .Values.webhook.terminationGracePeriodSeconds }}
       {{- end }}
       volumes:

@@ -130,7 +130,7 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if .Values.worker.terminationGracePeriodSeconds }}
+      {{- if hasKey .Values.worker "terminationGracePeriodSeconds" }}
       terminationGracePeriodSeconds: {{ .Values.worker.terminationGracePeriodSeconds }}
       {{- end }}
       volumes:
