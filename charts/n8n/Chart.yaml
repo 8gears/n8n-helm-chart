@@ -35,4 +35,4 @@ annotations:
   # supported kinds are added, changed, deprecated, removed, fixed and security.
   artifacthub.io/changes: |
     - kind: fixed
-      description: description: "Prevent worker restarts when the Valkey configuration is updated (fixes #214)."
+      description: "Prevent worker restarts when the Valkey configuration is updated (fixes #214)."
