@@ -35,4 +35,4 @@ annotations:
   # supported kinds are added, changed, deprecated, removed, fixed and security.
   artifacthub.io/changes: |
     - kind: fixed
-      description: "prevent workers restart when Valkey configuration is updated: fixes https://github.com/8gears/n8n-helm-chart/issues/214"
+      description: description: "Prevent worker restarts when the Valkey configuration is updated (fixes #214)."
