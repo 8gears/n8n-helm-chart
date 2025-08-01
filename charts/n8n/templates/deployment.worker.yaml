@@ -30,7 +30,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: {{ print .Values | sha256sum }}
+        checksum/config: {{ merge .Values.main .Values.worker .Values.webhook | toJson | sha256sum }}
         {{- with .Values.worker.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
