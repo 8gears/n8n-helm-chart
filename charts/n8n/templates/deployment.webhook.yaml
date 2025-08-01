@@ -134,6 +134,9 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- if .Values.webhook.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ .Values.webhook.terminationGracePeriodSeconds }}
+      {{- end }}
       volumes:
         - name: "data"
           {{ include "n8n.pvc" . }}
