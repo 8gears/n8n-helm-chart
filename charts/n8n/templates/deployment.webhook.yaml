@@ -18,6 +18,7 @@ spec:
   {{- if not .Values.webhook.autoscaling.enabled }}
   replicas: {{ .Values.webhook.replicaCount }}
   {{- end }}
+  revisionHistoryLimit: {{ .Values.webhook.revisionHistoryLimit }}
   strategy:
     type: {{ .Values.webhook.deploymentStrategy.type }}
     {{- if eq .Values.webhook.deploymentStrategy.type "RollingUpdate" }}
