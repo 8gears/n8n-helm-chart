@@ -41,6 +41,36 @@ The `values.yaml` file is divided into a multiple n8n and Kubernetes specific se
 6. Raw Resources to pass through your own manifests like GatewayAPI, ServiceMonitor etc.
 7. Redis related settings + Kubernetes specific settings
 
+## Deployment Types
+
+By default, n8n is deployed as a Kubernetes Deployment. However, in some scenarios, you may want to use a StatefulSet instead:
+
+### StatefulSet vs Deployment
+
+When using multiple replicas with a standard Deployment, all pods share the same persistent volume, which can lead to data corruption as multiple replicas try to access the same files simultaneously.
+
+Using a StatefulSet (by setting `main.useStatefulSet: true`) ensures each replica gets its own persistent volume for the `/home/node/.n8n` directory. This is useful when:
+
+- You need horizontal scaling with multiple replicas
+- Each replica needs its own persistent state
+- You want to preserve workflow data for each replica independently
+
+For proper StatefulSet usage with multiple replicas, it's recommended to:
+- Enable Redis/Valkey to handle session state
+- Use external databases rather than SQLite
+- Set a shared encryption key for all replicas
+
+> [!IMPORTANT]
+> StatefulSets manage their own PersistentVolumeClaims through `volumeClaimTemplates`. Using `persistence.existingClaim` with `useStatefulSet: true` will result in an error. When using StatefulSets, configure the persistence settings using `persistence.enabled: true`, `persistence.storageClass`, and other parameters.
+
+### Service Configuration for StatefulSets
+
+When using StatefulSets (`useStatefulSet: true`), the chart creates two services:
+- A headless Service (`{release-name}-n8n-headless`) for StatefulSet pod management
+- A regular Service (`{release-name}-n8n-svc`) for external access to the application
+
+See the example at `examples/values_stateful.yaml` for a sample configuration.
+
 ## Setting Configuration Values and Environment Variables
 
 These n8n specific settings should be added to `main.config:` or `main.secret:` in the `values.yaml` file.
@@ -177,6 +207,10 @@ main:
   #
   # N8n Kubernetes specific settings
   #
+  # When true, deploy as a StatefulSet instead of a Deployment
+  # This ensures each replica has its own persistent volume for /home/node/.n8n
+  useStatefulSet: false
+
   persistence:
     # If true, use a Persistent Volume Claim, If false, use emptyDir
     enabled: false
