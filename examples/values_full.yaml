@@ -6,7 +6,7 @@ _shared_config:
   url: &url https://n8n-dev.8gears.com
 
 image:
-  repository: 8gears.container-registry.com/ops/n8n
+  repository: n8nio/n8n
   tag: 1.81.4
   pullPolicy: Always
 imagePullSecrets:
