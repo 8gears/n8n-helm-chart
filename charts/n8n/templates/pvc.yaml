@@ -1,4 +1,4 @@
-{{- if and .Values.main.persistence.enabled (not .Values.main.persistence.existingClaim) }}
+{{- if and .Values.main.persistence.enabled (not .Values.main.persistence.existingClaim) (not .Values.main.useStatefulSet) }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -13,9 +13,9 @@ metadata:
     {{- include "n8n.labels" . | nindent 4 }}
 spec:
   accessModes:
-    {{- range .Values.main.persistence.accessModes }}
+  {{- range .Values.main.persistence.accessModes }}
     - {{ . | quote }}
-    {{- end }}
+  {{- end }}
   resources:
     requests:
       storage: {{ .Values.main.persistence.size }}
