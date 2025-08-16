@@ -1,4 +1,3 @@
-{{ if .Values.main.service.enabled -}}
 apiVersion: v1
 kind: Service
 metadata:
@@ -19,4 +18,3 @@ spec:
   selector:
     {{- include "n8n.selectorLabels" . | nindent 4 }}
     app.kubernetes.io/type: master
-{{ end }}
