@@ -835,7 +835,7 @@ instance is disabled and by default a single webhook instance is started.
 3. In `Chart.yaml`, replace the content of the `artifacthub.io/changes` section. See the ArtifactHub [annotation reference](https://artifacthub.io/docs/topics/annotations/helm/).
 4. Run `ah lint` locally
 5. Run Chart-Testing  `ct lint --chart-dirs charts/n8n --charts charts/n8n --validate-maintainers=false`
-6. Install the charts and examples locall to see if they work
+6. Install the charts and examples locally to see if they work
 7. Submit your PR
 8. The maintainers create a new release in GitHub using the chart version number as the tag and title.
 
