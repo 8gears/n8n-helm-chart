@@ -36,3 +36,5 @@ annotations:
   artifacthub.io/changes: |
     - kind: fixed
       description: "allows empty tls for ingres: fixes https://github.com/8gears/n8n-helm-chart/issues/167"
+   - kind: changed
+      description: "Bump appVersion to n8n 1.107.4."
