@@ -1,6 +1,6 @@
 apiVersion: v2
 name: n8n
-version: 1.0.12
+version: 1.1.0
 appVersion: 1.107.4
 type: application
 description: "Helm Chart for deploying n8n on Kubernetes, a fair-code workflow automation platform with native AI capabilities for technical teams. Easily automate tasks across different services."
@@ -34,7 +34,8 @@ annotations:
   artifacthub.io/prerelease: "false"
   # supported kinds are added, changed, deprecated, removed, fixed and security.
   artifacthub.io/changes: |
-    - kind: fixed
-      description: "allows empty tls for ingres: fixes https://github.com/8gears/n8n-helm-chart/issues/167"
-    - kind: changed
-      description: "Bump appVersion to n8n 1.107.4."
+    - kind: added
+      description: Add support spec.containers.resizePolicy for all containers. This allows to control the behavior when a container is resized.
+      links:
+        - name: GitHub PR
+          url: https://github.com/8gears/n8n-helm-chart/pull/232 
