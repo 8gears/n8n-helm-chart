@@ -2,15 +2,10 @@
 
 > [!NOTE]
 > The n8n Helm chart is growing in popularity.
-> We're looking for additional passionate maintainers and contributors
+> We're looking for additional conscientious and accurate maintainers and contributors
 > to improve and maintain this chart, governance, development, documentation and CI/CD workflows.
 > If you're interested in making a difference,
 > [join the discussion](https://github.com/8gears/n8n-helm-chart/discussions/90).
-
-> [!WARNING]
-> Version 1.0.0 of this Chart includes breaking changes and is not backwards compatible with previous versions.
-> Please review the migration guide below before upgrading.
->
 
 
 # n8n Helm Chart for Kubernetes
