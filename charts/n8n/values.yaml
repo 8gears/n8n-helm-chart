@@ -255,6 +255,13 @@ main:
   #   cpu: 100m
   #   memory: 128Mi
 
+  # Container resize policy allows runtime resource updates without pod restart
+  resizePolicy: []
+    # - resourceName: cpu
+    #   restartPolicy: NotRequired
+    # - resourceName: memory
+    #   restartPolicy: RestartContainer
+
   autoscaling:
     enabled: false
     minReplicas: 1
@@ -439,6 +446,13 @@ worker:
   # requests:
   #   cpu: 100m
   #   memory: 128Mi
+
+  # Container resize policy allows runtime resource updates without pod restart
+  resizePolicy: []
+    # - resourceName: cpu
+    #   restartPolicy: NotRequired
+    # - resourceName: memory
+    #   restartPolicy: RestartContainer
 
   autoscaling:
     enabled: false
@@ -626,6 +640,14 @@ webhook:
   # requests:
   #   cpu: 100m
   #   memory: 128Mi
+
+  # Container resize policy allows runtime resource updates without pod restart
+  resizePolicy: []
+    # - resourceName: cpu
+    #   restartPolicy: NotRequired
+    # - resourceName: memory
+    #   restartPolicy: RestartContainer
+
   autoscaling:
     enabled: false
     minReplicas: 1
