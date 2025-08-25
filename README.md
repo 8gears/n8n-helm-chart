@@ -2,15 +2,10 @@
 
 > [!NOTE]
 > The n8n Helm chart is growing in popularity.
-> We're looking for additional passionate maintainers and contributors
+> We're looking for additional conscientious and accurate maintainers and contributors
 > to improve and maintain this chart, governance, development, documentation and CI/CD workflows.
 > If you're interested in making a difference,
 > [join the discussion](https://github.com/8gears/n8n-helm-chart/discussions/90).
-
-> [!WARNING]
-> Version 1.0.0 of this Chart includes breaking changes and is not backwards compatible with previous versions.
-> Please review the migration guide below before upgrading.
->
 
 
 # n8n Helm Chart for Kubernetes
@@ -31,7 +26,8 @@ Before you start, make sure you have the following tools ready:
 
 ## Overview
 
-The `values.yaml` file is divided into a multiple n8n and Kubernetes specific sections.
+The `values.yaml` file is divided into a multiple sections like global, n8n and Kubernetes. 
+Use this structure to orientate yourself. 
 
 1. Global and chart wide values, like the image repository, image tag, etc.
 2. Ingress, (default is nginx, but you can change it to your own ingress controller)
@@ -41,14 +37,14 @@ The `values.yaml` file is divided into a multiple n8n and Kubernetes specific se
 6. Raw Resources to pass through your own manifests like GatewayAPI, ServiceMonitor etc.
 7. Redis related settings + Kubernetes specific settings
 
-## Setting Configuration Values and Environment Variables
+## Configurating N8n via Values and Environment Variables
 
-These n8n specific settings should be added to `main.config:` or `main.secret:` in the `values.yaml` file.
+These n8n configuration should be added to `main.config:` or `main.secret:` in the `values.yaml` file.
 
 See the [example](#examples) section and other example in the `/examples` directory of this repo.
 
 > [!IMPORTANT]
-> The YAML nodes `config` and `secret` in the values.yaml are transformed 1:1 into ENV variables.
+> The YAML nodes `config` and `secret` in the values.yaml are transformed 1:1 into K8s ENV variables.
 
 ```yaml
 main:
@@ -848,7 +844,7 @@ instance is disabled and by default a single webhook instance is started.
 3. In `Chart.yaml`, replace the content of the `artifacthub.io/changes` section. See the ArtifactHub [annotation reference](https://artifacthub.io/docs/topics/annotations/helm/).
 4. Run `ah lint` locally
 5. Run Chart-Testing  `ct lint --chart-dirs charts/n8n --charts charts/n8n --validate-maintainers=false`
-6. Intall the charts and examples locall to see if they work
+6. Install the charts and examples locally to see if they work
 7. Submit your PR
 8. The maintainers create a new release in GitHub using the chart version number as the tag and title.
 
