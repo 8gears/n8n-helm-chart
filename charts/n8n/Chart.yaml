@@ -38,4 +38,4 @@ annotations:
       description: Add support spec.containers.resizePolicy for all containers. This allows to control the behavior when a container is resized.
       links:
         - name: GitHub PR
-          url: https://github.com/8gears/n8n-helm-chart/pull/232 
+          url: https://github.com/8gears/n8n-helm-chart/pull/232
