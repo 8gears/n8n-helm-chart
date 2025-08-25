@@ -112,6 +112,10 @@ spec:
             {{- toYaml .Values.webhook.securityContext | nindent 12 }}
           resources:
             {{- toYaml .Values.webhook.resources | nindent 12 }}
+          {{- with .Values.webhook.resizePolicy }}
+          resizePolicy:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           volumeMounts:
             - name: data
               mountPath: /home/node/.n8n
