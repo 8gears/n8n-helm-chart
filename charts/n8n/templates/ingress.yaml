@@ -34,7 +34,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: {{ $fullName }}
+                name: {{ $fullName }}-svc
                 port:
                   number: {{ $.Values.main.service.port | default 80  }}
           {{- if $.Values.webhook.enabled }}
