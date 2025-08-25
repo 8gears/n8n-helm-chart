@@ -354,6 +354,9 @@ main:
   tolerations: []
   affinity: {}
 
+  # Pod termination grace period in seconds
+  terminationGracePeriodSeconds: 30
+
 # # # # # # # # # # # # # # # #
 #
 # Worker related settings
@@ -539,6 +542,9 @@ worker:
   tolerations: []
   affinity: {}
 
+  # Pod termination grace period in seconds
+  terminationGracePeriodSeconds: 30
+
 # Webhook related settings
 # With .Values.scaling.webhook.enabled=true you disable Webhooks from the main process, but you enable the processing on a different Webhook instance.
 # See https://github.com/8gears/n8n-helm-chart/issues/39#issuecomment-1579991754 for the full explanation.
@@ -723,6 +729,9 @@ webhook:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+
+  # Pod termination grace period in seconds
+  terminationGracePeriodSeconds: 30
 
 #
 # User defined supplementary K8s manifests
