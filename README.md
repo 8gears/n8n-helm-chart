@@ -26,7 +26,8 @@ Before you start, make sure you have the following tools ready:
 
 ## Overview
 
-The `values.yaml` file is divided into a multiple n8n and Kubernetes specific sections.
+The `values.yaml` file is divided into a multiple sections like global, n8n and Kubernetes. 
+Use this structure to orientate yourself. 
 
 1. Global and chart wide values, like the image repository, image tag, etc.
 2. Ingress, (default is nginx, but you can change it to your own ingress controller)
@@ -36,14 +37,14 @@ The `values.yaml` file is divided into a multiple n8n and Kubernetes specific se
 6. Raw Resources to pass through your own manifests like GatewayAPI, ServiceMonitor etc.
 7. Redis related settings + Kubernetes specific settings
 
-## Setting Configuration Values and Environment Variables
+## Configurating N8n via Values and Environment Variables
 
-These n8n specific settings should be added to `main.config:` or `main.secret:` in the `values.yaml` file.
+These n8n configuration should be added to `main.config:` or `main.secret:` in the `values.yaml` file.
 
 See the [example](#examples) section and other example in the `/examples` directory of this repo.
 
 > [!IMPORTANT]
-> The YAML nodes `config` and `secret` in the values.yaml are transformed 1:1 into ENV variables.
+> The YAML nodes `config` and `secret` in the values.yaml are transformed 1:1 into K8s ENV variables.
 
 ```yaml
 main:
