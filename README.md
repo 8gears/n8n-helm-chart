@@ -344,11 +344,17 @@ main:
   #   cpu: 100m
   #   memory: 128Mi
 
+  # master autoscaling
   autoscaling:
+    # enabling autoscaling
     enabled: false
+    # min replicas of master pods
     minReplicas: 1
+    # max replicas of master pods
     maxReplicas: 100
+    # percentage of cpu for autoscaling
     targetCPUUtilizationPercentage: 80
+    # percentage of ram for autoscaling
     # targetMemoryUtilizationPercentage: 80
 
   nodeSelector: {}
@@ -529,11 +535,17 @@ worker:
   #   cpu: 100m
   #   memory: 128Mi
 
+  # worker autoscaling
   autoscaling:
+    # enabling autoscaling for workers
     enabled: false
+    # min replicas of master pods
     minReplicas: 1
+    # max replicas of master pods
     maxReplicas: 100
+    # percentage of cpu for autoscaling
     targetCPUUtilizationPercentage: 80
+    # percentage of ram for autoscaling
     # targetMemoryUtilizationPercentage: 80
 
   nodeSelector: {}
@@ -715,11 +727,18 @@ webhook:
   # requests:
   #   cpu: 100m
   #   memory: 128Mi
+
+  # master autoscaling
   autoscaling:
+    # enabling autoscaling
     enabled: false
+    # min replicas of master pods
     minReplicas: 1
+    # max replicas of master pods
     maxReplicas: 100
+    # percentage of cpu for autoscaling
     targetCPUUtilizationPercentage: 80
+    # percentage of ram for autoscaling
     # targetMemoryUtilizationPercentage: 80
   nodeSelector: {}
   tolerations: []
