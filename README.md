@@ -220,6 +220,9 @@ main:
   # Number of desired pods. More than one pod is supported in n8n enterprise.
   replicaCount: 1
 
+  # How many old ReplicaSets for the Deployment to retain to allow rollback.
+  revisionHistoryLimit: 10
+
   # here you can specify the deployment strategy as Recreate or RollingUpdate with optional maxSurge and maxUnavailable
   # If these options are not set, default values are 25%
   # deploymentStrategy:
@@ -409,6 +412,9 @@ worker:
   # Number of desired pods.
   replicaCount: 1
 
+  # How many old ReplicaSets for the Deployment to retain to allow rollback.
+  revisionHistoryLimit: 10
+
   # here you can specify the deployment strategy as Recreate or RollingUpdate with optional maxSurge and maxUnavailable
   # If these options are not set, default values are 25%
   # deploymentStrategy:
@@ -594,6 +600,9 @@ webhook:
 
   # Number of desired pods.
   replicaCount: 1
+
+  # How many old ReplicaSets for the Deployment to retain to allow rollback.
+  revisionHistoryLimit: 10
 
   # here you can specify the deployment strategy as Recreate or RollingUpdate with optional maxSurge and maxUnavailable
   # If these options are not set, default values are 25%
