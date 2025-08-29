@@ -17,6 +17,7 @@ spec:
   {{- if not .Values.worker.autoscaling.enabled }}
   replicas: {{ .Values.worker.replicaCount }}
   {{- end }}
+  revisionHistoryLimit: {{ .Values.worker.revisionHistoryLimit }}
   strategy:
     type: {{ .Values.worker.deploymentStrategy.type }}
     {{- if eq .Values.worker.deploymentStrategy.type "RollingUpdate" }}
