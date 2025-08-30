@@ -34,11 +34,13 @@ jobs:
           username: ${{ secrets.REGISTRY_USER }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
+      - name: Generate values schema json
+        uses: losisin/helm-values-schema-json-action@v1
+        with:
+          input: charts/n8n/values.yaml
+          # "Skip copying the schema values file for now, as it needs more testing."
       - name: Push charts to 8gears.container-registry.com
-        run: |
-          helm plugin install https://github.com/losisin/helm-values-schema-json.git
-          helm schema -input charts/n8n/values.yaml
-          echo "Skip copying the schema values file for now, as it needs more testing."
+        run: |          
           cp -a README.md LICENSE charts/n8n/
           package_path=$(helm package charts/n8n --dependency-update | grep -o '/.*\.tgz')
           helm push "${package_path}" "oci://8gears.container-registry.com/library"
