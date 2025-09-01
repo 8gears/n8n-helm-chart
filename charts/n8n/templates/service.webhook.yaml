@@ -3,6 +3,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ include "n8n.fullname" . }}-webhook
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "n8n.labels" . | nindent 4 }}
   {{- with .Values.webhook.service.annotations }}
