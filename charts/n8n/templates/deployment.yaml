@@ -94,6 +94,10 @@ spec:
           {{- end }}
           resources:
             {{- toYaml .Values.main.resources | nindent 12 }}
+          {{- with .Values.main.resizePolicy }}
+          resizePolicy:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           volumeMounts:
             - name: data
               mountPath: /home/node/.n8n
