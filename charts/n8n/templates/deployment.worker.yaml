@@ -76,6 +76,10 @@ spec:
             - secretRef:
                 name: {{ include "n8n.fullname" . }}-worker-secret
             {{- end }}
+            {{- if .Values.worker.extraEnvFrom }}
+            {{- toYaml .Values.worker.extraEnvFrom | nindent 12 }}
+            {{- end }}
+
           env: {{ not (empty .Values.worker.extraEnv) | ternary nil "[]" }}
             {{- range $key, $value := .Values.worker.extraEnv }}
             - name: {{ $key }}

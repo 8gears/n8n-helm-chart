@@ -83,6 +83,11 @@ main:
   #
   # N8n Kubernetes specific settings
   #
+  extraEnvFrom: []
+  #    - configMapRef:
+  #        name: my-config
+  #    - secretRef:
+  #        name: my-secret
   persistence:
     # If true, use a Persistent Volume Claim, If false, use emptyDir
     enabled: false
@@ -288,6 +293,11 @@ worker:
   #
   # Worker Kubernetes specific settings
   #
+  extraEnvFrom: []
+  #    - configMapRef:
+  #        name: my-config
+  #    - secretRef:
+  #        name: my-secret
   persistence:
     # If true, use a Persistent Volume Claim, If false, use emptyDir
     enabled: false
@@ -467,8 +477,12 @@ webhook:
   #   WEBHOOK_URL:
   #   value: "http://webhook.domain.tld"
 
+  extraEnvFrom: []
+  #    - configMapRef:
+  #        name: my-config
+  #    - secretRef:
+  #        name: my-secret
 
-  #
   # Webhook Kubernetes specific settings
   #
   persistence:
