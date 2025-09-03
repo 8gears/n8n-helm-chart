@@ -1,0 +1,37 @@
+# stateful deployment for multiple replicas with persistent state per replica
+main:
+  # Use StatefulSet to give each replica its own persistent volume
+  # This will create both a headless service for StatefulSet management
+  # and a regular service for external access
+  useStatefulSet: true
+  # Number of replicas for horizontal scaling
+  replicaCount: 3
+  # Enable persistence for each replica
+  # Note: When using StatefulSet, do NOT specify 'existingClaim' as StatefulSets
+  # manage their own PersistentVolumeClaims through volumeClaimTemplates
+  persistence:
+    enabled: true
+    # For StatefulSets, we use dynamic provisioning through volumeClaimTemplates
+    type: dynamic
+    size: 5Gi
+    accessModes:
+      - ReadWriteOnce
+  config:
+    n8n:
+      hide_usage_page: true
+      # For real high availability deployments:
+      encryption_key: "<shared-encryption-key>"
+  resources:
+    limits:
+      memory: 2048Mi
+    requests:
+      memory: 512Mi
+
+# Redis is recommended for multi-replica deployments
+valkey:
+  enabled: true
+  architecture: standalone
+  primary:
+    persistence:
+      enabled: true
+      size: 2Gi
