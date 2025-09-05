@@ -34,5 +34,5 @@ annotations:
   artifacthub.io/prerelease: "false"
   # supported kinds are added, changed, deprecated, removed, fixed and security.
   artifacthub.io/changes: |
-    - kind: changed
-      description: "add the possibility to set additionalLabels on all the resources"
+    - kind: added
+      description: "Add support for setting additionalLabels on all resources"

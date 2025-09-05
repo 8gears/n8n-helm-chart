@@ -34,15 +34,15 @@ Create chart name and version as used by the chart label.
 Common labels
 */}}
 {{- define "n8n.labels" -}}
+{{- if .Values.additionalLabels }}
+{{ toYaml .Values.additionalLabels }}
+{{- end }}
 helm.sh/chart: {{ include "n8n.chart" . }}
 {{ include "n8n.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{- if .Values.additionalLabels }}
-{{ toYaml .Values.additionalLabels }}
-{{- end }}
 {{- end }}
 
 {{/*
