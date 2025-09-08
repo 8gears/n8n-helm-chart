@@ -76,7 +76,6 @@ spec:
             {{- if .Values.main.extraEnvFrom }}
             {{- toYaml .Values.main.extraEnvFrom | nindent 12 }}
             {{- end }}
-
           env: {{ not (empty .Values.main.extraEnv) | ternary nil "[]" }}
             {{- range $key, $value := .Values.main.extraEnv }}
             - name: {{ $key }}

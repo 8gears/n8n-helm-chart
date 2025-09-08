@@ -104,7 +104,6 @@ spec:
             {{- if .Values.webhook.extraEnvFrom }}
             {{- toYaml .Values.webhook.extraEnvFrom | nindent 12 }}
             {{- end }}
-
           env: {{ not (empty .Values.webhook.extraEnv) | ternary nil "[]" }}
             {{- range $key, $value := .Values.webhook.extraEnv }}
             - name: {{ $key }}
