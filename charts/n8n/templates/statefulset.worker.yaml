@@ -1,10 +1,9 @@
-{{- if and .Values.worker.enabled (not .Values.worker.statefulSet.enabled) }}
 {{- include "n8n.validateValues" . }}
+{{- if and .Values.worker.enabled .Values.worker.statefulSet.enabled }}
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: {{ include "n8n.fullname" . }}-worker
-  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "n8n.labels" . | nindent 4 }}
     {{- if .Values.worker.deploymentLabels }}
@@ -15,16 +14,8 @@ metadata:
     {{- toYaml .Values.worker.deploymentAnnotations | nindent 4 }}
   {{- end }}
 spec:
-  {{- if not .Values.worker.autoscaling.enabled }}
   replicas: {{ .Values.worker.replicaCount }}
-  {{- end }}
-  strategy:
-    type: {{ .Values.worker.deploymentStrategy.type }}
-    {{- if eq .Values.worker.deploymentStrategy.type "RollingUpdate" }}
-    rollingUpdate:
-      maxSurge: {{ default "25%" .Values.worker.deploymentStrategy.maxSurge  }}
-      maxUnavailable: {{ default "25%" .Values.worker.deploymentStrategy.maxUnavailable }}
-    {{- end }}
+  serviceName: {{ include "n8n.fullname" . }}-worker
   selector:
     matchLabels:
       {{- include "n8n.selectorLabels" . | nindent 6 }}
@@ -65,7 +56,7 @@ spec:
             - configMapRef:
                 name: {{ include "n8n.fullname" . }}-app-config
             {{- end }}
-           {{- if .Values.main.secret }}
+            {{- if .Values.main.secret }}
             - secretRef:
                 name: {{ include "n8n.fullname" . }}-app-secret
             {{- end }}
@@ -73,7 +64,7 @@ spec:
             - configMapRef:
                 name: {{ include "n8n.fullname" . }}-worker-config
             {{- end }}
-           {{- if .Values.worker.secret }}
+            {{- if .Values.worker.secret }}
             - secretRef:
                 name: {{ include "n8n.fullname" . }}-worker-secret
             {{- end }}
@@ -98,13 +89,13 @@ spec:
           {{- end }}
           ports:
             - name: http
-              containerPort: {{ get (default (dict) .Values.worker.config.n8n) "port" | default 5678 }}
+              containerPort: {{ get (default (dict) .Values.worker.config) "port" | default 5678 }}
               protocol: TCP
-          {{- with .Values.worker.livenessProbe }}
+          {{- with .Values.main.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.worker.readinessProbe }}
+          {{- with .Values.main.readinessProbe }}
           readinessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
@@ -134,12 +125,24 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if .Values.worker.persistence.enabled }}
-      volumes:
-        - name: "data"
-          {{ include "n8n.worker.pvc" . }}
-      {{- end }}
-        {{- if .Values.worker.extraVolumes }}
-          {{- toYaml .Values.worker.extraVolumes | nindent 8 }}
+  {{- if .Values.worker.persistence.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          {{- range .Values.worker.persistence.accessModes }}
+          - {{ . | quote }}
+          {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.worker.persistence.size }}
+        {{- if .Values.worker.persistence.storageClass }}
+        {{- if eq "-" .Values.worker.persistence.storageClass }}
+        storageClassName: ""
+        {{- else }}
+        storageClassName: {{ .Values.worker.persistence.storageClass }}
         {{- end }}
+        {{- end }}
+  {{- end }}
 {{- end }}

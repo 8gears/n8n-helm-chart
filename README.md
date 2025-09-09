@@ -7,6 +7,9 @@
 > If you're interested in making a difference,
 > [join the discussion](https://github.com/8gears/n8n-helm-chart/discussions/90).
 
+> [!WARNING]
+> Version 1.0.0 of this Chart includes breaking changes and is not backwards compatible with previous versions.
+> Please review the migration guide below before upgrading.
 
 # n8n Helm Chart for Kubernetes
 
@@ -354,11 +357,137 @@ main:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+```
 
-# # # # # # # # # # # # # # # #
-#
-# Worker related settings
-#
+## Deployment Modes
+
+### Main Component
+
+The main n8n component can be deployed in two modes:
+
+1. **Deployment (default)**:
+   - Suitable for Community Edition
+   - Limited to 1 replica when using persistent storage (PVC)
+   - Can use multiple replicas only with `emptyDir` storage (data will be lost on pod restart)
+
+```yaml
+main:
+  replicaCount: 1  # Must be 1 with persistent storage
+  statefulSet:
+    enabled: false
+  persistence:
+    enabled: true
+    type: dynamic
+    size: 10Gi
+```
+
+2. **StatefulSet**:
+   - Required for multiple replicas with persistent storage
+   - Requires n8n Enterprise license
+   - Each pod gets its own persistent volume
+
+```yaml
+main:
+  replicaCount: 3  # Can be >1 with StatefulSet
+  statefulSet:
+    enabled: true
+  persistence:
+    enabled: true
+    type: dynamic
+    size: 10Gi
+  extraEnv:
+    N8N_MULTI_MAIN_SETUP_ENABLED:
+      value: "true"  # Required for multiple replicas
+```
+
+### Worker Component
+
+The worker component can be deployed either as Deployment or StatefulSet:
+
+```yaml
+worker:
+  enabled: true
+  count: 2
+  statefulSet:
+    enabled: true  # or false for Deployment
+  persistence:
+    enabled: true
+    size: 5Gi
+```
+
+### Webhook Component
+
+The webhook component is deployed as a Deployment and has the same limitations as the main component when using persistent storage:
+
+1. **With Persistent Storage**:
+   - Limited to 1 replica when using PVC
+   - Data is preserved between pod restarts
+
+```yaml
+webhook:
+  enabled: true
+  replicaCount: 1  # Must be 1 with persistent storage
+  persistence:
+    enabled: true
+    type: dynamic
+    size: 5Gi
+```
+
+2. **Without Persistent Storage or with emptyDir**:
+   - Can use multiple replicas
+   - Data is lost on pod restarts
+
+```yaml
+webhook:
+  enabled: true
+  replicaCount: 3  # Can be >1
+  persistence:
+    enabled: true
+    type: emptyDir  # or enabled: false
+  deploymentStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+```
+
+## High Availability Setup
+
+The chart supports two deployment modes for the main n8n component:
+
+> [!IMPORTANT]
+> Using StatefulSet with multiple main replicas requires n8n Enterprise license.
+> Without Enterprise license, use Deployment with a single main replica.
+
+### StatefulSet Mode (Enterprise)
+
+Requires n8n Enterprise license. Enables running multiple main replicas for high availability:
+
+```yaml
+main:
+  statefulSet:
+    enabled: true
+  replicaCount: 2
+  extraEnv:
+    N8N_MULTI_MAIN_SETUP_ENABLED:
+      value: "true"  # Only works with Enterprise license
+```
+
+### Deployment Mode (Community)
+
+Default mode for Community edition. Uses a single main replica:
+
+```yaml
+main:
+  statefulSet:
+    enabled: false
+  replicaCount: 1
+```
+
+Note: Worker and webhook components can be scaled independently regardless of the license type.
+
+### Worker related settings
+```yaml
 worker:
   enabled: false
 
@@ -482,6 +611,7 @@ worker:
 
   # here you can override the livenessProbe for the main container
   # it may be used to increase the timeout for the livenessProbe (e.g., to resolve issues like
+
   livenessProbe:
     httpGet:
       path: /healthz
@@ -508,6 +638,12 @@ worker:
   # List of initialization containers belonging to the pod. Init containers are executed in order prior to containers being started.
   # See https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
   initContainers: []
+  #    - name: init-data-dir
+  #      image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+  #      command: [ "/bin/sh", "-c", "mkdir -p /home/node/.n8n/" ]
+  #      volumeMounts:
+  #        - name: data
+  #          mountPath: /home/node/.n8n
 
   service:
     annotations: {}
@@ -539,11 +675,14 @@ worker:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+```
+### Webhook related settings
 
-# Webhook related settings
-# With .Values.scaling.webhook.enabled=true you disable Webhooks from the main process, but you enable the processing on a different Webhook instance.
-# See https://github.com/8gears/n8n-helm-chart/issues/39#issuecomment-1579991754 for the full explanation.
-# Webhook processes rely on Valkey/Redis too.
+With `.Values.scaling.webhook.enabled=true` you disable Webhooks from the main process, but you enable the processing on a different Webhook instance.
+#### See https://github.com/8gears/n8n-helm-chart/issues/39#issuecomment-1579991754 for the full explanation.
+
+### Webhook processes rely on Valkey/Redis too.
+```yaml
 webhook:
   enabled: false
   # additional (to main) config for webhook
@@ -724,14 +863,12 @@ webhook:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+```
+### User defined supplementary K8s manifests
 
-#
-# User defined supplementary K8s manifests
-#
-
-#  Takes a list of Kubernetes manifests and merges each resource with a default metadata.labels map and
-#  installs the result.
-#  Use this to add any arbitrary Kubernetes manifests alongside this chart instead of kubectl and scripts.
+Takes a list of Kubernetes manifests and merges each resource with a default metadata.labels map and  installs the result.
+Use this to add any arbitrary Kubernetes manifests alongside this chart instead of kubectl and scripts.
+```yaml
 extraManifests: []
 #  - apiVersion: v1
 #    kind: ConfigMap
@@ -760,9 +897,11 @@ extraTemplateManifests: []
 #      name: my-config
 #    stringData:
 #      image_name: {{ .Values.image.repository }}
+```
 
-# Bitnami Valkey configuration
-# https://artifacthub.io/packages/helm/bitnami/valkey
+### Bitnami Valkey configuration
+ https://artifacthub.io/packages/helm/bitnami/valkey
+```yaml
 valkey:
   enabled: false
   #architecture: standalone
