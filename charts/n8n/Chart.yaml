@@ -35,4 +35,4 @@ annotations:
   # supported kinds are added, changed, deprecated, removed, fixed and security.
   artifacthub.io/changes: |
     - kind: changed
-      description: "Update n8n app version to 1.109.1"
+      description: "Update n8n app version to 1.110.1"
