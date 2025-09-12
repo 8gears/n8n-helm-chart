@@ -16,11 +16,10 @@
 Please place an 'x' in all applicable fields and remove unrelated items.
 
 ### Version and Documentation
-- [ ] Chart version updated in `Chart.yaml` following [semantic versioning](#chart-versioning-schema)
+- [ ] Chart version updated in `Chart.yaml` following [semantic versioning](CONTRIBUTING.md#chart-versioning-schema)
 - [ ] App version updated in `Chart.yaml` if applicable
 - [ ] `artifacthub.io/changes` section updated in `Chart.yaml` (see [ArtifactHub annotation reference](https://artifacthub.io/docs/topics/annotations/helm/))
 - [ ] Variables are documented in the `README.md`
-
 ### Testing and Validation
 - [ ] Ran `ah lint` locally without errors
 - [ ] Ran Chart-Testing: `ct lint --chart-dirs charts/n8n --charts charts/n8n --validate-maintainers=false`
