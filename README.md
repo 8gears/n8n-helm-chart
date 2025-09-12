@@ -26,8 +26,8 @@ Before you start, make sure you have the following tools ready:
 
 ## Overview
 
-The `values.yaml` file is divided into a multiple sections like global, n8n and Kubernetes.
-Use this structure to orientate yourself.
+The `values.yaml` file is divided into multiple sections (global, n8n, and Kubernetes).
+Use this structure to orient yourself.
 
 1. Global and chart wide values, like the image repository, image tag, etc.
 2. Ingress, (default is nginx, but you can change it to your own ingress controller)
