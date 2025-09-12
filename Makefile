@@ -11,8 +11,10 @@ help: ## Show this help message
 # Linting
 .PHONY: lint
 lint: ## Lint the chart
-	@echo "Running ArtifactHub lint..."
-	ah lint
+	@echo "Running Artifact Hub lint..."
+	@(cd $(CHART_DIR) && ah lint)
+	@echo "Running Helm lint..."
+	helm lint $(CHART_DIR)
 	@echo "Running Chart-Testing lint..."
 	ct lint --chart-dirs charts/n8n --charts charts/n8n --validate-maintainers=false
 
