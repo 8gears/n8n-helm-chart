@@ -58,11 +58,10 @@ body:
       label: Steps To Reproduce
       description: Steps to reproduce the behavior.
       placeholder: |
-        1. Add Helm repository: `helm repo add open-8gears https://8gears.container-registry.com/chartrepo/library`
-        2. Install chart: `helm install my-n8n open-8gears/n8n --version 1.0.14`
-        3. Configure values.yaml with...
-        4. Apply configuration with `helm upgrade my-n8n open-8gears/n8n -f values.yaml`
-        5. Observe error...
+        1. Install chart (OCI): `helm install my-n8n oci://8gears.container-registry.com/library/n8n --version <CHART_VERSION>`
+        2. Configure values.yaml with...
+        3. Apply configuration with `helm upgrade my-n8n oci://8gears.container-registry.com/library/n8n -f values.yaml`
+        4. Observe error...
     validations:
       required: true
   - type: textarea
