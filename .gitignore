@@ -4,3 +4,4 @@ yamls
 *.tgz
 .idea
 .vscode
+.DS_Store
