@@ -35,8 +35,8 @@ Common labels
 */}}
 {{- define "n8n.labels" -}}
 {{- if .Values.additionalLabels }}
-{{ toYaml .Values.additionalLabels }}
-{{- end }}
+{{- toYaml .Values.additionalLabels }}
+{{ end -}}
 helm.sh/chart: {{ include "n8n.chart" . }}
 {{ include "n8n.selectorLabels" . }}
 {{- if .Chart.AppVersion }}

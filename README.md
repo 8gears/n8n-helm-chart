@@ -121,10 +121,9 @@ fullnameOverride:
 
 # Additional labels to be added to all deployed resources by the chart
 additionalLabels: {}
-  # tags.datadoghq.com/env: "<ENV>"
-  # tags.datadoghq.com/service: "<SERVICE>"
-  # tags.datadoghq.com/version: "<VERSION>"
-  
+  # label: "my-label"
+  # label-custom: "my-custom-label"
+
 # Add entries to a pod's /etc/hosts file, mapping custom IP addresses to hostnames.
 hostAliases: []
   #- ip: 8.8.8.8
