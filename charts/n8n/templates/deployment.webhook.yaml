@@ -38,11 +38,14 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
       labels:
-        {{- include "n8n.selectorLabels" . | nindent 8 }}
-        app.kubernetes.io/type: webhook
+        {{- if .Values.additionalLabels }}
+          {{- toYaml .Values.additionalLabels | nindent 8 }}
+        {{- end }}
         {{- if .Values.webhook.podLabels }}
           {{ toYaml .Values.webhook.podLabels | nindent 8 }}
         {{- end }}
+        {{- include "n8n.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/type: webhook
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:

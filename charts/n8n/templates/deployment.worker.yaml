@@ -36,11 +36,14 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
       labels:
-        {{- include "n8n.selectorLabels" . | nindent 8 }}
-        app.kubernetes.io/type: worker
+        {{- if .Values.additionalLabels }}
+          {{- toYaml .Values.additionalLabels | nindent 8 }}
+        {{- end }}
         {{- if .Values.worker.podLabels }}
           {{ toYaml .Values.worker.podLabels | nindent 8 }}
         {{- end }}
+        {{- include "n8n.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/type: worker
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
