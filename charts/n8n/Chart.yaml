@@ -26,8 +26,8 @@ maintainers:
 
 dependencies:
   - name: valkey
-    version: 2.4.7
-    repository: oci://registry-1.docker.io/bitnamicharts
+    version: 0.3.2
+    repository: oci://registry-1.docker.io/cloudpirates
     condition: valkey.enabled
 
 annotations:
