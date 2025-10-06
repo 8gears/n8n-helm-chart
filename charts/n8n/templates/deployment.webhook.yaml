@@ -119,6 +119,9 @@ spec:
           {{- if .Values.webhook.extraVolumeMounts }}
             {{- toYaml .Values.webhook.extraVolumeMounts | nindent 12 }}
           {{- end }}
+      {{- if .Values.webhook.extraContainers }}
+        {{ tpl (toYaml .Values.webhook.extraContainers) . | nindent 8 }}
+      {{- end }}
       {{- with .Values.hostAliases }}
       hostAliases:
         {{- toYaml . | nindent 8 }}
