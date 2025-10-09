@@ -100,6 +100,9 @@ spec:
           {{- if .Values.main.extraVolumeMounts }}
             {{- toYaml .Values.main.extraVolumeMounts | nindent 12 }}
           {{- end }}
+      {{- if .Values.main.extraContainers }}
+        {{ tpl (toYaml .Values.main.extraContainers) . | nindent 8 }}
+      {{- end }}
       {{- with .Values.hostAliases }}
       hostAliases:
         {{- toYaml . | nindent 8 }}
