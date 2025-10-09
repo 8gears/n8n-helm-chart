@@ -119,6 +119,11 @@ nameOverride:
 # Override the full name of the deployment. When empty, the name will be "{release-name}-{chart-name}" or the value of nameOverride if specified
 fullnameOverride:
 
+# Additional labels to be added to all deployed resources by the chart
+additionalLabels: {}
+  # label: "my-label"
+  # label-custom: "my-custom-label"
+
 # Add entries to a pod's /etc/hosts file, mapping custom IP addresses to hostnames.
 hostAliases: []
   #- ip: 8.8.8.8
