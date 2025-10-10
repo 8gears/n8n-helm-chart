@@ -1,7 +1,7 @@
 apiVersion: v2
 name: n8n
-version: 1.0.15
-appVersion: 1.112.0
+version: 1.0.16
+appVersion: 1.112.1
 type: application
 description: "Helm Chart for deploying n8n on Kubernetes, a fair-code workflow automation platform with native AI capabilities for technical teams. Easily automate tasks across different services."
 home: https://github.com/8gears/n8n-helm-chart
@@ -34,5 +34,5 @@ annotations:
   artifacthub.io/prerelease: "false"
   # supported kinds are added, changed, deprecated, removed, fixed and security.
   artifacthub.io/changes: |
-    - kind: changed
-      description: "Update n8n app version to 1.112.0"
+    - kind: added 
+      description: "add support autoscaling workers and webhooks"
