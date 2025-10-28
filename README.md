@@ -34,8 +34,9 @@ Use this structure to orient yourself.
 3. Main n8n app configuration + Kubernetes specific settings
 4. Worker related settings + Kubernetes specific settings
 5. Webhook related settings + Kubernetes specific settings
-6. Raw Resources to pass through your own manifests like GatewayAPI, ServiceMonitor etc.
-7. Redis related settings + Kubernetes specific settings
+6. MCP related settings + Kubernetes specific settings
+7. Raw Resources to pass through your own manifests like GatewayAPI, ServiceMonitor etc.
+8. Redis related settings + Kubernetes specific settings
 
 ## Configurating N8n via Values and Environment Variables
 
@@ -594,6 +595,172 @@ webhook:
 
   # Number of desired pods.
   replicaCount: 1
+
+  # here you can specify the deployment strategy as Recreate or RollingUpdate with optional maxSurge and maxUnavailable
+  # If these options are not set, default values are 25%
+  # deploymentStrategy:
+  #  type: RollingUpdate
+  #  maxSurge: "50%"
+  #  maxUnavailable: "50%"
+
+  deploymentStrategy:
+    type: "Recreate"
+
+  nameOverride: ""
+  fullnameOverride: ""
+
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+
+  # Annotations to be implemented on the webhook deployment
+  deploymentAnnotations: {}
+  # Labels to be implemented on the webhook deployment
+  deploymentLabels: {}
+  # Annotations to be implemented on the webhook pod
+  podAnnotations: {}
+  # Labels to be implemented on the webhook pod
+  podLabels: {}
+
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+
+  securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  #  runAsNonRoot: true
+  #  runAsUser: 1000
+
+  # here you can specify lifecycle hooks - it can be used e.g., to easily add packages to the container without building
+  # your own docker image
+  # see https://github.com/8gears/n8n-helm-chart/pull/30
+  lifecycle: {}
+
+  #  here's the sample configuration to add mysql-client to the container
+  # lifecycle:
+  #  postStart:
+  #    exec:
+  #      command: ["/bin/sh", "-c", "apk add mysql-client"]
+
+  # here you can override a command for main container
+  # it may be used to override a starting script (e.g., to resolve issues like https://github.com/n8n-io/n8n/issues/6412) or
+  # run additional preparation steps (e.g., installing additional software)
+  command: []
+
+  # sample configuration that overrides starting script and solves above issue (also it runs n8n as root, so be careful):
+  # command:
+  #  - tini
+  #  - --
+  #  - /bin/sh
+  #  - -c
+  #  - chmod o+rx /root; chown -R node /root/.n8n || true; chown -R node /root/.n8n; ln -s /root/.n8n /home/node; chown -R node /home/node || true; node /usr/local/bin/n8n
+  # Command Arguments
+  commandArgs: []
+
+  # here you can override the livenessProbe for the main container
+  # it may be used to increase the timeout for the livenessProbe (e.g., to resolve issues like
+
+  livenessProbe:
+    httpGet:
+      path: /healthz
+      port: http
+    # initialDelaySeconds: 30
+    # periodSeconds: 10
+    # timeoutSeconds: 5
+    # failureThreshold: 6
+    # successThreshold: 1
+
+  # here you can override the readinessProbe for the main container
+  # it may be used to increase the timeout for the readinessProbe (e.g., to resolve issues like
+
+  readinessProbe:
+    httpGet:
+      path: /healthz
+      port: http
+    # initialDelaySeconds: 30
+    # periodSeconds: 10
+    # timeoutSeconds: 5
+    # failureThreshold: 6
+    # successThreshold: 1
+
+  # List of initialization containers belonging to the pod. Init containers are executed in order prior to containers being started.
+  # See https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
+  initContainers: []
+
+  service:
+    annotations: {}
+    # -- Service types allow you to specify what kind of Service you want.
+    # E.g., ClusterIP, NodePort, LoadBalancer, ExternalName
+    type: ClusterIP
+    # -- Service port
+    port: 80
+
+  resources: {}
+  # We usually recommend not specifying default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+
+  #
+  # MCP Kubernetes specific settings
+  #
+  persistence:
+    # If true, use a Persistent Volume Claim, If false, use emptyDir
+    enabled: false
+    # what type volume, possible options are [existing, emptyDir, dynamic] dynamic for Dynamic Volume Provisioning, existing for using an existing Claim
+    type: emptyDir
+    # Persistent Volume Storage Class
+    # If defined, storageClassName: <storageClass>
+    # If set to "-", storageClassName: "", which disables dynamic provisioning
+    # If undefined (the default) or set to null, no storageClassName spec is
+    #   set, choosing the default provisioner.  (gp2 on AWS, standard on
+    #   GKE, AWS & OpenStack)
+    #
+    # storageClass: "-"
+    # PVC annotations
+    #
+    # If you need this annotation include it under `values.yml` file and pvc.yml template will add it.
+    # This is not maintained at Helm v3 anymore.
+    # https://github.com/8gears/n8n-helm-chart/issues/8
+    #
+    # annotations:
+    #   helm.sh/resource-policy: keep
+    # Persistent Volume Access Mode
+    #
+    accessModes:
+      - ReadWriteOnce
+    # Persistent Volume size
+    #
+    size: 1Gi
+    # Use an existing PVC
+    #
+    # existingClaim:
 
   # here you can specify the deployment strategy as Recreate or RollingUpdate with optional maxSurge and maxUnavailable
   # If these options are not set, default values are 25%

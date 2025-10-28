@@ -1,0 +1,10 @@
+{{- if and .Values.mcp.enabled .Values.webhook.enabled  }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "n8n.fullname" . }}-mcp-config
+  labels:
+    {{- include "n8n.labels" . | nindent 4 }}
+data:
+  {{- include "toEnvVars" (dict "values" .Values.mcp.config "prefix" "") | nindent 2 }}
+{{- end }}
