@@ -34,5 +34,5 @@ annotations:
   artifacthub.io/prerelease: "false"
   # supported kinds are added, changed, deprecated, removed, fixed and security.
   artifacthub.io/changes: |
-    - kind: changed
-      description: "Update n8n app version to 1.116.2"
+    - kind: added
+      description: "Add terminationGracePeriodSeconds configuration for main, worker, and webhook pods"
