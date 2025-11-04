@@ -94,6 +94,7 @@ main:
   service:
     type: NodePort
     port: 5678
+    nodePort: 30678  # available range is 30000-32767
 ```
 
 # Values File
