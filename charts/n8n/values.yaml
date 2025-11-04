@@ -197,8 +197,21 @@ main:
   #  - -c
   #  - chmod o+rx /root; chown -R node /root/.n8n || true; chown -R node /root/.n8n; ln -s /root/.n8n /home/node; chown -R node /home/node || true; node /usr/local/bin/n8n
 
+  # here you can override the startupProbe for the main container
+  # it may be used to increase the timeout for the startupProbe
+
+  startupProbe:
+    httpGet:
+      path: /healthz
+      port: http
+    # initialDelaySeconds: 30
+    # periodSeconds: 10
+    # timeoutSeconds: 5
+    # failureThreshold: 6
+    # successThreshold: 1
+
   # here you can override the livenessProbe for the main container
-  # it may be used to increase the timeout for the livenessProbe (e.g., to resolve issues like
+  # it may be used to increase the timeout for the livenessProbe
 
   livenessProbe:
     httpGet:
@@ -211,7 +224,7 @@ main:
     # successThreshold: 1
 
   # here you can override the readinessProbe for the main container
-  # it may be used to increase the timeout for the readinessProbe (e.g., to resolve issues like
+  # it may be used to increase the timeout for the readinessProbe
 
   readinessProbe:
     httpGet:
@@ -394,8 +407,20 @@ worker:
   # command args
   commandArgs: []
 
+  # here you can override the startupProbe for the main container
+  # it may be used to increase the timeout for the startupProbe
+  startupProbe:
+    httpGet:
+      path: /healthz
+      port: http
+    # initialDelaySeconds: 30
+    # periodSeconds: 10
+    # timeoutSeconds: 5
+    # failureThreshold: 6
+    # successThreshold: 1
+
   # here you can override the livenessProbe for the main container
-  # it may be used to increase the timeout for the livenessProbe (e.g., to resolve issues like
+  # it may be used to increase the timeout for the livenessProbe
   livenessProbe:
     httpGet:
       path: /healthz
@@ -407,7 +432,7 @@ worker:
     # successThreshold: 1
 
   # here you can override the readinessProbe for the main container
-  # it may be used to increase the timeout for the readinessProbe (e.g., to resolve issues like
+  # it may be used to increase the timeout for the readinessProbe
 
   readinessProbe:
     httpGet:
@@ -583,8 +608,21 @@ webhook:
   # Command Arguments
   commandArgs: []
 
+  # here you can override the startupProbe for the main container
+  # it may be used to increase the timeout for the startupProbe
+
+  startupProbe:
+    httpGet:
+      path: /healthz
+      port: http
+    # initialDelaySeconds: 30
+    # periodSeconds: 10
+    # timeoutSeconds: 5
+    # failureThreshold: 6
+    # successThreshold: 1
+
   # here you can override the livenessProbe for the main container
-  # it may be used to increase the timeout for the livenessProbe (e.g., to resolve issues like
+  # it may be used to increase the timeout for the livenessProbe
 
   livenessProbe:
     httpGet:
@@ -597,7 +635,7 @@ webhook:
     # successThreshold: 1
 
   # here you can override the readinessProbe for the main container
-  # it may be used to increase the timeout for the readinessProbe (e.g., to resolve issues like
+  # it may be used to increase the timeout for the readinessProbe
 
   readinessProbe:
     httpGet:

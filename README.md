@@ -7,12 +7,9 @@
 > If you're interested in making a difference,
 > [join the discussion](https://github.com/8gears/n8n-helm-chart/discussions/90).
 
-
 # n8n Helm Chart for Kubernetes
 
 [n8n](https://github.com/n8n-io/n8n) is an extendable workflow automation tool.
-
-
 
 The Helm chart source code location is [github.com/8gears/n8n-helm-chart](https://github.com/8gears/n8n-helm-chart)
 
@@ -287,8 +284,21 @@ main:
   #  - -c
   #  - chmod o+rx /root; chown -R node /root/.n8n || true; chown -R node /root/.n8n; ln -s /root/.n8n /home/node; chown -R node /home/node || true; node /usr/local/bin/n8n
 
+  # here you can override the startupProbe for the main container
+  # it may be used to increase the timeout for the startupProbe
+
+  startupProbe:
+    httpGet:
+      path: /healthz
+      port: http
+    # initialDelaySeconds: 30
+    # periodSeconds: 10
+    # timeoutSeconds: 5
+    # failureThreshold: 6
+    # successThreshold: 1
+
   # here you can override the livenessProbe for the main container
-  # it may be used to increase the timeout for the livenessProbe (e.g., to resolve issues like
+  # it may be used to increase the timeout for the livenessProbe
 
   livenessProbe:
     httpGet:
@@ -301,7 +311,7 @@ main:
     # successThreshold: 1
 
   # here you can override the readinessProbe for the main container
-  # it may be used to increase the timeout for the readinessProbe (e.g., to resolve issues like
+  # it may be used to increase the timeout for the readinessProbe
 
   readinessProbe:
     httpGet:
@@ -483,8 +493,20 @@ worker:
   # command args
   commandArgs: []
 
+  # here you can override the startupProbe for the main container
+  # it may be used to increase the timeout for the startupProbe
+  startupProbe:
+    httpGet:
+      path: /healthz
+      port: http
+    # initialDelaySeconds: 30
+    # periodSeconds: 10
+    # timeoutSeconds: 5
+    # failureThreshold: 6
+    # successThreshold: 1
+
   # here you can override the livenessProbe for the main container
-  # it may be used to increase the timeout for the livenessProbe (e.g., to resolve issues like
+  # it may be used to increase the timeout for the livenessProbe
   livenessProbe:
     httpGet:
       path: /healthz
@@ -496,7 +518,7 @@ worker:
     # successThreshold: 1
 
   # here you can override the readinessProbe for the main container
-  # it may be used to increase the timeout for the readinessProbe (e.g., to resolve issues like
+  # it may be used to increase the timeout for the readinessProbe
 
   readinessProbe:
     httpGet:
@@ -672,8 +694,21 @@ webhook:
   # Command Arguments
   commandArgs: []
 
+  # here you can override the startupProbe for the main container
+  # it may be used to increase the timeout for the startupProbe
+
+  startupProbe:
+    httpGet:
+      path: /healthz
+      port: http
+    # initialDelaySeconds: 30
+    # periodSeconds: 10
+    # timeoutSeconds: 5
+    # failureThreshold: 6
+    # successThreshold: 1
+
   # here you can override the livenessProbe for the main container
-  # it may be used to increase the timeout for the livenessProbe (e.g., to resolve issues like
+  # it may be used to increase the timeout for the livenessProbe
 
   livenessProbe:
     httpGet:
@@ -686,7 +721,7 @@ webhook:
     # successThreshold: 1
 
   # here you can override the readinessProbe for the main container
-  # it may be used to increase the timeout for the readinessProbe (e.g., to resolve issues like
+  # it may be used to increase the timeout for the readinessProbe
 
   readinessProbe:
     httpGet:
@@ -782,14 +817,15 @@ valkey:
   #    existingClaim: ""
   #    size: 2Gi
 ```
+
 ## Migration Guide to Version 1.0.0
 
 This version includes a complete redesign of the chart to better accommodate n8n configuration options.
 Key changes include:
+
 - Values restructured under `.Values.main`, `.Values.worker`, and `.Values.webhook`
 - Updated deployment configurations
 - New Redis integration requirements
-
 
 ## Scaling and Advanced Configuration Options
 
@@ -832,4 +868,3 @@ At last scaling option is it possible to create dedicated webhook instances,
 which only process the webhooks.
 If you set `scaling.webhook.enabled=true`, then webhook processing on the main
 instance is disabled and by default a single webhook instance is started.
-

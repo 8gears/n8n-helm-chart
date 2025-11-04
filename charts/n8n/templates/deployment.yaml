@@ -88,6 +88,10 @@ spec:
           livenessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          {{- with .Values.main.startupProbe }}
+          startupProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           {{- with .Values.main.readinessProbe }}
           readinessProbe:
             {{- toYaml . | nindent 12 }}
