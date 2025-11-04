@@ -493,7 +493,7 @@ worker:
   # command args
   commandArgs: []
 
-  # here you can override the startupProbe for the main container
+  # here you can override the startupProbe for the worker container
   # it may be used to increase the timeout for the startupProbe
   startupProbe:
     httpGet:
@@ -505,7 +505,7 @@ worker:
     # failureThreshold: 6
     # successThreshold: 1
 
-  # here you can override the livenessProbe for the main container
+  # here you can override the livenessProbe for the worker container
   # it may be used to increase the timeout for the livenessProbe
   livenessProbe:
     httpGet:
@@ -517,7 +517,7 @@ worker:
     # failureThreshold: 6
     # successThreshold: 1
 
-  # here you can override the readinessProbe for the main container
+  # here you can override the readinessProbe for the worker container
   # it may be used to increase the timeout for the readinessProbe
 
   readinessProbe:
@@ -694,7 +694,7 @@ webhook:
   # Command Arguments
   commandArgs: []
 
-  # here you can override the startupProbe for the main container
+  # here you can override the startupProbe for the webhook container
   # it may be used to increase the timeout for the startupProbe
 
   startupProbe:
@@ -707,7 +707,7 @@ webhook:
     # failureThreshold: 6
     # successThreshold: 1
 
-  # here you can override the livenessProbe for the main container
+  # here you can override the livenessProbe for the webhook container
   # it may be used to increase the timeout for the livenessProbe
 
   livenessProbe:
@@ -720,7 +720,7 @@ webhook:
     # failureThreshold: 6
     # successThreshold: 1
 
-  # here you can override the readinessProbe for the main container
+  # here you can override the readinessProbe for the webhook container
   # it may be used to increase the timeout for the readinessProbe
 
   readinessProbe:

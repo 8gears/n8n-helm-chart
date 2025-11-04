@@ -84,12 +84,12 @@ spec:
             - name: http
               containerPort: {{ get (default (dict) .Values.main.config.n8n) "port" | default 5678 }}
               protocol: TCP
-          {{- with .Values.main.livenessProbe }}
-          livenessProbe:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
           {{- with .Values.main.startupProbe }}
           startupProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.main.livenessProbe }}
+          livenessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           {{- with .Values.main.readinessProbe }}
