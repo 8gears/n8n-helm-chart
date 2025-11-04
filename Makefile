@@ -1,6 +1,7 @@
 # Variables
 CHART_DIR = charts/n8n
 CHART_NAME = n8n
+IMAGE_NAME = n8n-hook
 
 # Default target
 .PHONY: help
@@ -57,3 +58,53 @@ test: lint template dry-run ## Run all tests (lint, template, dry-run)
 clean: ## Clean up any generated files
 	@echo "Cleaning up..."
 	@rm -f *.tgz
+
+## -------------------- APOLO APP-TYPES HOOK SECTION
+.PHONY: hook-install hook-setup
+hook-install hook-setup: poetry.lock
+	poetry config virtualenvs.in-project true
+	poetry install --with dev
+	poetry run pre-commit install;
+
+.PHONY: hook-install-app-types
+hook-install-app-types:
+	poetry run pip install --force-reinstall -U git+https://${APOLO_GITHUB_TOKEN}@github.com/neuro-inc/app-types.git@${APP_TYPES_REVISION}
+
+.PHONY: hook-format
+hook-format:
+ifdef CI
+	poetry run pre-commit run --all-files --show-diff-on-failure
+else
+	# automatically fix the formatting issues and rerun again
+	poetry run pre-commit run --all-files || poetry run pre-commit run --all-files
+endif
+
+.PHONY: hook-lint
+hook-lint: hook-format
+	poetry run mypy .apolo
+
+.PHONY: hook-test-unit
+hook-test-unit:
+	poetry run pytest -vvs --cov=.apolo --cov-report xml:.coverage.unit.xml .apolo/tests/unit
+
+.PHONY: hook-test-integration
+hook-test-integration:
+	poetry run pytest -vv --cov=.apolo --cov-report xml:.coverage.integration.xml .apolo/tests/integration
+
+
+.PHONY: hook-build-image
+hook-build-image:
+	docker build \
+		-t $(IMAGE_NAME):latest \
+		-f hooks.Dockerfile \
+		.;
+
+.PHONY: hook-push-image
+hook-push-image:
+	docker tag $(IMAGE_NAME):latest ghcr.io/neuro-inc/$(IMAGE_NAME):$(IMAGE_TAG)
+	docker push ghcr.io/neuro-inc/$(IMAGE_NAME):$(IMAGE_TAG)
+
+.PHONY: hook-gen-types-schemas
+hook-gen-types-schemas:
+	app-types dump-types-schema .apolo/src/apolo_apps_n8n N8nAppInputs .apolo/src/apolo_apps_n8n/schemas/N8nAppInputs.json
+	app-types dump-types-schema .apolo/src/apolo_apps_n8n N8nAppOutputs .apolo/src/apolo_apps_n8n/schemas/N8nAppOutputs.json

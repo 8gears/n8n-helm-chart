@@ -1,0 +1,29 @@
+- app_type: n8n
+  name: n8n
+  title: n8n
+  install_type: workflow
+  helm_path: charts/custom-deployment
+  app_package_name: apolo_apps_n8n
+  inputs:
+    schema_path: .apolo/src/apolo_apps_n8n/schemas/N8nAppInputs.json
+    types_name: N8nAppInputs
+    processor: N8nAppChartValueProcessor
+    image: ghcr.io/neuro-inc/mlops-custom-deployment-app
+  outputs:
+    schema_path: .apolo/src/apolo_apps_n8n/schemas/N8nAppOutputs.json
+    types_name: N8nAppOutputs
+    processor: N8nAppOutputProcessor
+    image: ghcr.io/neuro-inc/mlops-custom-deployment-app
+  short_description: Deploy scalable applications
+  description: |
+    N8n App allows you to automate workflows by connecting various services and applications.
+    With its user-friendly interface, you can create complex automation sequences without coding,
+    enhancing productivity and efficiency across your projects.
+  pub_date: "2025-01-01T00:00:00+00:00"
+  changelog:
+    file: ./CHANGELOG.md
+  tags: ["Apolo"]
+  urls:
+    - name: Apolo Service Deployment documentation
+      type: documentation
+      url: https://docs.apolo.us/index/apolo-console/apps/available-apps

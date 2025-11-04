@@ -1,0 +1,258 @@
+{
+  "$defs": {
+    "ApoloAuth": {
+      "properties": {
+        "type": {
+          "const": "apolo_auth",
+          "default": "apolo_auth",
+          "description": "Authentication type identifier",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "title": "ApoloAuth",
+      "type": "object",
+      "x-description": "Use Apolo platform's built-in authentication and authorization. Requires authenticated user credentials with appropriate permissions.",
+      "x-is-advanced-field": false,
+      "x-meta-type": "inline",
+      "x-title": "Apolo Platform Authentication",
+      "x-type": "ApoloAuth"
+    },
+    "AuthIngressMiddleware": {
+      "properties": {
+        "name": {
+          "pattern": "^platform",
+          "title": "Name",
+          "type": "string",
+          "x-description": "Name of the authentication middleware (with namespace) to apply to ingress traffic.",
+          "x-is-advanced-field": false,
+          "x-meta-type": "inline",
+          "x-title": "Middleware Name"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "AuthIngressMiddleware",
+      "type": "object",
+      "x-description": "Configure authentication middleware for ingress traffic.",
+      "x-is-advanced-field": false,
+      "x-meta-type": "integration",
+      "x-title": "Authentication Ingress Middleware",
+      "x-type": "AuthIngressMiddleware"
+    },
+    "BasicNetworkingConfig": {
+      "description": "Common networking configuration for applications.",
+      "properties": {
+        "ingress_http": {
+          "$ref": "#/$defs/IngressHttp",
+          "x-description": "Configure HTTP ingress and authentication settings.",
+          "x-title": "HTTP Ingress"
+        }
+      },
+      "title": "BasicNetworkingConfig",
+      "type": "object",
+      "x-description": "Configure network access and authentication settings.",
+      "x-is-advanced-field": false,
+      "x-meta-type": "inline",
+      "x-title": "Networking Settings",
+      "x-type": "BasicNetworkingConfig"
+    },
+    "CustomAuth": {
+      "properties": {
+        "type": {
+          "const": "custom_auth",
+          "default": "custom_auth",
+          "description": "Authentication type identifier",
+          "title": "Type",
+          "type": "string"
+        },
+        "middleware": {
+          "$ref": "#/$defs/AuthIngressMiddleware",
+          "x-description": "Custom authentication middleware configuration.",
+          "x-title": "Authentication Middleware"
+        }
+      },
+      "required": [
+        "middleware"
+      ],
+      "title": "CustomAuth",
+      "type": "object",
+      "x-description": "Use a custom authentication middleware for this ingress. Allows integration with custom authentication providers.",
+      "x-is-advanced-field": false,
+      "x-meta-type": "inline",
+      "x-title": "Custom Authentication",
+      "x-type": "CustomAuth"
+    },
+    "IngressHttp": {
+      "properties": {
+        "auth": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ApoloAuth"
+            },
+            {
+              "$ref": "#/$defs/NoAuth"
+            },
+            {
+              "$ref": "#/$defs/CustomAuth"
+            }
+          ],
+          "title": "Auth",
+          "x-description": "Configure authentication for this ingress. Choose Apolo platform authentication, custom middleware, or no authentication.",
+          "x-is-advanced-field": false,
+          "x-meta-type": "inline",
+          "x-title": "Authentication"
+        }
+      },
+      "title": "IngressHttp",
+      "type": "object",
+      "x-description": "Enable access to your application over the internet using HTTPS.",
+      "x-is-advanced-field": false,
+      "x-meta-type": "inline",
+      "x-title": "Enable HTTP Ingress",
+      "x-type": "IngressHttp"
+    },
+    "N8nDatabasePostgres": {
+      "properties": {
+        "storage_type": {
+          "const": "postgres",
+          "default": "postgres",
+          "title": "Storage Type",
+          "type": "string",
+          "x-description": "Storage type for N8n metadata.",
+          "x-is-advanced-field": false,
+          "x-meta-type": "inline",
+          "x-title": "Storage Type"
+        },
+        "postgres_uri": {
+          "$ref": "#/$defs/PostgresURI",
+          "x-description": "Connection URI to the PostgreSQL metadata database."
+        }
+      },
+      "required": [
+        "postgres_uri"
+      ],
+      "title": "N8nDatabasePostgres",
+      "type": "object",
+      "x-description": "Use PostgreSQL server as metadata storage for N8n.",
+      "x-is-advanced-field": false,
+      "x-meta-type": "inline",
+      "x-title": "Postgres",
+      "x-type": "N8nDatabasePostgres"
+    },
+    "N8nDatabaseSQLite": {
+      "properties": {
+        "storage_type": {
+          "const": "sqlite",
+          "default": "sqlite",
+          "title": "Storage Type",
+          "type": "string",
+          "x-description": "Storage type for N8n metadata.",
+          "x-is-advanced-field": false,
+          "x-meta-type": "inline",
+          "x-title": "Storage Type"
+        }
+      },
+      "title": "N8nDatabaseSQLite",
+      "type": "object",
+      "x-description": "Use SQLite on a dedicated block device as metadata store for N8n.",
+      "x-is-advanced-field": false,
+      "x-meta-type": "inline",
+      "x-title": "SQLite",
+      "x-type": "N8nDatabaseSQLite"
+    },
+    "NoAuth": {
+      "properties": {
+        "type": {
+          "const": "no_auth",
+          "default": "no_auth",
+          "description": "Authentication type identifier",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "title": "NoAuth",
+      "type": "object",
+      "x-description": "Disable authentication for this ingress. The application will be publicly accessible without any authentication.",
+      "x-is-advanced-field": false,
+      "x-meta-type": "inline",
+      "x-title": "No Authentication",
+      "x-type": "NoAuth"
+    },
+    "PostgresURI": {
+      "description": "Configuration for the Postgres connection URI.",
+      "properties": {
+        "uri": {
+          "title": "Uri",
+          "type": "string",
+          "x-description": "Specify full Postgres connection URI. E.g. 'postgresql://user:pass@host:5432/db'",
+          "x-is-advanced-field": false,
+          "x-meta-type": "inline",
+          "x-title": "URI"
+        }
+      },
+      "required": [
+        "uri"
+      ],
+      "title": "PostgresURI",
+      "type": "object",
+      "x-description": "Full Postgres connection URI configuration.",
+      "x-is-advanced-field": false,
+      "x-meta-type": "inline",
+      "x-title": "Postgres URI",
+      "x-type": "PostgresURI"
+    },
+    "Preset": {
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string",
+          "x-description": "The name of the preset.",
+          "x-is-advanced-field": false,
+          "x-meta-type": "inline",
+          "x-title": "Resource Preset"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Preset",
+      "type": "object",
+      "x-description": "Select the resource preset used per service replica.",
+      "x-is-advanced-field": false,
+      "x-meta-type": "inline",
+      "x-title": "Resource Preset",
+      "x-type": "Preset"
+    }
+  },
+  "properties": {
+    "preset": {
+      "$ref": "#/$defs/Preset"
+    },
+    "networking": {
+      "$ref": "#/$defs/BasicNetworkingConfig",
+      "x-description": "Configure network access, HTTP authentication, and related connectivity options."
+    },
+    "database_type": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/N8nDatabaseSQLite"
+        },
+        {
+          "$ref": "#/$defs/N8nDatabasePostgres"
+        }
+      ],
+      "default": {
+        "storage_type": "sqlite",
+        "__type__": "N8nDatabaseSQLite"
+      },
+      "title": "Database Type"
+    }
+  },
+  "required": [
+    "preset"
+  ],
+  "title": "N8nAppInputs",
+  "type": "object"
+}

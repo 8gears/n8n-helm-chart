@@ -1,0 +1,34 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: check-toml
+      - id: check-yaml
+        exclude: "^charts/|^examples/|^[a-zA-Z-_]+.yaml"
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.9
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+        exclude: "^charts/|^examples/"
+      - id: ruff-format
+        exclude: "^charts/|^examples/"
+  - repo: https://github.com/asottile/setup-cfg-fmt
+    rev: v2.4.0
+    hooks:
+      - id: setup-cfg-fmt
+        exclude: "^charts/|^examples/"
+  - repo: local
+    hooks:
+      - id: generate-types-schemas
+        name: Generate types schemas
+        entry: make hook-gen-types-schemas
+        language: system
+        pass_filenames: false
+
