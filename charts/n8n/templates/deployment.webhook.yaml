@@ -76,6 +76,10 @@ spec:
             - name: http
               containerPort: {{ get (default (dict) .Values.webhook.config.n8n) "port" | default 5678 }}
               protocol: TCP
+          {{- with .Values.webhook.startupProbe }}
+          startupProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           {{- with .Values.webhook.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
