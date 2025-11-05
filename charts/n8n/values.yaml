@@ -233,6 +233,22 @@ main:
   #        - name: data
   #          mountPath: /home/node/.n8n
 
+  # List of sidecar containers to run alongside the main n8n container.
+  # Sidecar containers share the pod's network and can access shared volumes.
+  # See https://kubernetes.io/docs/concepts/workloads/pods/sidecar-containers/
+  sidecarContainers: []
+  #    - name: mitmproxy
+  #      image: mitmproxy/mitmproxy:latest
+  #      command: ["mitmdump"]
+  #      args: ["--listen-port", "8080", "--mode", "reverse:http://localhost:5678"]
+  #      ports:
+  #        - name: proxy
+  #          containerPort: 8080
+  #          protocol: TCP
+  #      volumeMounts:
+  #        - name: data
+  #          mountPath: /shared-data
+  #          subPath: sidecar-data
 
   service:
     enabled: true
@@ -423,6 +439,18 @@ worker:
   # See https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
   initContainers: []
 
+  # List of sidecar containers to run alongside the worker container.
+  # See https://kubernetes.io/docs/concepts/workloads/pods/sidecar-containers/
+  sidecarContainers: []
+  #    - name: mitmproxy
+  #      image: mitmproxy/mitmproxy:latest
+  #      command: ["mitmdump"]
+  #      args: ["--listen-port", "8080", "--mode", "reverse:http://localhost:5678"]
+  #      volumeMounts:
+  #        - name: data
+  #          mountPath: /shared-data
+  #          subPath: sidecar-data
+
   service:
     annotations: {}
     # -- Service types allow you to specify what kind of Service you want.
@@ -612,6 +640,18 @@ webhook:
   # List of initialization containers belonging to the pod. Init containers are executed in order prior to containers being started.
   # See https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
   initContainers: []
+
+  # List of sidecar containers to run alongside the webhook container.
+  # See https://kubernetes.io/docs/concepts/workloads/pods/sidecar-containers/
+  sidecarContainers: []
+  #    - name: mitmproxy
+  #      image: mitmproxy/mitmproxy:latest
+  #      command: ["mitmdump"]
+  #      args: ["--listen-port", "8080", "--mode", "reverse:http://localhost:5678"]
+  #      volumeMounts:
+  #        - name: data
+  #          mountPath: /shared-data
+  #          subPath: sidecar-data
 
   service:
     annotations: {}
