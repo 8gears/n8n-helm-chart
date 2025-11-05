@@ -1,0 +1,60 @@
+name: Publish to GHCR
+
+on:
+  push:
+    branches:
+      - main
+      - feat/sidecar-container-support
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+
+      - name: Build chart dependencies
+        run: |
+          cd charts/n8n
+          helm dependency build
+
+      - name: Login to GitHub Container Registry
+        run: |
+          echo ${{ secrets.GITHUB_TOKEN }} | helm registry login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Package Helm chart
+        run: |
+          cp -a README.md LICENSE charts/n8n/
+          helm package charts/n8n
+
+      - name: Push chart to GHCR
+        run: |
+          package_path=$(ls n8n-*.tgz)
+          helm push "${package_path}" oci://ghcr.io/${{ github.repository_owner }}
+
+      - name: Output package information
+        run: |
+          echo "✅ Chart published successfully!"
+          echo "📦 Package: ghcr.io/${{ github.repository_owner }}/n8n"
+          echo ""
+          echo "To install:"
+          echo "  helm install my-n8n oci://ghcr.io/${{ github.repository_owner }}/n8n --version $(helm show chart charts/n8n | grep '^version:' | awk '{print $2}')"
+          echo ""
+          echo "⚠️  Remember to make the package public:"
+          echo "  https://github.com/users/${{ github.repository_owner }}/packages/container/n8n/settings"
