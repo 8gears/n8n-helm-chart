@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "n8n.fullname" . }}
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "n8n.labels" . | nindent 4 }}
     {{- if .Values.main.deploymentLabels }}
@@ -117,6 +118,9 @@ spec:
       {{- with .Values.main.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if hasKey .Values.main "terminationGracePeriodSeconds" }}
+      terminationGracePeriodSeconds: {{ .Values.main.terminationGracePeriodSeconds }}
       {{- end }}
       volumes:
         - name: "data"
