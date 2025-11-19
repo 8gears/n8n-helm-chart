@@ -39,7 +39,9 @@ ingress:
   className: ""
   hosts:
     - host: workflow.example.com
-      paths: []
+      paths:
+        - path: /
+          pathType: Prefix
   tls: []
     # - hosts:
     #    - workflow.example.com

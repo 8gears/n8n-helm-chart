@@ -60,7 +60,8 @@ ingress:
   hosts:
     - host: n8n-dev.8gears.com
       paths:
-        - /
+        - path: /
+          pathType: Prefix
   tls:
     - secretName: n8n-ingress-tls
       hosts:

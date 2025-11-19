@@ -31,38 +31,38 @@ spec:
       http:
         paths:
           {{- range .paths }}
-          - path: {{ . }}
-            pathType: Prefix
+          - path: {{ .path }}
+            pathType: {{ .pathType }}
             backend:
               service:
                 name: {{ $fullName }}
                 port:
                   number: {{ $.Values.main.service.port | default 80  }}
           {{- if $.Values.webhook.enabled }}
-          - path: {{ . }}webhook/
-            pathType: Prefix
+          - path: {{ trimSuffix "/" .path }}/webhook/
+            pathType: {{ .pathType }}
             backend:
               service:
                 name: {{ $fullName }}-webhook
                 port:
                   number: {{ $.Values.webhook.service.port | default 80  }}
           # Note: The default URL for manual workflow executions is /webhook-test/*. Make sure that these URLs route to your main process.
-          - path: {{ . }}webhook-test/
-            pathType: Prefix
+          - path: {{ trimSuffix "/" .path }}/webhook-test/
+            pathType: {{ .pathType }}
             backend:
               service:
                 name: {{ $fullName }}
                 port:
                   number: {{ $.Values.main.service.port  | default 80  }}
-          - path: {{ . }}webhook-waiting/
-            pathType: Prefix
+          - path: {{ trimSuffix "/" .path }}/webhook-waiting/
+            pathType: {{ .pathType }}
             backend:
               service:
                 name: {{ $fullName }}-webhook
                 port:
                   number: {{ $.Values.webhook.service.port | default 80  }}
-          - path: {{ . }}form/
-            pathType: Prefix
+          - path: {{ trimSuffix "/" .path }}/form/
+            pathType: {{ .pathType }}
             backend:
               service:
                 name: {{ $fullName }}-webhook
