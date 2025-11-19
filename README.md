@@ -135,6 +135,8 @@ ingress:
   hosts:
     - host: workflow.example.com
       paths: []
+      #  - path: /
+      #    pathType: Prefix
   tls:
     - hosts:
         - workflow.example.com
