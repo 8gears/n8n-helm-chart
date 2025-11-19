@@ -39,7 +39,7 @@ spec:
                 port:
                   number: {{ $.Values.main.service.port | default 80  }}
           {{- if $.Values.webhook.enabled }}
-          - path: {{ .path }}webhook/
+          - path: {{ trimSuffix "/" .path }}/webhook/
             pathType: {{ .pathType }}
             backend:
               service:
@@ -47,21 +47,21 @@ spec:
                 port:
                   number: {{ $.Values.webhook.service.port | default 80  }}
           # Note: The default URL for manual workflow executions is /webhook-test/*. Make sure that these URLs route to your main process.
-          - path: {{ .path }}webhook-test/
+          - path: {{ trimSuffix "/" .path }}/webhook-test/
             pathType: {{ .pathType }}
             backend:
               service:
                 name: {{ $fullName }}
                 port:
                   number: {{ $.Values.main.service.port  | default 80  }}
-          - path: {{ .path }}webhook-waiting/
+          - path: {{ trimSuffix "/" .path }}/webhook-waiting/
             pathType: {{ .pathType }}
             backend:
               service:
                 name: {{ $fullName }}-webhook
                 port:
                   number: {{ $.Values.webhook.service.port | default 80  }}
-          - path: {{ .path }}form/
+          - path: {{ trimSuffix "/" .path }}/form/
             pathType: {{ .pathType }}
             backend:
               service:
