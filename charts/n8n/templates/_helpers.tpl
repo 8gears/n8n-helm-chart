@@ -97,9 +97,7 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{/* Validate Valkey/Redis configuration when webhooks are enabled*/}}
 {{- define "n8n.validateValkey" -}}
 {{- $envVars := fromYaml (include "toEnvVars" (dict "values" .Values.main.config "prefix" "")) -}}
-{{- if and .Values.webhook.enabled (not $envVars.QUEUE_BULL_REDIS_HOST) -}}
+{{- if and .Values.webhook.enabled (not $envVars.QUEUE_BULL_REDIS_HOST) (not $envVars.QUEUE_BULL_REDIS_CLUSTER_NODES) -}}
 {{- fail "Webhook processes rely on Valkey. Please set a Redis/Valkey host when webhook.enabled=true" -}}
 {{- end -}}
 {{- end -}}
-
-
