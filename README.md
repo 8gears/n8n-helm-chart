@@ -358,6 +358,13 @@ main:
   # Pod termination grace period in seconds
   terminationGracePeriodSeconds: 30
 
+  # extraContainers is a list of sidecar containers. Specified as a YAML list.
+  extraContainers: []
+  # extraContainers:
+  #   - name: my-sidecar
+  #     image: busybox:latest
+  #     command: ["sh", "-c", "while true; do echo hello && sleep 60; done"]
+
 # # # # # # # # # # # # # # # #
 #
 # Worker related settings
@@ -546,6 +553,13 @@ worker:
   # Pod termination grace period in seconds
   terminationGracePeriodSeconds: 30
 
+  # extraContainers is a list of sidecar containers. Specified as a YAML list.
+  extraContainers: []
+  # extraContainers:
+  #   - name: my-sidecar
+  #     image: busybox:latest
+  #     command: ["sh", "-c", "while true; do echo hello && sleep 60; done"]
+
 # Webhook related settings
 # With .Values.scaling.webhook.enabled=true you disable Webhooks from the main process, but you enable the processing on a different Webhook instance.
 # See https://github.com/8gears/n8n-helm-chart/issues/39#issuecomment-1579991754 for the full explanation.
@@ -733,6 +747,13 @@ webhook:
 
   # Pod termination grace period in seconds
   terminationGracePeriodSeconds: 30
+
+  # extraContainers is a list of sidecar containers. Specified as a YAML list.
+  extraContainers: []
+  # extraContainers:
+  #   - name: my-sidecar
+  #     image: busybox:latest
+  #     command: ["sh", "-c", "while true; do echo hello && sleep 60; done"]
 
 #
 # User defined supplementary K8s manifests
