@@ -115,6 +115,9 @@ spec:
           {{- if .Values.worker.extraVolumeMounts }}
             {{- toYaml .Values.worker.extraVolumeMounts | nindent 12 }}
           {{- end }}
+      {{- if .Values.worker.extraContainers }}
+        {{ tpl (toYaml .Values.worker.extraContainers) . | nindent 8 }}
+      {{- end }}
       {{- with .Values.hostAliases }}
       hostAliases:
         {{- toYaml . | nindent 8 }}
