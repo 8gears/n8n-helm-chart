@@ -50,8 +50,12 @@ ingress:
 # the main (n8n) application related configuration + Kubernetes specific settings
 # The config: {} dictionary is converted to environmental variables in the ConfigMap.
 main:
-  # See https://docs.n8n.io/hosting/configuration/environment-variables/ for all values.
-  config: {}
+  config:
+    N8N_PROTOCOL: "https"
+    N8N_HOST: "n8n.dev-sims.ess.eu"
+    WEBHOOK_URL: "https://n8n.dev-sims.ess.eu"
+    N8N_EDITOR_BASE_URL: "https://n8n.dev-sims.ess.eu"
+    VUE_APP_URL_BASE_API: "https://n8n.dev-sims.ess.eu"
   #    n8n:
   #     license:
   #       activation:
