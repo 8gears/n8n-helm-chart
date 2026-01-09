@@ -140,7 +140,7 @@ spec:
       {{- end }}
       volumes:
         - name: "data"
-          {{ include "n8n.pvc" . }}
+          {{ include "n8n.pvc" (dict "root" . "persistence" .Values.webhook.persistence "claimName" (printf "%s-webhook" (include "n8n.fullname" .))) }}
         {{- if .Values.webhook.extraVolumes }}
           {{- toYaml .Values.webhook.extraVolumes | nindent 8 }}
         {{- end }}

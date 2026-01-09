@@ -1,0 +1,30 @@
+{{- if and .Values.webhook.enabled .Values.webhook.persistence.enabled (not .Values.webhook.persistence.existingClaim) (eq .Values.webhook.persistence.type "dynamic") }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "n8n.fullname" . }}-webhook
+  namespace: {{ .Release.Namespace }}
+  {{- with .Values.webhook.persistence.annotations }}
+  annotations:
+    {{- range $key, $value := . }}
+    {{ $key }}: {{ $value }}
+    {{- end }}
+  {{- end }}
+  labels:
+    {{- include "n8n.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    {{- range .Values.webhook.persistence.accessModes }}
+    - {{ . | quote }}
+    {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.webhook.persistence.size }}
+  {{- if .Values.webhook.persistence.storageClass }}
+  {{- if eq "-" .Values.webhook.persistence.storageClass }}
+  storageClassName: ""
+  {{- else }}
+  storageClassName: {{ .Values.webhook.persistence.storageClass }}
+  {{- end }}
+  {{- end }}
+{{- end }}
