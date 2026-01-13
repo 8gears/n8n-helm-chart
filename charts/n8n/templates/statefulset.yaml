@@ -34,7 +34,7 @@ spec:
         {{- include "n8n.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/type: master
         {{- if .Values.main.podLabels }}
-          {{ toYaml .Values.main.podLabels | nindent 8 }}
+        {{- toYaml .Values.main.podLabels | nindent 8 }}
         {{- end }}
     spec:
       {{- with .Values.imagePullSecrets }}
@@ -96,6 +96,10 @@ spec:
           {{- if .Values.main.extraVolumeMounts }}
             {{- toYaml .Values.main.extraVolumeMounts | nindent 12 }}
           {{- end }}
+      {{- if .Values.main.extraVolumes }}
+      volumes:
+        {{- toYaml .Values.main.extraVolumes | nindent 8 }}
+      {{- end }}
       {{- with .Values.hostAliases }}
       hostAliases:
         {{- toYaml . | nindent 8 }}
