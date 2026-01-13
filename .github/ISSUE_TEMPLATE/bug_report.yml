@@ -1,0 +1,92 @@
+name: Bug Report
+description: File a bug/issue with the n8n Helm chart
+title: "bug: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Before** reporting an issue, make sure to read the [n8n Helm chart documentation](https://github.com/8gears/n8n-helm-chart)
+        and search [existing issues](https://github.com/8gears/n8n-helm-chart/issues).
+  - type: checkboxes
+    attributes:
+      label: Did you check docs and existing issues?
+      description: Make sure you checked all of the below before submitting an issue
+      options:
+        - label: I have read the n8n Helm chart documentation
+          required: true
+        - label: I have updated the Helm chart to the latest version before submitting this issue
+          required: true
+        - label: I have searched the existing issues of n8n
+          required: true
+        - label: I have searched the existing issues of related Kubernetes/Helm components
+          required: true
+  - type: input
+    attributes:
+      label: "n8n version"
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: "Helm chart version"
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: "Kubernetes version"
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: "Helm version"
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: "Operating system/platform"
+      placeholder: "AWS EKS, GKE, AKS, etc."
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is. Please include any related errors you see in pods, services, or ingress.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Steps To Reproduce
+      description: Steps to reproduce the behavior.
+      placeholder: |
+        1. Install chart (OCI): `helm install my-n8n oci://8gears.container-registry.com/library/n8n --version <CHART_VERSION>`
+        2. Configure values.yaml with...
+        3. Apply configuration with `helm upgrade my-n8n oci://8gears.container-registry.com/library/n8n -f values.yaml`
+        4. Observe error...
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Expected Behavior
+      description: A concise description of what you expected to happen.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Helm values.yaml
+      description: Your Helm values configuration (please redact any sensitive information like passwords, secrets, etc.)
+      render: yaml
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Kubernetes logs
+      description: Relevant pod logs, events, or kubectl describe output
+      render: shell
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Additional context
+      description: Add any other context about the problem here, such as network configuration, storage setup, etc.
+    validations:
+      required: false

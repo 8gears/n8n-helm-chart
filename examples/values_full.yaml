@@ -37,7 +37,7 @@ main:
           active: true
       bull:
         redis:
-          host: n8n-valkey-primary
+          host: n8n-valkey
           port: 6379
   secret:
     n8n:
@@ -80,19 +80,15 @@ webhook:
 
 valkey:
   enabled: true
-  architecture: standalone
-  sentinel:
-    enabled: false
+  replicaCount: 1
   auth:
     enabled: false
-  primary:
-    kind: Deployment
-    persistence:
-      enabled: false
-    resources:
-      requests:
-        memory: 256Mi
-        cpu: 100m
+  dataStorage:
+    enabled: false
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 100m
 
 
 ingress:
@@ -107,7 +103,8 @@ ingress:
   hosts:
     - host: *hostname
       paths:
-        - /
+        - path: /
+          pathType: Prefix
   tls:
     - secretName: n8n-ingress-tls
       hosts:

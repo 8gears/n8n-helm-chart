@@ -29,7 +29,7 @@ See [installation guide](https://cloudnative-pg.io/documentation/1.26/installati
 
 ```shell
 kubectl apply --server-side -f \
-  https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/release-1.26/releases/cnpg-1.26.0.yaml
+  https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/release-1.27/releases/cnpg-1.27.1.yaml
 kubectl rollout status deployment \
   -n cnpg-system cnpg-controller-manager
 ```

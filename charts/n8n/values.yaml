@@ -39,7 +39,9 @@ ingress:
   className: ""
   hosts:
     - host: workflow.example.com
-      paths: []
+      paths:
+        - path: /
+          pathType: Prefix
   tls: []
     # - hosts:
     #    - workflow.example.com
@@ -269,6 +271,9 @@ main:
   tolerations: []
   affinity: {}
 
+  # Pod termination grace period in seconds
+  terminationGracePeriodSeconds: 30
+
 # # # # # # # # # # # # # # # #
 #
 # Worker related settings
@@ -454,6 +459,9 @@ worker:
   tolerations: []
   affinity: {}
 
+  # Pod termination grace period in seconds
+  terminationGracePeriodSeconds: 30
+
 # Webhook related settings
 # With .Values.scaling.webhook.enabled=true you disable Webhooks from the main process, but you enable the processing on a different Webhook instance.
 # See https://github.com/8gears/n8n-helm-chart/issues/39#issuecomment-1579991754 for the full explanation.
@@ -468,7 +476,7 @@ webhook:
   # Extra environmental variables, so you can reference other configmaps and secrets into n8n as env vars.
   extraEnv: {}
   #   WEBHOOK_URL:
-  #   value: "http://webhook.domain.tld"
+  #     value: "http://webhook.domain.tld"
 
 
   #
@@ -639,6 +647,9 @@ webhook:
   tolerations: []
   affinity: {}
 
+  # Pod termination grace period in seconds
+  terminationGracePeriodSeconds: 30
+
 #
 # User defined supplementary K8s manifests
 #
@@ -675,14 +686,15 @@ extraTemplateManifests: []
 #    stringData:
 #      image_name: {{ .Values.image.repository }}
 
-# Bitnami Valkey configuration
-# https://artifacthub.io/packages/helm/bitnami/valkey
+# Official Valkey Helm Chart configuration
+# https://github.com/valkey-io/valkey-helm
 valkey:
   enabled: false
-  # architecture: standalone
+  # replicaCount: 1
   #
-  # primary:
-  #   persistence:
-  #     enabled: false
-  #     existingClaim: ""
-  #     size: 2Gi
+  # auth:
+  #   enabled: false
+  #
+  # dataStorage:
+  #   enabled: false
+  #   requestedSize: 2Gi
