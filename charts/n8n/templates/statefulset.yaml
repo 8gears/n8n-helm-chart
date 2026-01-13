@@ -46,7 +46,7 @@ spec:
         {{- toYaml .Values.main.podSecurityContext | nindent 8 }}
       {{- if .Values.main.initContainers }}
       initContainers:
-        {{ tpl (toYaml .Values.main.initContainers) . | nindent 10 }}
+        {{- tpl (toYaml .Values.main.initContainers) . | nindent 8 }}
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}
