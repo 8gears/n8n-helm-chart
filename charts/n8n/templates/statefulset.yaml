@@ -112,6 +112,9 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- if hasKey .Values.main "terminationGracePeriodSeconds" }}
+      terminationGracePeriodSeconds: {{ .Values.main.terminationGracePeriodSeconds }}
+      {{- end }}
   volumeClaimTemplates:
     - metadata:
         name: data
