@@ -62,14 +62,17 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 
 {{/* PVC existing, emptyDir, Dynamic */}}
 {{- define "n8n.pvc" -}}
-{{- if or (not .Values.main.persistence.enabled) (eq .Values.main.persistence.type "emptyDir") -}}
+{{- $persistence := .persistence -}}
+{{- $root := .root -}}
+{{- $claimName := default (include "n8n.fullname" $root) .claimName -}}
+{{- if or (not $persistence.enabled) (eq $persistence.type "emptyDir") -}}
           emptyDir: {}
-{{- else if and .Values.main.persistence.enabled .Values.main.persistence.existingClaim -}}
+{{- else if and $persistence.enabled $persistence.existingClaim -}}
           persistentVolumeClaim:
-            claimName: {{ .Values.main.persistence.existingClaim }}
-{{- else if and .Values.main.persistence.enabled (eq .Values.main.persistence.type "dynamic")  -}}
+            claimName: {{ $persistence.existingClaim }}
+{{- else if and $persistence.enabled (eq $persistence.type "dynamic")  -}}
           persistentVolumeClaim:
-            claimName: {{ include "n8n.fullname" . }}
+            claimName: {{ $claimName }}
 {{- end }}
 {{- end }}
 
@@ -101,5 +104,4 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- fail "Webhook processes rely on Valkey. Please set a Redis/Valkey host when webhook.enabled=true" -}}
 {{- end -}}
 {{- end -}}
-
 

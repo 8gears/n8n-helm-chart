@@ -395,6 +395,8 @@ worker:
   # Worker Kubernetes specific settings
   #
   persistence:
+    # Worker pods use their own volume and do not reuse the main PVC by default to avoid RWO multi-attach issues.
+    # If you want workers to share storage with main, point existingClaim to the main PVC name explicitly.
     # If true, use a Persistent Volume Claim, If false, use emptyDir
     enabled: false
     # what type volume, possible options are [existing, emptyDir, dynamic] dynamic for Dynamic Volume Provisioning, existing for using an existing Claim
@@ -581,6 +583,8 @@ webhook:
   # Webhook Kubernetes specific settings
   #
   persistence:
+    # Webhook pods use their own volume and do not reuse the main PVC by default to avoid RWO multi-attach issues.
+    # If you need them to share storage with main, set existingClaim to the main PVC name explicitly.
     # If true, use a Persistent Volume Claim, If false, use emptyDir
     enabled: false
     # what type volume, possible options are [existing, emptyDir, dynamic] dynamic for Dynamic Volume Provisioning, existing for using an existing Claim
@@ -847,4 +851,3 @@ At last scaling option is it possible to create dedicated webhook instances,
 which only process the webhooks.
 If you set `scaling.webhook.enabled=true`, then webhook processing on the main
 instance is disabled and by default a single webhook instance is started.
-
