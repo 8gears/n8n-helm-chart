@@ -68,6 +68,20 @@ spec:
                 name: {{ $fullName }}-webhook
                 port:
                   number: {{ $.Values.webhook.service.port | default 80  }}
+          - path: {{ trimSuffix "/" .path }}/form-waiting/
+            pathType: {{ .pathType }}
+            backend:
+              service:
+                name: {{ $fullName }}-webhook
+                port:
+                  number: {{ $.Values.webhook.service.port | default 80  }}
+          - path: {{ trimSuffix "/" .path }}/form-test/
+            pathType: {{ .pathType }}
+            backend:
+              service:
+                name: {{ $fullName }}
+                port:
+                  number: {{ $.Values.main.service.port | default 80  }}
           {{- end }}
           {{- end }}
     {{- end }}
