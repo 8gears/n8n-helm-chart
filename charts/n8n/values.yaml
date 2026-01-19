@@ -47,6 +47,54 @@ ingress:
     #    - workflow.example.com
     #  secretName: host-domain-cert
 
+#
+# HTTPRoute
+#
+route:
+  # -- enable an HTTPRoute resource for n8n server
+  enabled: false
+  # -- Set the route apiVersion
+  apiVersion: gateway.networking.k8s.io/v1
+  # -- Set the route kind
+  kind: HTTPRoute
+  # -- Route annotations
+  annotations: {}
+  # -- Route labels
+  labels: {}
+  # -- Route hostnames
+  hostnames: []
+  # -- Reference to parent gateways
+  parentRefs: []
+  # -- Additional rules  to deny some path like ingresses
+  additionalRules: []
+  main:
+    # -- Route matches
+    matches:
+      - path:
+          type: PathPrefix
+          value: "/"
+    # -- Route filters
+    filters: []
+    # -- Additional rules  to deny some path like ingresses
+    additionalRules: []
+  webhook:
+    # -- Route matches
+    matches:
+      - path:
+          type: PathPrefix
+          value: /webhook/
+      - path:
+          type: PathPrefix
+          value: /webhook-test/
+      - path:
+          type: PathPrefix
+          value: /webhook-waiting/
+      - path:
+          type: PathPrefix
+          value: /form
+    # -- Route filters
+    filters: []
+
 # the main (n8n) application related configuration + Kubernetes specific settings
 # The config: {} dictionary is converted to environmental variables in the ConfigMap.
 main:

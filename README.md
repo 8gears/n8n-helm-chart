@@ -30,12 +30,13 @@ The `values.yaml` file is divided into multiple sections (global, n8n, and Kuber
 Use this structure to orient yourself.
 
 1. Global and chart wide values, like the image repository, image tag, etc.
-2. Ingress, (default is nginx, but you can change it to your own ingress controller)
-3. Main n8n app configuration + Kubernetes specific settings
-4. Worker related settings + Kubernetes specific settings
-5. Webhook related settings + Kubernetes specific settings
-6. Raw Resources to pass through your own manifests like GatewayAPI, ServiceMonitor etc.
-7. Redis related settings + Kubernetes specific settings
+2. HttpRoute
+3. Ingress, (default is nginx, but you can change it to your own ingress controller)
+4. Main n8n app configuration + Kubernetes specific settings
+5. Worker related settings + Kubernetes specific settings
+6. Webhook related settings + Kubernetes specific settings
+7. Raw Resources to pass through your own manifests like GatewayAPI, ServiceMonitor etc.
+8. Redis related settings + Kubernetes specific settings
 
 ## Configurating N8n via Values and Environment Variables
 
@@ -119,6 +120,44 @@ hostAliases: []
   #- ip: 8.8.8.8
   #  hostnames:
 #    - service-example.local
+#
+# HTTPRoute
+#
+route:
+  # -- enable an HTTPRoute resource for n8n server
+  enabled: false
+  # -- Set the route apiVersion
+  apiVersion: gateway.networking.k8s.io/v1
+  # -- Set the route kind
+  kind: HTTPRoute
+  hostnames:
+    - workflow.example.com
+  # -- Reference to parent gateways
+  parentRefs:
+    - name: traefik-gateway
+      namespace: traefik
+      sectionName: websecure
+  main:
+    # -- Route matches
+    matches:
+      - path:
+          type: PathPrefix
+          value: "/"
+  webhook:
+    # -- Route matches
+    matches:
+      - path:
+          type: PathPrefix
+          value: /webhook/
+      - path:
+          type: PathPrefix
+          value: /webhook-test/
+      - path:
+          type: PathPrefix
+          value: /webhook-waiting/
+      - path:
+          type: PathPrefix
+          value: /form
 #
 # Ingress
 #
