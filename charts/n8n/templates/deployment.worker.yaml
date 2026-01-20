@@ -57,8 +57,8 @@ spec:
         - name: {{ .Chart.Name }}-worker
           securityContext:
             {{- toYaml .Values.worker.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: "{{ .Values.worker.image.repository | default .Values.image.repository }}:{{ .Values.worker.image.tag | default (.Values.image.tag | default .Chart.AppVersion) }}"
+          imagePullPolicy: {{ .Values.worker.image.pullPolicy | default .Values.image.pullPolicy }}
           envFrom:
             {{- if .Values.main.config }}
             - configMapRef:
@@ -82,15 +82,21 @@ spec:
               {{- toYaml $value | nindent 14 }}
             {{- end }}
           {{- if .Values.worker.command }}
+          {{- /* User has specified a custom command, use it */ -}}
           command:
             {{- toYaml .Values.worker.command | nindent 12 }}
+          {{- else if .Values.worker.image.repository }}
+          {{- /* Worker is using a custom image (likely n8nio/runners for v2) - don't set command, let image entrypoint run */ -}}
           {{- else }}
+          {{- /* Default to n8n v1 worker command */ -}}
           command: ["n8n"]
           {{- end }}
           {{- if .Values.worker.commandArgs }}
+          {{- /* User has specified custom args, use them */ -}}
           args:
             {{- toYaml .Values.worker.commandArgs | nindent 12 }}
-          {{- else }}
+          {{- else if not .Values.worker.image.repository }}
+          {{- /* Only set default args if using the main n8n image (v1 behavior) */ -}}
           args:
             - "worker"
             - "--concurrency={{ .Values.worker.concurrency }}"

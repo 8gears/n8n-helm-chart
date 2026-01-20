@@ -278,6 +278,24 @@ main:
 worker:
   enabled: false
 
+  # Worker/Task Runner specific image configuration (for n8n v2+)
+  # If not specified, defaults to the global image configuration above.
+  # For n8n v2.0+, you should use the separate task runner image: n8nio/runners
+  # For n8n v1.x, leave these empty to use the main n8n image.
+  # See: https://docs.n8n.io/2-0-breaking-changes/#remove-task-runner-from-n8nion8n-docker-image
+  #
+  # IMPORTANT: When using n8nio/runners image, do NOT set command/commandArgs below.
+  # The runners image has its own launcher and doesn't use the "n8n worker" command.
+  # The chart will automatically omit command/args when a custom image is specified.
+  image:
+    # For n8n v2+, set to n8nio/runners
+    # If empty, defaults to .Values.image.repository (n8nio/n8n)
+    repository: ""
+    # If empty, defaults to .Values.image.tag or Chart.AppVersion
+    tag: ""
+    # If empty, defaults to .Values.image.pullPolicy
+    pullPolicy: ""
+
   # additional (to main) config for worker
   config: {}
 
@@ -381,19 +399,15 @@ worker:
   #      command: ["/bin/sh", "-c", "apk add mysql-client"]
 
   # here you can override a command for worker container
-  # it may be used to override a starting script (e.g., to resolve issues like https://github.com/n8n-io/n8n/issues/6412) or
-  # run additional preparation steps (e.g., installing additional software)
+  # IMPORTANT: When using n8nio/runners (n8n v2), do NOT set this. The runners image
+  # has its own launcher. Only set this for custom configurations.
+  # For n8n v1 workers, the default is ["n8n"] which is set automatically.
   command: []
 
-  # sample configuration that overrides starting script and solves above issue (also it runs n8n as root, so be careful):
-  # command:
-  #  - tini
-  #  - --
-  #  - /bin/sh
-  #  - -c
-  #  - chmod o+rx /root; chown -R node /root/.n8n || true; chown -R node /root/.n8n; ln -s /root/.n8n /home/node; chown -R node /home/node || true; node /usr/local/bin/n8n
-
   # command args
+  # IMPORTANT: When using n8nio/runners (n8n v2), do NOT set this. The runners image
+  # manages its own process. Only set this for custom configurations.
+  # For n8n v1 workers, the default is ["worker", "--concurrency=X"] which is set automatically.
   commandArgs: []
 
   # here you can override the livenessProbe for the main container
