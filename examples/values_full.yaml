@@ -68,6 +68,14 @@ main:
 
 worker:
   enabled: true
+  # For n8n v2.0+, you must use the separate task runner image
+  # Uncomment the following lines when upgrading to n8n v2.0+:
+  # image:
+  #   repository: n8nio/runners
+  #   tag: 2.0.0
+  # IMPORTANT: Do NOT set command or commandArgs when using n8nio/runners
+  # The runners image has its own launcher and doesn't accept "n8n worker" commands
+  # See: https://docs.n8n.io/2-0-breaking-changes/#remove-task-runner-from-n8nion8n-docker-image
   extraEnv: *extraEnv # using YAML magic (anchors) to reference main extraEnv
   extraVolumeMounts: *extraVolumeMounts # using YAML magic (anchors) to reference main extraVolumeMounts
   extraVolumes: *extraVolumes # using YAML magic (anchors) to reference main extraVolumes

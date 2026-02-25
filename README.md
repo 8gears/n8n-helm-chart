@@ -379,6 +379,15 @@ related to the application deployment and operation but not the application itse
 worker:
   enabled: false
 
+  # Worker/Task Runner specific image configuration (for n8n v2+)
+  # For n8n v2.0+, you must use the separate task runner image: n8nio/runners
+  # For n8n v1.x, leave these empty to use the main n8n image.
+  # See: https://docs.n8n.io/2-0-breaking-changes/#remove-task-runner-from-n8nion8n-docker-image
+  image:
+    repository: ""  # Defaults to .Values.image.repository if empty
+    tag: ""         # Defaults to .Values.image.tag if empty
+    pullPolicy: ""  # Defaults to .Values.image.pullPolicy if empty
+
   # additional (to main) config for worker
   config: {}
 
@@ -805,6 +814,41 @@ Key changes include:
 - Updated deployment configurations
 - New Redis integration requirements
 
+## n8n v2.0+ Support and Task Runner Image
+
+Starting with n8n v2.0, the task runner (worker) functionality has been moved to a separate Docker image (`n8nio/runners`). This chart now supports configuring a custom image for workers while maintaining full backwards compatibility with n8n v1.x.
+
+### For n8n v1.x Users (Current Default)
+
+No changes needed! Workers will continue using the main n8n image (`n8nio/n8n`).
+
+### For n8n v2.0+ Users
+
+When upgrading to n8n v2.0 or later, you **must** configure the worker to use the separate task runner image:
+
+```yaml
+image:
+  repository: n8nio/n8n
+  tag: "2.0.0"
+
+worker:
+  enabled: true
+  image:
+    repository: n8nio/runners
+    tag: "2.0.0"
+  # IMPORTANT: Do NOT set command or commandArgs when using n8nio/runners
+  # The runners image has its own launcher and doesn't use "n8n worker" commands
+```
+
+**Key points:**
+- The main n8n application continues to use `n8nio/n8n`
+- Workers/task runners must use `n8nio/runners` for n8n v2.0+
+- **Do not set `worker.command` or `worker.commandArgs`** when using the runners image - it has its own entrypoint/launcher
+- The chart automatically omits command/args when a custom worker image is specified
+- If `worker.image.*` is not specified, it defaults to the global `image.*` configuration (backwards compatible)
+- You can specify different tags for main and worker if needed
+
+For more details, see the [n8n v2.0 breaking changes documentation](https://docs.n8n.io/2-0-breaking-changes/#remove-task-runner-from-n8nion8n-docker-image).
 
 ## Scaling and Advanced Configuration Options
 
