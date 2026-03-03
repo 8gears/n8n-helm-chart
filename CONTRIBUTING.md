@@ -9,6 +9,10 @@
 7. The maintainers create a new release in GitHub using the chart version number as the tag and title.
 
 
+## Commit Messages
+Make sure your commit messages follow the [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) style
+
+
 ## Chart Versioning Schema
 
 The versions of the chart follow this schema:

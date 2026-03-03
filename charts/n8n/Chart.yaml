@@ -1,6 +1,6 @@
 apiVersion: v2
 name: n8n
-version: 2.0.1
+version: 2.1.0
 appVersion: 1.122.4
 type: application
 description: "Helm Chart for deploying n8n on Kubernetes, a fair-code workflow automation platform with native AI capabilities for technical teams. Easily automate tasks across different services."
@@ -34,5 +34,5 @@ annotations:
   artifacthub.io/prerelease: "false"
   # supported kinds are added, changed, deprecated, removed, fixed and security.
   artifacthub.io/changes: |
-    - kind: changed
-      description: "Changed the ingress logic to allow different types of pathType in place of the hardcoded 'pathType: Prefix'"
+    - kind: added
+      description: "HPA support for autoscaling workers and webhooks"

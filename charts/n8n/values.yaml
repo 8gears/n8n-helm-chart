@@ -434,10 +434,11 @@ worker:
     port: 80
 
   resources: {}
-  # We usually recommend not specifying default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # Unless you are autoscaling, we usually recommend not specifying default resources and
+  # to leave this as a conscious choice for the user. This also increases chances charts run
+  # on environments with little resources, such as Minikube. If you do want to specify
+  # resources, uncomment the following lines, adjust them as necessary, and remove the curly
+  # braces after 'resources:'.
   # limits:
   #   cpu: 100m
   #   memory: 128Mi
@@ -449,6 +450,9 @@ worker:
     enabled: false
     minReplicas: 1
     maxReplicas: 100
+    # If you use targetCPUUtilizationPercentage or targetMemoryUtilizationPercentage, you
+    # **MUST** set the requests for the relevant resource. (i.e. if you set a value for
+    # targetCPUUtilizationPercentage, you **MUST** set a value for resources.requests.cpu)
     targetCPUUtilizationPercentage: 80
     # targetMemoryUtilizationPercentage: 80
 
@@ -624,10 +628,11 @@ webhook:
     port: 80
 
   resources: {}
-  # We usually recommend not specifying default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # Unless you are autoscaling, we usually recommend not specifying default resources and
+  # to leave this as a conscious choice for the user. This also increases chances charts run
+  # on environments with little resources, such as Minikube. If you do want to specify
+  # resources, uncomment the following lines, adjust them as necessary, and remove the curly
+  # braces after 'resources:'.
   # limits:
   #   cpu: 100m
   #   memory: 128Mi
@@ -638,6 +643,9 @@ webhook:
     enabled: false
     minReplicas: 1
     maxReplicas: 100
+    # If you use targetCPUUtilizationPercentage or targetMemoryUtilizationPercentage, you
+    # **MUST** set the requests for the relevant resource. (i.e. if you set a value for
+    # targetCPUUtilizationPercentage, you **MUST** set a value for resources.requests.cpu)
     targetCPUUtilizationPercentage: 80
     # targetMemoryUtilizationPercentage: 80
   nodeSelector: {}
