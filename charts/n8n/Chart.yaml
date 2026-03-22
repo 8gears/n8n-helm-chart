@@ -1,6 +1,6 @@
 apiVersion: v2
 name: n8n
-version: 2.0.1
+version: 2.0.2
 appVersion: 1.122.4
 type: application
 description: "Helm Chart for deploying n8n on Kubernetes, a fair-code workflow automation platform with native AI capabilities for technical teams. Easily automate tasks across different services."
@@ -27,7 +27,7 @@ maintainers:
 dependencies:
   - name: valkey
     version: 0.8.1
-    repository: https://valkey.io/valkey-helm/
+    repository: oci://ghcr.io/valkey-io/valkey-helm
     condition: valkey.enabled
 
 annotations:
@@ -35,4 +35,4 @@ annotations:
   # supported kinds are added, changed, deprecated, removed, fixed and security.
   artifacthub.io/changes: |
     - kind: changed
-      description: "Changed the ingress logic to allow different types of pathType in place of the hardcoded 'pathType: Prefix'"
+      description: "Update valkey repository URL to OCI format"
