@@ -1,6 +1,6 @@
 apiVersion: v2
 name: n8n
-version: 2.0.1
+version: 2.0.2
 appVersion: 1.122.4
 type: application
 description: "Helm Chart for deploying n8n on Kubernetes, a fair-code workflow automation platform with native AI capabilities for technical teams. Easily automate tasks across different services."
@@ -34,5 +34,7 @@ annotations:
   artifacthub.io/prerelease: "false"
   # supported kinds are added, changed, deprecated, removed, fixed and security.
   artifacthub.io/changes: |
-    - kind: changed
-      description: "Changed the ingress logic to allow different types of pathType in place of the hardcoded 'pathType: Prefix'"
+    - kind: fixed
+      description: "Clarify that persistence.type must be set to 'dynamic' when enabling PVC storage; enabled: true alone has no effect without it"
+    - kind: fixed
+      description: "Document DB_SQLITE_POOL_SIZE requirement for SQLite crash recovery with persistent storage; without a read connection pool n8n enters a permanent CrashLoopBackOff after any pod crash"
