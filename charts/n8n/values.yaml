@@ -83,12 +83,25 @@ main:
   #          name: db-app
   #          key: dbname
   #
+  # When using SQLite with persistence (persistence.type: dynamic or existing),
+  # set DB_SQLITE_POOL_SIZE to a value greater than zero. Without a read
+  # connection pool, n8n cannot recover the SQLite database after a crash and
+  # enters a permanent CrashLoopBackOff. This is not required when using PostgreSQL.
+  #    DB_SQLITE_POOL_SIZE:
+  #      value: "4"
+  #
   # N8n Kubernetes specific settings
   #
   persistence:
-    # If true, use a Persistent Volume Claim, If false, use emptyDir
+    # If true, use a Persistent Volume Claim, If false, use emptyDir.
+    # IMPORTANT: enabling persistence alone is not enough — you must also set
+    # type: dynamic (or type: existing with existingClaim) for the PVC to be
+    # mounted. Leaving type: emptyDir while enabled: true has no effect.
     enabled: false
-    # what type volume, possible options are [existing, emptyDir, dynamic] dynamic for Dynamic Volume Provisioning, existing for using an existing Claim
+    # Volume type. Options: emptyDir | dynamic | existing
+    #   dynamic  - provisions a new PVC via the storageClass
+    #   existing - uses an existing PVC specified in existingClaim
+    #   emptyDir - ephemeral storage (data lost on pod restart)
     type: emptyDir
     # Persistent Volume Storage Class
     # If defined, storageClassName: <storageClass>
