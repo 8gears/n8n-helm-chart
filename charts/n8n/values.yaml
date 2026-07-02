@@ -293,34 +293,14 @@ worker:
   #
   # Worker Kubernetes specific settings
   #
-  persistence:
-    # If true, use a Persistent Volume Claim, If false, use emptyDir
-    enabled: false
-    # what type volume, possible options are [existing, emptyDir, dynamic] dynamic for Dynamic Volume Provisioning, existing for using an existing Claim
-    type: emptyDir
-    # Persistent Volume Storage Class
-    # If defined, storageClassName: <storageClass>
-    # If set to "-", storageClassName: "", which disables dynamic provisioning
-    # If undefined (the default) or set to null, no storageClassName spec is
-    #   set, choosing the default provisioner.  (gp2 on AWS, standard on
-    #   GKE, AWS & OpenStack)
-    #
-    # storageClass: "-"
-    # PVC annotations
-    #
-    # If you need this annotation include it under `values.yml` file and pvc.yml template will add it.
-    # This is not maintained at Helm v3 anymore.
-    # https://github.com/8gears/n8n-helm-chart/issues/8
-    #
-    # annotations:
-    #   helm.sh/resource-policy: keep
-    # Persistent Volume Access Mode
-    accessModes:
-      - ReadWriteOnce
-    # Persistent Volume size
-    size: 1Gi
-    # Use an existing PVC
-    # existingClaim:
+  # NOTE: worker pods are intentionally stateless (emptyDir for /home/node/.n8n,
+  # hardcoded in templates/deployment.worker.yaml) and do not read a
+  # `persistence` block here. An earlier version of this chart exposed
+  # worker.persistence/webhook.persistence keys that looked configurable but
+  # were never actually wired to anything (see 8gears/n8n-helm-chart#256) —
+  # they've been removed rather than left as dead config. Sharing main's PVC
+  # with worker/webhook caused Multi-Attach errors on multi-node clusters
+  # (8gears/n8n-helm-chart#280, #189); use main.persistence for real storage.
 
   # Number of desired pods.
   replicaCount: 1
@@ -479,37 +459,10 @@ webhook:
   #
   # Webhook Kubernetes specific settings
   #
-  persistence:
-    # If true, use a Persistent Volume Claim, If false, use emptyDir
-    enabled: false
-    # what type volume, possible options are [existing, emptyDir, dynamic] dynamic for Dynamic Volume Provisioning, existing for using an existing Claim
-    type: emptyDir
-    # Persistent Volume Storage Class
-    # If defined, storageClassName: <storageClass>
-    # If set to "-", storageClassName: "", which disables dynamic provisioning
-    # If undefined (the default) or set to null, no storageClassName spec is
-    #   set, choosing the default provisioner.  (gp2 on AWS, standard on
-    #   GKE, AWS & OpenStack)
-    #
-    # storageClass: "-"
-    # PVC annotations
-    #
-    # If you need this annotation include it under `values.yml` file and pvc.yml template will add it.
-    # This is not maintained at Helm v3 anymore.
-    # https://github.com/8gears/n8n-helm-chart/issues/8
-    #
-    # annotations:
-    #   helm.sh/resource-policy: keep
-    # Persistent Volume Access Mode
-    #
-    accessModes:
-      - ReadWriteOnce
-    # Persistent Volume size
-    #
-    size: 1Gi
-    # Use an existing PVC
-    #
-    # existingClaim:
+  # NOTE: webhook pods are intentionally stateless (emptyDir for
+  # /home/node/.n8n, hardcoded in templates/deployment.webhook.yaml) and do
+  # not read a `persistence` block here. See the matching note under `worker:`
+  # above for why (8gears/n8n-helm-chart#280, #189, #256).
 
   # Number of desired pods.
   replicaCount: 1
@@ -695,3 +648,43 @@ valkey:
   # dataStorage:
   #   enabled: false
   #   requestedSize: 2Gi
+
+# # # # # # # # # # # # # # # #
+#
+# Bitovi fork additions
+# See templates/cnpg-cluster.yaml, templates/onepassword-items.yaml,
+# templates/route53-recordset.yaml. All disabled by default so this chart
+# stays generically usable outside the Bitovi Platform.
+#
+
+# In-cluster Postgres via the CloudNativePG operator (assumed already
+# installed on the target cluster). Creates a postgresql.cnpg.io/v1 Cluster
+# and lets CNPG generate + manage the app-user credentials Secret itself.
+cnpg:
+  enabled: false
+  instances: 2
+  storage:
+    size: 10Gi
+  # storageClass: ""
+  # -- Name of the CNPG-managed app-user Secret (auto-created by CNPG as
+  # <name>-app). Referenced from main/worker/webhook extraEnv.
+  appSecretName: ""
+
+# 1Password Kubernetes Operator (Connect mode) OnePasswordItem resources.
+# Assumes the operator is already installed and watching this namespace.
+onepassword:
+  enabled: false
+  vault: ""
+  items: {}
+  # appSecrets: n8n-app-secrets   # -> basic-auth-user, basic-auth-password, encryption-key
+
+# ACK Route53 controller RecordSet, for platforms managing DNS via
+# aws-controllers-k8s rather than external-dns. References a shared,
+# platform-owned HostedZone by its Kubernetes name.
+route53:
+  enabled: false
+  hostedZoneRefName: ""
+  recordName: ""
+  # ALB hostname - only known after the Ingress creates the load balancer.
+  # See the bootstrap note in templates/route53-recordset.yaml.
+  target: ""

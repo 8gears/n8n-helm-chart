@@ -140,7 +140,13 @@ spec:
       {{- end }}
       volumes:
         - name: "data"
-          {{ include "n8n.pvc" . }}
+          # Intentionally stateless: webhook pods don't persist /home/node/.n8n.
+          # Real state lives in Postgres (workflows/executions) and the queue
+          # (Redis/Valkey); the encryption key comes from an env var, not a
+          # locally cached file. Sharing main's PVC here caused Multi-Attach
+          # errors when worker/webhook land on a different node than main
+          # (upstream: 8gears/n8n-helm-chart#280, #189, #256).
+          emptyDir: {}
         {{- if .Values.webhook.extraVolumes }}
           {{- toYaml .Values.webhook.extraVolumes | nindent 8 }}
         {{- end }}

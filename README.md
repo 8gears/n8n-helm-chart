@@ -1,3 +1,13 @@
+## Bitovi fork
+
+This is Bitovi's fork of [8gears/n8n-helm-chart](https://github.com/8gears/n8n-helm-chart), used to deploy HA n8n on the [Bitovi Platform](https://github.com/bitovi/bitovi-platform-services) (SYSTEMS-804). Deviations from upstream:
+
+- **`worker`/`webhook` pods no longer mount `main`'s PVC.** Upstream's `deployment.worker.yaml` and `deployment.webhook.yaml` both reused the same `n8n.pvc` helper as `main`, which resolves to the same PVC name for every Deployment — on a multi-node cluster this causes `Multi-Attach error for volume` when worker/webhook pods land on a different node than main (upstream [#280](https://github.com/8gears/n8n-helm-chart/issues/280), [#189](https://github.com/8gears/n8n-helm-chart/issues/189); the `worker.persistence`/`webhook.persistence` values that look like they'd fix this are dead code — [#256](https://github.com/8gears/n8n-helm-chart/issues/256)). Fixed here by giving `worker`/`webhook` a plain `emptyDir` instead: they don't need to persist `/home/node/.n8n` since real state lives in Postgres and the queue, and the encryption key is sourced from a secret-backed env var, not a locally cached file. `main` keeps its real PVC via `main.persistence`, unchanged.
+- **HA scope**: this delivers HA workers + webhooks under queue mode. It does **not** implement multi-main HA ([#278](https://github.com/8gears/n8n-helm-chart/issues/278)) or an external task-runner pool ([#267](https://github.com/8gears/n8n-helm-chart/issues/267)) — both are open, unresolved upstream feature requests. `main` runs as a single replica; n8n's default in-process task runner is used as-is.
+- `charts/n8n/configurations/production/values.yaml` (alongside the base `values.yaml`) holds the Bitovi Platform deployment's actual settings: queue mode, bundled Valkey, community nodes and metrics on, an in-cluster CNPG Postgres `Cluster`, `OnePasswordItem`-backed secrets, and the Ingress/DNS for `n8n.bitovi-tools.com`.
+
+---
+
 [![Artifact HUB](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/n8n)](https://artifacthub.io/packages/helm/open-8gears/n8n)
 
 > [!NOTE]
