@@ -5,10 +5,10 @@ _shared_config:
   hostname: &hostname n8n-dev.8gears.com
   url: &url https://n8n-dev.8gears.com
 
-
 image:
-  repository: 8gears.container-registry.com/ops/n8n
-  tag: 1.76.1
+  repository: n8nio/n8n
+  tag: 1.81.4
+  pullPolicy: Always
 imagePullSecrets:
   - name: 8gears-registry-n8n
 
@@ -37,7 +37,7 @@ main:
           active: true
       bull:
         redis:
-          host: n8n-valkey-primary
+          host: n8n-valkey
           port: 6379
   secret:
     n8n:
@@ -80,19 +80,15 @@ webhook:
 
 valkey:
   enabled: true
-  architecture: standalone
-  sentinel:
-    enabled: false
+  replicaCount: 1
   auth:
     enabled: false
-  primary:
-    kind: Deployment
-    persistence:
-      enabled: false
-    resources:
-      requests:
-        memory: 256Mi
-        cpu: 100m
+  dataStorage:
+    enabled: false
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 100m
 
 
 ingress:
@@ -107,7 +103,8 @@ ingress:
   hosts:
     - host: *hostname
       paths:
-        - /
+        - path: /
+          pathType: Prefix
   tls:
     - secretName: n8n-ingress-tls
       hosts:

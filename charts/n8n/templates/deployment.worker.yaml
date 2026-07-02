@@ -3,6 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "n8n.fullname" . }}-worker
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "n8n.labels" . | nindent 4 }}
     {{- if .Values.worker.deploymentLabels }}
@@ -14,7 +15,7 @@ metadata:
   {{- end }}
 spec:
   {{- if not .Values.worker.autoscaling.enabled }}
-  replicas: {{ .Values.worker.count }}
+  replicas: {{ .Values.worker.replicaCount }}
   {{- end }}
   strategy:
     type: {{ .Values.worker.deploymentStrategy.type }}
@@ -96,13 +97,13 @@ spec:
           {{- end }}
           ports:
             - name: http
-              containerPort: {{ get (default (dict) .Values.worker.config) "port" | default 5678 }}
+              containerPort: {{ get (default (dict) .Values.worker.config.n8n) "port" | default 5678 }}
               protocol: TCP
-          {{- with .Values.main.livenessProbe }}
+          {{- with .Values.worker.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.main.readinessProbe }}
+          {{- with .Values.worker.readinessProbe }}
           readinessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
@@ -129,6 +130,9 @@ spec:
       {{- with .Values.worker.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if hasKey .Values.worker "terminationGracePeriodSeconds" }}
+      terminationGracePeriodSeconds: {{ .Values.worker.terminationGracePeriodSeconds }}
       {{- end }}
       volumes:
         - name: "data"

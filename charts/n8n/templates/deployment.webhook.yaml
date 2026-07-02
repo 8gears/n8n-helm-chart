@@ -5,6 +5,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "n8n.fullname" . }}-webhook
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "n8n.labels" . | nindent 4 }}
     {{- if .Values.webhook.deploymentLabels }}
@@ -73,7 +74,7 @@ spec:
           {{- end }}
           ports:
             - name: http
-              containerPort: {{ get (default (dict) .Values.webhook.config) "port" | default 5678 }}
+              containerPort: {{ get (default (dict) .Values.webhook.config.n8n) "port" | default 5678 }}
               protocol: TCP
           {{- with .Values.webhook.livenessProbe }}
           livenessProbe:
@@ -133,6 +134,9 @@ spec:
       {{- with .Values.webhook.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if hasKey .Values.webhook "terminationGracePeriodSeconds" }}
+      terminationGracePeriodSeconds: {{ .Values.webhook.terminationGracePeriodSeconds }}
       {{- end }}
       volumes:
         - name: "data"

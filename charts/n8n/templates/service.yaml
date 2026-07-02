@@ -1,7 +1,9 @@
+{{ if .Values.main.service.enabled -}}
 apiVersion: v1
 kind: Service
 metadata:
   name: {{ include "n8n.fullname" . }}
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "n8n.labels" . | nindent 4 }}
   {{- with .Values.main.service.annotations }}
@@ -18,3 +20,4 @@ spec:
   selector:
     {{- include "n8n.selectorLabels" . | nindent 4 }}
     app.kubernetes.io/type: master
+{{ end }}
