@@ -5,12 +5,13 @@
 # bitovi/bitovi-platform-services (gitops/apps/n8n.yaml). See that repo's
 # gitops/README.md for the app-of-apps convention this follows.
 #
-# fullnameOverride is pinned so every generated resource name (CNPG Cluster,
-# its "-app" Secret, the "-rw" Service, the main/worker/webhook Deployments)
-# is deterministic and can be cross-referenced below without a templating
-# indirection values.yaml files don't support. If you change this, update
-# the DB_POSTGRESDB_* values and cnpg.appSecretName together - they can't be
-# derived from each other automatically in a plain values file.
+# fullnameOverride is pinned so every generated resource name (main/worker/
+# webhook Deployments, the Valkey Service) is deterministic. The CNPG
+# Cluster and its "-app" Secret/"-rw" Service are NOT rendered by this
+# chart - they're composed in from bitovi-platform-services'
+# charts/platform-app-resources (gitops/apps/n8n.yaml there), which names
+# the Cluster "<app.name>-db" i.e. "n8n-db". The DB_POSTGRESDB_* values
+# below assume that exact naming stays in sync between the two repos.
 #
 # The bundled Valkey subchart does NOT inherit fullnameOverride (it isn't a
 # global value), so main.config.queue.bull.redis.host below ("n8n-valkey")
@@ -166,17 +167,6 @@ valkey:
   enabled: true
 
 # ---------------------------------------------------------------------------
-# In-cluster Postgres via the already-installed CNPG operator - first use of
-# it on this platform. See templates/cnpg-cluster.yaml.
-# ---------------------------------------------------------------------------
-cnpg:
-  enabled: true
-  instances: 2
-  storage:
-    size: 10Gi
-  appSecretName: n8n-db-app # must match "<cnpg Cluster name>-app"; informational, see note above
-
-# ---------------------------------------------------------------------------
 # Secrets via the 1Password Kubernetes Operator (Connect mode), matching the
 # pattern already established by pto-api (bitovi/pto-api PR, and
 # bitovi-platform-services gitops/apps/onepassword-connect.yaml PR #11).
@@ -190,12 +180,12 @@ onepassword:
     n8n-app-secrets: n8n-app-secrets
 
 # ---------------------------------------------------------------------------
-# DNS via the ACK Route53 controller, pointing at the shared bitovi-tools.com
-# zone (bitovi-platform-services gitops/infrastructure/route53-zones).
-# Two-step bootstrap required - see templates/route53-recordset.yaml.
+# NOT configured in this chart:
+#   - In-cluster Postgres (CNPG Cluster "n8n-db") - composed from
+#     bitovi-platform-services' charts/platform-app-resources (postgres.enabled)
+#   - DNS (Route53 RecordSet for n8n.bitovi-tools.com) - composed from the
+#     same chart (containerDns.enabled)
+# Both fold in via a second ArgoCD Application source in
+# bitovi-platform-services/gitops/apps/n8n.yaml, the same way every other
+# app on the platform gets its AWS/platform footprint (see pto-api.yaml).
 # ---------------------------------------------------------------------------
-route53:
-  enabled: true
-  hostedZoneRefName: bitovi-tools-com
-  recordName: n8n.bitovi-tools.com
-  target: "REPLACE_AFTER_FIRST_APPLY_WITH_ALB_HOSTNAME"

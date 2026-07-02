@@ -652,23 +652,14 @@ valkey:
 # # # # # # # # # # # # # # # #
 #
 # Bitovi fork additions
-# See templates/cnpg-cluster.yaml, templates/onepassword-items.yaml,
-# templates/route53-recordset.yaml. All disabled by default so this chart
+# See templates/onepassword-items.yaml. Disabled by default so this chart
 # stays generically usable outside the Bitovi Platform.
 #
-
-# In-cluster Postgres via the CloudNativePG operator (assumed already
-# installed on the target cluster). Creates a postgresql.cnpg.io/v1 Cluster
-# and lets CNPG generate + manage the app-user credentials Secret itself.
-cnpg:
-  enabled: false
-  instances: 2
-  storage:
-    size: 10Gi
-  # storageClass: ""
-  # -- Name of the CNPG-managed app-user Secret (auto-created by CNPG as
-  # <name>-app). Referenced from main/worker/webhook extraEnv.
-  appSecretName: ""
+# Postgres (CNPG Cluster) and DNS (Route53 RecordSet) are NOT templates in
+# this chart - they're composed in from bitovi-platform-services'
+# charts/platform-app-resources as a second ArgoCD Application source (see
+# gitops/apps/n8n.yaml there), the same way every other app on the platform
+# gets its AWS/platform footprint. This chart only owns n8n itself.
 
 # 1Password Kubernetes Operator (Connect mode) OnePasswordItem resources.
 # Assumes the operator is already installed and watching this namespace.
@@ -677,14 +668,3 @@ onepassword:
   vault: ""
   items: {}
   # appSecrets: n8n-app-secrets   # -> basic-auth-user, basic-auth-password, encryption-key
-
-# ACK Route53 controller RecordSet, for platforms managing DNS via
-# aws-controllers-k8s rather than external-dns. References a shared,
-# platform-owned HostedZone by its Kubernetes name.
-route53:
-  enabled: false
-  hostedZoneRefName: ""
-  recordName: ""
-  # ALB hostname - only known after the Ingress creates the load balancer.
-  # See the bootstrap note in templates/route53-recordset.yaml.
-  target: ""
