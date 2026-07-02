@@ -1,0 +1,32 @@
+{{- if .Values.route53.enabled }}
+{{- /*
+Requires the ACK Route53 controller already installed (see
+bitovi/bitovi-platform-services gitops/apps/ack-route53-controller.yaml),
+watching a shared, platform-owned HostedZone (gitops/infrastructure/route53-zones).
+A CNAME (not an alias record) is used since this is a subdomain, not the zone
+apex - simpler than an ALB alias target, which additionally requires the
+ALB's region-specific hosted zone ID.
+
+Bootstrap note: the ALB's DNS hostname doesn't exist until the AWS Load
+Balancer Controller provisions it from this chart's Ingress, so this is a
+two-step apply: 1) install with route53.enabled=false (or route53.target
+unset) so the Ingress creates the ALB, 2) `kubectl get ingress -n <ns>
+<release>-n8n` for the ALB hostname, set route53.target to it, re-apply.
+*/}}
+apiVersion: route53.services.k8s.aws/v1alpha1
+kind: RecordSet
+metadata:
+  name: {{ include "n8n.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "n8n.labels" . | nindent 4 }}
+spec:
+  name: {{ required "route53.recordName is required when route53.enabled=true" .Values.route53.recordName }}
+  type: CNAME
+  ttl: 300
+  hostedZoneRef:
+    from:
+      name: {{ required "route53.hostedZoneRefName is required when route53.enabled=true" .Values.route53.hostedZoneRefName }}
+  resourceRecords:
+    - value: {{ required "route53.target is required when route53.enabled=true (ALB hostname, set after first apply - see bootstrap note above)" .Values.route53.target }}
+{{- end }}

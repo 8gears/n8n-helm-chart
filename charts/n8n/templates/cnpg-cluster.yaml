@@ -1,0 +1,23 @@
+{{- if .Values.cnpg.enabled }}
+# Requires the CloudNativePG operator already installed on the target
+# cluster. CNPG bootstraps a default "app" database + "app" user and
+# generates a Secret named "<cluster-name>-app" with keys: username,
+# password, dbname, host, port, uri, jdbc-uri. n8n's DB_POSTGRESDB_* env
+# vars are wired to that Secret from main/worker/webhook extraEnv in
+# values.yaml (see cnpg.appSecretName) - no OnePasswordItem needed for DB
+# creds, CNPG manages that lifecycle itself.
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: {{ include "n8n.fullname" . }}-db
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "n8n.labels" . | nindent 4 }}
+spec:
+  instances: {{ .Values.cnpg.instances }}
+  storage:
+    size: {{ .Values.cnpg.storage.size }}
+    {{- if .Values.cnpg.storage.storageClass }}
+    storageClass: {{ .Values.cnpg.storage.storageClass }}
+    {{- end }}
+{{- end }}
