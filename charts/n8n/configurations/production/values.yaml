@@ -28,6 +28,15 @@ image:
 
 # ---------------------------------------------------------------------------
 # Ingress (AWS Load Balancer Controller)
+#
+# DNS + TLS are zero-per-app-resource platform features, not something this
+# chart provisions (see ADR-0002 in bitovi-platform-services): a wildcard
+# ACM cert for *.bitovi-tools.com already exists platform-wide, and the AWS
+# Load Balancer Controller auto-discovers it for any Ingress host under that
+# domain - as long as no certificate-arn annotation is set (that annotation
+# would disable auto-discovery). external-dns watches this Ingress and
+# manages its Route53 record automatically. The host below plus 443 in
+# listen-ports is the entire app-side contract.
 # ---------------------------------------------------------------------------
 ingress:
   enabled: true
@@ -37,10 +46,6 @@ ingress:
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
     alb.ingress.kubernetes.io/ssl-redirect: "443"
-    # TODO: fill in once an ACM Certificate is provisioned for this host
-    # (via the platform's ack-acm-controller) - the ALB won't serve HTTPS
-    # without it.
-    alb.ingress.kubernetes.io/certificate-arn: "REPLACE_WITH_ACM_CERTIFICATE_ARN"
   hosts:
     - host: n8n.bitovi-tools.com
       paths:
@@ -182,10 +187,12 @@ onepassword:
 # ---------------------------------------------------------------------------
 # NOT configured in this chart:
 #   - In-cluster Postgres (CNPG Cluster "n8n-db") - composed from
-#     bitovi-platform-services' charts/platform-app-resources (postgres.enabled)
-#   - DNS (Route53 RecordSet for n8n.bitovi-tools.com) - composed from the
-#     same chart (containerDns.enabled)
-# Both fold in via a second ArgoCD Application source in
-# bitovi-platform-services/gitops/apps/n8n.yaml, the same way every other
-# app on the platform gets its AWS/platform footprint (see pto-api.yaml).
+#     bitovi-platform-services' charts/platform-app-resources (postgres.enabled),
+#     folded in via a second ArgoCD Application source in
+#     bitovi-platform-services/gitops/apps/n8n.yaml (see pto-api.yaml for the
+#     established pattern).
+#   - DNS/TLS for n8n.bitovi-tools.com - not composed from anywhere; per
+#     ADR-0002 in bitovi-platform-services, this is a zero-per-app-resource
+#     platform feature (wildcard ACM cert + external-dns watching the
+#     Ingress above). See the comment on the ingress: block.
 # ---------------------------------------------------------------------------
