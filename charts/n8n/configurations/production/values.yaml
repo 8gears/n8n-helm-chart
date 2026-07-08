@@ -121,6 +121,12 @@ worker:
   enabled: true
   replicaCount: 2
   extraEnv:
+    # A worker only serves GET /healthz on 5678 when this is set; without it the
+    # endpoint 404s, the liveness probe fails, and kubelet kills the pod every
+    # ~30s (CrashLoopBackOff). main/webhook are HTTP servers by default and
+    # don't need this.
+    QUEUE_HEALTH_CHECK_ACTIVE:
+      value: "true"
     N8N_ENCRYPTION_KEY:
       valueFrom:
         secretKeyRef:
