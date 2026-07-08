@@ -76,8 +76,8 @@ main:
       postgresdb:
         host: n8n-db-rw # CNPG Cluster "n8n-db" read-write Service
         port: 5432
-        database: app # CNPG default bootstrap database/owner name
-        user: app
+        database: n8n-storage # CNPG bootstrap database (Cluster "n8n-db"), owned by role "app"
+        user: app # CNPG owner role
     queue:
       bull:
         redis:
@@ -180,7 +180,11 @@ valkey:
 # ---------------------------------------------------------------------------
 onepassword:
   enabled: true
-  vault: bitovi-platform # TODO: confirm actual vault name/ID with whoever owns the 1Password Connect setup
+  # Confirmed: the Connect token is scoped to the "bitovi-platform" vault and
+  # pto-api already reads from it (bitovi/pto-api deploy/values.yaml:
+  # vaults/bitovi-platform/items/...). The "n8n-app-secrets" item in that vault
+  # must have fields: basic-auth-user, basic-auth-password, encryption-key.
+  vault: bitovi-platform
   items:
     n8n-app-secrets: n8n-app-secrets
 
