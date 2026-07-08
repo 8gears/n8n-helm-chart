@@ -1,0 +1,202 @@
+# =============================================================================
+# Bitovi Platform - n8n production values (SYSTEMS-804)
+# =============================================================================
+# Layered on top of the base ../../values.yaml via the ArgoCD Application in
+# bitovi/bitovi-platform-services (gitops/apps/n8n.yaml). See that repo's
+# gitops/README.md for the app-of-apps convention this follows.
+#
+# fullnameOverride is pinned so every generated resource name (main/worker/
+# webhook Deployments, the Valkey Service) is deterministic. The CNPG
+# Cluster and its "-app" Secret/"-rw" Service are NOT rendered by this
+# chart - they're composed in from bitovi-platform-services'
+# charts/platform-app-resources (gitops/apps/n8n.yaml there), which names
+# the Cluster "<app.name>-db" i.e. "n8n-db". The DB_POSTGRESDB_* values
+# below assume that exact naming stays in sync between the two repos.
+#
+# The bundled Valkey subchart does NOT inherit fullnameOverride (it isn't a
+# global value), so main.config.queue.bull.redis.host below ("n8n-valkey")
+# is only correct if the Helm release name is literally "n8n" - set
+# `helm.releaseName: n8n` on the ArgoCD Application in gitops/apps/n8n.yaml.
+# =============================================================================
+
+fullnameOverride: "n8n"
+
+image:
+  repository: n8nio/n8n
+  tag: "1.122.4" # pinned to this chart's appVersion - bump deliberately, never "latest"
+  pullPolicy: IfNotPresent
+
+# ---------------------------------------------------------------------------
+# Ingress (AWS Load Balancer Controller)
+#
+# DNS + TLS are zero-per-app-resource platform features, not something this
+# chart provisions (see ADR-0002 in bitovi-platform-services): a wildcard
+# ACM cert for *.bitovi-tools.com already exists platform-wide, and the AWS
+# Load Balancer Controller auto-discovers it for any Ingress host under that
+# domain - as long as no certificate-arn annotation is set (that annotation
+# would disable auto-discovery). external-dns watches this Ingress and
+# manages its Route53 record automatically. The host below plus 443 in
+# listen-ports is the entire app-side contract.
+# ---------------------------------------------------------------------------
+ingress:
+  enabled: true
+  className: alb
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+  hosts:
+    - host: n8n.bitovi-tools.com
+      paths:
+        - path: /
+          pathType: Prefix
+
+# ---------------------------------------------------------------------------
+# Main (single replica - see README's "HA scope" note: no multi-main support
+# upstream, this is the officially-supported topology)
+# ---------------------------------------------------------------------------
+main:
+  # Real persistence, unlike worker/webhook: community nodes with
+  # community_packages.enabled=true install to /home/node/.n8n/nodes, and
+  # this is the only pod that would otherwise lose them on every restart.
+  persistence:
+    enabled: true
+    type: dynamic
+    size: 5Gi
+  config:
+    executions:
+      mode: queue
+    n8n:
+      community_packages:
+        enabled: true
+      metrics: true
+    db:
+      type: postgresdb
+      postgresdb:
+        host: n8n-db-rw # CNPG Cluster "n8n-db" read-write Service
+        port: 5432
+        database: n8n-storage # CNPG bootstrap database (Cluster "n8n-db"), owned by role "app"
+        user: app # CNPG owner role
+    queue:
+      bull:
+        redis:
+          host: n8n-valkey # bundled Valkey subchart Service, named "<release>-valkey"
+  extraEnv:
+    N8N_ENCRYPTION_KEY:
+      valueFrom:
+        secretKeyRef:
+          name: n8n-app-secrets # from OnePasswordItem, see onepassword.items below
+          key: encryption-key
+    DB_POSTGRESDB_PASSWORD:
+      valueFrom:
+        secretKeyRef:
+          name: n8n-db-app # CNPG-generated Secret for Cluster "n8n-db"
+          key: password
+    N8N_BASIC_AUTH_ACTIVE:
+      value: "true"
+    N8N_BASIC_AUTH_USER:
+      valueFrom:
+        secretKeyRef:
+          name: n8n-app-secrets
+          key: basic-auth-user
+    N8N_BASIC_AUTH_PASSWORD:
+      valueFrom:
+        secretKeyRef:
+          name: n8n-app-secrets
+          key: basic-auth-password
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+
+# ---------------------------------------------------------------------------
+# Worker (HA - this is the actual fix: stateless, no shared PVC, so multiple
+# replicas/nodes no longer hit the Multi-Attach bug)
+# ---------------------------------------------------------------------------
+worker:
+  enabled: true
+  replicaCount: 2
+  extraEnv:
+    N8N_ENCRYPTION_KEY:
+      valueFrom:
+        secretKeyRef:
+          name: n8n-app-secrets
+          key: encryption-key
+    DB_POSTGRESDB_PASSWORD:
+      valueFrom:
+        secretKeyRef:
+          name: n8n-db-app
+          key: password
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+
+# ---------------------------------------------------------------------------
+# Webhook (HA - same statelessness fix as worker)
+# ---------------------------------------------------------------------------
+webhook:
+  enabled: true
+  replicaCount: 2
+  extraEnv:
+    N8N_ENCRYPTION_KEY:
+      valueFrom:
+        secretKeyRef:
+          name: n8n-app-secrets
+          key: encryption-key
+    DB_POSTGRESDB_PASSWORD:
+      valueFrom:
+        secretKeyRef:
+          name: n8n-db-app
+          key: password
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# ---------------------------------------------------------------------------
+# Queue backend: the chart's bundled Valkey subchart. No shared platform
+# Redis exists (or is needed) for this app.
+# ---------------------------------------------------------------------------
+valkey:
+  enabled: true
+
+# ---------------------------------------------------------------------------
+# Secrets via the 1Password Kubernetes Operator (Connect mode), matching the
+# pattern already established by pto-api (bitovi/pto-api PR, and
+# bitovi-platform-services gitops/apps/onepassword-connect.yaml PR #11).
+# The 1Password item "n8n-app-secrets" needs fields: basic-auth-user,
+# basic-auth-password, encryption-key.
+# ---------------------------------------------------------------------------
+onepassword:
+  enabled: true
+  # Confirmed: the Connect token is scoped to the "bitovi-platform" vault and
+  # pto-api already reads from it (bitovi/pto-api deploy/values.yaml:
+  # vaults/bitovi-platform/items/...). The "n8n-app-secrets" item in that vault
+  # must have fields: basic-auth-user, basic-auth-password, encryption-key.
+  vault: bitovi-platform
+  items:
+    n8n-app-secrets: n8n-app-secrets
+
+# ---------------------------------------------------------------------------
+# NOT configured in this chart:
+#   - In-cluster Postgres (CNPG Cluster "n8n-db") - composed from
+#     bitovi-platform-services' charts/platform-app-resources (postgres.enabled),
+#     folded in via a second ArgoCD Application source in
+#     bitovi-platform-services/gitops/apps/n8n.yaml (see pto-api.yaml for the
+#     established pattern).
+#   - DNS/TLS for n8n.bitovi-tools.com - not composed from anywhere; per
+#     ADR-0002 in bitovi-platform-services, this is a zero-per-app-resource
+#     platform feature (wildcard ACM cert + external-dns watching the
+#     Ingress above). See the comment on the ingress: block.
+# ---------------------------------------------------------------------------

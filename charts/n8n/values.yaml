@@ -293,34 +293,14 @@ worker:
   #
   # Worker Kubernetes specific settings
   #
-  persistence:
-    # If true, use a Persistent Volume Claim, If false, use emptyDir
-    enabled: false
-    # what type volume, possible options are [existing, emptyDir, dynamic] dynamic for Dynamic Volume Provisioning, existing for using an existing Claim
-    type: emptyDir
-    # Persistent Volume Storage Class
-    # If defined, storageClassName: <storageClass>
-    # If set to "-", storageClassName: "", which disables dynamic provisioning
-    # If undefined (the default) or set to null, no storageClassName spec is
-    #   set, choosing the default provisioner.  (gp2 on AWS, standard on
-    #   GKE, AWS & OpenStack)
-    #
-    # storageClass: "-"
-    # PVC annotations
-    #
-    # If you need this annotation include it under `values.yml` file and pvc.yml template will add it.
-    # This is not maintained at Helm v3 anymore.
-    # https://github.com/8gears/n8n-helm-chart/issues/8
-    #
-    # annotations:
-    #   helm.sh/resource-policy: keep
-    # Persistent Volume Access Mode
-    accessModes:
-      - ReadWriteOnce
-    # Persistent Volume size
-    size: 1Gi
-    # Use an existing PVC
-    # existingClaim:
+  # NOTE: worker pods are intentionally stateless (emptyDir for /home/node/.n8n,
+  # hardcoded in templates/deployment.worker.yaml) and do not read a
+  # `persistence` block here. An earlier version of this chart exposed
+  # worker.persistence/webhook.persistence keys that looked configurable but
+  # were never actually wired to anything (see 8gears/n8n-helm-chart#256) —
+  # they've been removed rather than left as dead config. Sharing main's PVC
+  # with worker/webhook caused Multi-Attach errors on multi-node clusters
+  # (8gears/n8n-helm-chart#280, #189); use main.persistence for real storage.
 
   # Number of desired pods.
   replicaCount: 1
@@ -479,37 +459,10 @@ webhook:
   #
   # Webhook Kubernetes specific settings
   #
-  persistence:
-    # If true, use a Persistent Volume Claim, If false, use emptyDir
-    enabled: false
-    # what type volume, possible options are [existing, emptyDir, dynamic] dynamic for Dynamic Volume Provisioning, existing for using an existing Claim
-    type: emptyDir
-    # Persistent Volume Storage Class
-    # If defined, storageClassName: <storageClass>
-    # If set to "-", storageClassName: "", which disables dynamic provisioning
-    # If undefined (the default) or set to null, no storageClassName spec is
-    #   set, choosing the default provisioner.  (gp2 on AWS, standard on
-    #   GKE, AWS & OpenStack)
-    #
-    # storageClass: "-"
-    # PVC annotations
-    #
-    # If you need this annotation include it under `values.yml` file and pvc.yml template will add it.
-    # This is not maintained at Helm v3 anymore.
-    # https://github.com/8gears/n8n-helm-chart/issues/8
-    #
-    # annotations:
-    #   helm.sh/resource-policy: keep
-    # Persistent Volume Access Mode
-    #
-    accessModes:
-      - ReadWriteOnce
-    # Persistent Volume size
-    #
-    size: 1Gi
-    # Use an existing PVC
-    #
-    # existingClaim:
+  # NOTE: webhook pods are intentionally stateless (emptyDir for
+  # /home/node/.n8n, hardcoded in templates/deployment.webhook.yaml) and do
+  # not read a `persistence` block here. See the matching note under `worker:`
+  # above for why (8gears/n8n-helm-chart#280, #189, #256).
 
   # Number of desired pods.
   replicaCount: 1
@@ -695,3 +648,23 @@ valkey:
   # dataStorage:
   #   enabled: false
   #   requestedSize: 2Gi
+
+# # # # # # # # # # # # # # # #
+#
+# Bitovi fork additions
+# See templates/onepassword-items.yaml. Disabled by default so this chart
+# stays generically usable outside the Bitovi Platform.
+#
+# Postgres (CNPG Cluster) and DNS (Route53 RecordSet) are NOT templates in
+# this chart - they're composed in from bitovi-platform-services'
+# charts/platform-app-resources as a second ArgoCD Application source (see
+# gitops/apps/n8n.yaml there), the same way every other app on the platform
+# gets its AWS/platform footprint. This chart only owns n8n itself.
+
+# 1Password Kubernetes Operator (Connect mode) OnePasswordItem resources.
+# Assumes the operator is already installed and watching this namespace.
+onepassword:
+  enabled: false
+  vault: ""
+  items: {}
+  # appSecrets: n8n-app-secrets   # -> basic-auth-user, basic-auth-password, encryption-key
