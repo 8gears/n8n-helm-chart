@@ -11,7 +11,7 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  type: {{ default "ClusterIP_" .Values.main.service.type }}
+  type: {{ .Values.main.service.type | default "ClusterIP" }}
   ports:
     - port: {{ default 80 .Values.main.service.port }}
       targetPort: http
