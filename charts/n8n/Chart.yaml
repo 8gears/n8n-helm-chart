@@ -45,7 +45,5 @@ annotations:
       url: https://docs.n8n.io/hosting/configuration/environment-variables/
   # supported kinds are added, changed, deprecated, removed, fixed and security.
   artifacthub.io/changes: |
-    - kind: changed
-      description: "Update n8n to 2.35.7. This moves installations that do not pin image.tag from the n8n 1.x line to 2.x"
-    - kind: added
-      description: "Added Artifact Hub category, license and named links metadata"
+    - kind: fixed
+      description: "Render a HorizontalPodAutoscaler for worker and webhook deployments when their autoscaling.enabled is true, instead of only for main"
