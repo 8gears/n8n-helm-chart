@@ -1,7 +1,7 @@
 apiVersion: v2
 name: n8n
-version: 2.0.2
-appVersion: 1.122.4
+version: 2.1.0
+appVersion: 2.35.7
 type: application
 description: "Helm Chart for deploying n8n on Kubernetes, a fair-code workflow automation platform with native AI capabilities for technical teams. Easily automate tasks across different services."
 home: https://github.com/8gears/n8n-helm-chart
@@ -32,9 +32,20 @@ dependencies:
 
 annotations:
   artifacthub.io/prerelease: "false"
+  artifacthub.io/category: integration-delivery
+  artifacthub.io/license: Apache-2.0
+  artifacthub.io/links: |
+    - name: support
+      url: https://github.com/8gears/n8n-helm-chart/issues
+    - name: chart source
+      url: https://github.com/8gears/n8n-helm-chart
+    - name: n8n documentation
+      url: https://docs.n8n.io/hosting/
+    - name: n8n environment variables
+      url: https://docs.n8n.io/hosting/configuration/environment-variables/
   # supported kinds are added, changed, deprecated, removed, fixed and security.
   artifacthub.io/changes: |
-    - kind: fixed
-      description: "Ingress paths default to pathType 'Prefix' again when the value is omitted, instead of rendering an empty pathType"
-    - kind: fixed
-      description: "Fixed typo in the main service type fallback that rendered the invalid value 'ClusterIP_'"
+    - kind: changed
+      description: "Update n8n to 2.35.7. This moves installations that do not pin image.tag from the n8n 1.x line to 2.x"
+    - kind: added
+      description: "Added Artifact Hub category, license and named links metadata"
