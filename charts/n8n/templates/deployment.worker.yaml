@@ -95,6 +95,10 @@ spec:
             - "worker"
             - "--concurrency={{ .Values.worker.concurrency }}"
           {{- end }}
+          {{- with .Values.worker.lifecycle }}
+          lifecycle:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           ports:
             - name: http
               containerPort: {{ get (default (dict) .Values.worker.config.n8n) "port" | default 5678 }}
