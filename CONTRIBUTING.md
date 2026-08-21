@@ -1,12 +1,17 @@
 ## Contribution Guide
 
 1. Make your changes
-2. Update the `Chart.yaml` with the new version numbers for the chart and app. Follow the [Chart Versioning Schema](#chart-versioning-schema).
-3. In `Chart.yaml`, replace the content of the `artifacthub.io/changes` section. See the ArtifactHub [annotation reference](https://artifacthub.io/docs/topics/annotations/helm/).
-4. Run Chart-Testing  `make lint`
-5. Install the charts and examples locally to see if they work
-6. Submit your PR
-7. The maintainers create a new release in GitHub using the chart version number as the tag and title.
+2. Write your commits using [Conventional Commits](https://www.conventionalcommits.org/). Release Please derives the next chart
+   version from them, so `fix:` produces a PATCH, `feat:` a MINOR, and `feat!:` or a `BREAKING CHANGE:` footer a MAJOR. Pick the
+   type that matches the [Chart Versioning Schema](#chart-versioning-schema).
+3. Update `appVersion` in `Chart.yaml` if your change ships a new n8n version. Leave `version` alone, Release Please bumps it.
+4. In `Chart.yaml`, replace the content of the `artifacthub.io/changes` section. See the ArtifactHub [annotation reference](https://artifacthub.io/docs/topics/annotations/helm/).
+5. Run Chart-Testing  `make lint`
+6. Install the charts and examples locally to see if they work
+7. Submit your PR
+8. Once it is merged, Release Please opens a release PR that bumps `version` in `Chart.yaml`. Merging that PR tags the release and
+   publishes the chart. Maintainers can still cut a release by hand by creating a GitHub release whose tag and title are the chart
+   version number.
 
 
 ## Chart Versioning Schema
