@@ -45,7 +45,9 @@ annotations:
       url: https://docs.n8n.io/hosting/configuration/environment-variables/
   # supported kinds are added, changed, deprecated, removed, fixed and security.
   artifacthub.io/changes: |
-    - kind: changed
-      description: "Update n8n to 2.35.7. This moves installations that do not pin image.tag from the n8n 1.x line to 2.x"
+    - kind: fixed
+      description: "Readiness probes now use /healthz/readiness, so a pod that lost its database connection is removed from the Service instead of staying Ready on /healthz"
     - kind: added
-      description: "Added Artifact Hub category, license and named links metadata"
+      description: "Added a startupProbe to the main, worker and webhook pods, so the liveness probe no longer kills containers that are still running migrations"
+    - kind: fixed
+      description: "Worker pods now default QUEUE_HEALTH_CHECK_ACTIVE to true and expose the queue health check port, without which the worker probes could never pass"

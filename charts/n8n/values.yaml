@@ -199,9 +199,24 @@ main:
   #  - -c
   #  - chmod o+rx /root; chown -R node /root/.n8n || true; chown -R node /root/.n8n; ln -s /root/.n8n /home/node; chown -R node /home/node || true; node /usr/local/bin/n8n
 
-  # here you can override the livenessProbe for the main container
-  # it may be used to increase the timeout for the livenessProbe (e.g., to resolve issues like
+  # Startup probe for the main container.
+  # n8n only starts listening once the database connection and migrations are done, which can
+  # take minutes on a first install. Without a startup probe the liveness probe below kills the
+  # container mid-boot; while it runs, liveness and readiness are held off.
+  startupProbe:
+    httpGet:
+      path: /healthz
+      port: http
+    periodSeconds: 10
+    # Allow up to 5 minutes (30 x periodSeconds) to come up.
+    failureThreshold: 30
 
+  # Liveness probe for the main container.
+  # Stays on /healthz, which only reports that the n8n process is running. A database outage
+  # should drain pods from the Service via the readiness probe, not restart every pod at once.
+  # To also have Kubernetes restart a pod whose DB connection never recovers, point this at
+  # /healthz/readiness with a failureThreshold high enough to ride out a short blip.
+  # See https://github.com/8gears/n8n-helm-chart/issues/308
   livenessProbe:
     httpGet:
       path: /healthz
@@ -212,12 +227,13 @@ main:
     # failureThreshold: 6
     # successThreshold: 1
 
-  # here you can override the readinessProbe for the main container
-  # it may be used to increase the timeout for the readinessProbe (e.g., to resolve issues like
-
+  # Readiness probe for the main container.
+  # /healthz/readiness reflects the database connection and migration state, so a pod answering
+  # "Database is not ready!" is removed from the Service endpoints. /healthz returns 200 in that
+  # situation and would keep traffic flowing to a pod that cannot serve a single request.
   readinessProbe:
     httpGet:
-      path: /healthz
+      path: /healthz/readiness
       port: http
     # initialDelaySeconds: 30
     # periodSeconds: 10
@@ -279,7 +295,16 @@ worker:
   enabled: false
 
   # additional (to main) config for worker
-  config: {}
+  config:
+    queue:
+      health:
+        check:
+          # QUEUE_HEALTH_CHECK_ACTIVE. A worker starts no HTTP server unless this is true,
+          # so the liveness/readiness probes below have nothing to talk to without it.
+          active: true
+          # QUEUE_HEALTH_CHECK_PORT. Uncomment to move the worker health server; the container
+          # port and the probes follow it. N8N_PORT does not apply to workers.
+          # port: 5678
 
   # additional (to main) config for worker
   secret: {}
@@ -396,8 +421,26 @@ worker:
   # command args
   commandArgs: []
 
-  # here you can override the livenessProbe for the main container
-  # it may be used to increase the timeout for the livenessProbe (e.g., to resolve issues like
+  # Startup probe for the worker container.
+  # Both worker endpoints only exist when QUEUE_HEALTH_CHECK_ACTIVE is true (worker.config.queue.health.check.active above);
+  # without it the worker serves no HTTP at all and these probes fail.
+  # n8n only starts listening once the database connection and migrations are done, which can
+  # take minutes on a first install. Without a startup probe the liveness probe below kills the
+  # container mid-boot; while it runs, liveness and readiness are held off.
+  startupProbe:
+    httpGet:
+      path: /healthz
+      port: http
+    periodSeconds: 10
+    # Allow up to 5 minutes (30 x periodSeconds) to come up.
+    failureThreshold: 30
+
+  # Liveness probe for the worker container.
+  # Stays on /healthz, which only reports that the n8n process is running. A database outage
+  # should drain pods from the Service via the readiness probe, not restart every pod at once.
+  # To also have Kubernetes restart a pod whose DB connection never recovers, point this at
+  # /healthz/readiness with a failureThreshold high enough to ride out a short blip.
+  # See https://github.com/8gears/n8n-helm-chart/issues/308
   livenessProbe:
     httpGet:
       path: /healthz
@@ -408,12 +451,12 @@ worker:
     # failureThreshold: 6
     # successThreshold: 1
 
-  # here you can override the readinessProbe for the main container
-  # it may be used to increase the timeout for the readinessProbe (e.g., to resolve issues like
-
+  # Readiness probe for the worker container.
+  # /healthz/readiness reflects the database and Redis connection state, so a worker that lost
+  # either is removed from the Service endpoints. /healthz returns 200 in that situation.
   readinessProbe:
     httpGet:
-      path: /healthz
+      path: /healthz/readiness
       port: http
     # initialDelaySeconds: 30
     # periodSeconds: 10
@@ -585,9 +628,24 @@ webhook:
   # Command Arguments
   commandArgs: []
 
-  # here you can override the livenessProbe for the main container
-  # it may be used to increase the timeout for the livenessProbe (e.g., to resolve issues like
+  # Startup probe for the webhook container.
+  # n8n only starts listening once the database connection and migrations are done, which can
+  # take minutes on a first install. Without a startup probe the liveness probe below kills the
+  # container mid-boot; while it runs, liveness and readiness are held off.
+  startupProbe:
+    httpGet:
+      path: /healthz
+      port: http
+    periodSeconds: 10
+    # Allow up to 5 minutes (30 x periodSeconds) to come up.
+    failureThreshold: 30
 
+  # Liveness probe for the webhook container.
+  # Stays on /healthz, which only reports that the n8n process is running. A database outage
+  # should drain pods from the Service via the readiness probe, not restart every pod at once.
+  # To also have Kubernetes restart a pod whose DB connection never recovers, point this at
+  # /healthz/readiness with a failureThreshold high enough to ride out a short blip.
+  # See https://github.com/8gears/n8n-helm-chart/issues/308
   livenessProbe:
     httpGet:
       path: /healthz
@@ -598,12 +656,13 @@ webhook:
     # failureThreshold: 6
     # successThreshold: 1
 
-  # here you can override the readinessProbe for the main container
-  # it may be used to increase the timeout for the readinessProbe (e.g., to resolve issues like
-
+  # Readiness probe for the webhook container.
+  # /healthz/readiness reflects the database connection and migration state, so a pod answering
+  # "Database is not ready!" is removed from the Service endpoints. /healthz returns 200 in that
+  # situation and would keep traffic flowing to a pod that cannot serve a single request.
   readinessProbe:
     httpGet:
-      path: /healthz
+      path: /healthz/readiness
       port: http
     # initialDelaySeconds: 30
     # periodSeconds: 10
