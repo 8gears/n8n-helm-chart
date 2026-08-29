@@ -1,0 +1,52 @@
+---
+name: Release Please
+
+# What: Opens the release pull request, tags the release when it merges, then publishes the chart.
+# Fires on: push to main, or manual dispatch.
+# Needs: repository settings must allow Actions to create pull requests.
+# Safe to delete if: releases are cut by hand. Removes chart versioning automation entirely.
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions: {}
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+      # release-please labels its own PR (autorelease: pending/tagged) via the
+      # Issues API, which is a separate scope from pull-requests.
+      issues: write
+    outputs:
+      # The action namespaces every per-release output with the package path
+      # unless that path is "." (setPathOutput in release-please-action). The
+      # chart lives in charts/n8n, so the bare `release_created` and `tag_name`
+      # outputs are never set and downstream jobs must read the prefixed keys.
+      release_created: ${{ steps.release.outputs['charts/n8n--release_created'] }}
+      tag_name: ${{ steps.release.outputs['charts/n8n--tag_name'] }}
+    steps:
+      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7  # v5.0.0
+        id: release
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  publish-chart:
+    needs: [release-please]
+    # release_created is the string "true", not a boolean.
+    if: ${{ needs.release-please.outputs.release_created == 'true' }}
+    permissions:
+      contents: read
+    uses: ./.github/workflows/publish-chart.yml
+    with:
+      tag_name: ${{ needs.release-please.outputs.tag_name }}
+    secrets:
+      REGISTRY_USER: ${{ secrets.REGISTRY_USER }}
+      REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}

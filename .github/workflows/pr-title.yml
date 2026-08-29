@@ -1,0 +1,56 @@
+---
+name: PR Title
+
+# What: Requires the pull request title to be a conventional commit.
+# Fires on: pull request opened, edited, reopened or synchronized.
+# Needs: nothing.
+# Safe to delete if: never, while release-please is in use. This repository squash-merges with
+#   COMMIT_OR_PR_TITLE, so on any pull request with more than one commit the title becomes the
+#   commit on main that release-please parses. conventional-commits-check.yaml covers the
+#   single-commit case, where GitHub uses the commit subject instead.
+#
+# DO NOT ADD actions/checkout TO THIS WORKFLOW.
+#
+# pull_request_target, not pull_request: with pull_request, a pull request that
+# edits this file runs its own edited copy, so the check it is supposed to pass
+# can be replaced with one that always succeeds. pull_request_target runs the
+# definition from the base branch instead. The action reads the title from the
+# event payload and never needs the code, so the usual danger of this trigger
+# does not apply here as long as nothing checks out the head.
+on:  # zizmor: ignore[dangerous-triggers]
+  pull_request_target:
+    types: [opened, edited, reopened, synchronize]
+
+permissions: {}
+
+concurrency:
+  group: pr-title-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pull-requests: read
+    steps:
+      - uses: amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50  # v6.1.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            docs
+            style
+            refactor
+            perf
+            test
+            build
+            ci
+            chore
+            revert
+          requireScope: false
+          subjectPattern: ^.{1,100}$
+          subjectPatternError: |
+            Subject must be 100 characters or less.

@@ -9,9 +9,9 @@
 5. Run Chart-Testing  `make lint`
 6. Install the charts and examples locally to see if they work
 7. Submit your PR
-8. Once it is merged, Release Please opens a release PR that bumps `version` in `Chart.yaml`. Merging that PR tags the release and
-   publishes the chart. Maintainers can still cut a release by hand by creating a GitHub release whose tag and title are the chart
-   version number.
+8. Once it is merged, Release Please opens a `chore: release X.Y.Z` PR that bumps `version` in `Chart.yaml`. Merging that PR tags
+   the release and publishes the chart to the OCI registry. Do not bump `version`, push a tag, or create a GitHub release by hand,
+   Release Please owns all three. See [docs/RELEASES.md](docs/RELEASES.md).
 
 
 ## Chart Versioning Schema
