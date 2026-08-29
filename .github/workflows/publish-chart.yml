@@ -40,7 +40,11 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          ref: ${{ inputs.tag_name }}
+          # Qualified as a tag ref on purpose. checkout resolves an unqualified
+          # ref as a branch first, so a workflow_dispatch naming a branch that
+          # happens to match its Chart.yaml version would pass the guard below
+          # and publish code that was never tagged.
+          ref: refs/tags/${{ inputs.tag_name }}
           persist-credentials: false
 
       - name: Set up Helm

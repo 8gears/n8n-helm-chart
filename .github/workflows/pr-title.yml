@@ -2,7 +2,7 @@
 name: PR Title
 
 # What: Requires the pull request title to be a conventional commit.
-# Fires on: pull request opened, edited or synchronized.
+# Fires on: pull request opened, edited, reopened or synchronized.
 # Needs: nothing.
 # Safe to delete if: never, while release-please is in use. This repository squash-merges with
 #   COMMIT_OR_PR_TITLE, so on any pull request with more than one commit the title becomes the

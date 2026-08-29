@@ -111,10 +111,11 @@ package path unless that path is `.`. The outputs are `charts/n8n--release_creat
 and so on; the bare `release_created` and `tag_name` outputs are never set. `release-please.yml` normalizes
 the two it needs into job outputs so downstream jobs do not have to care.
 
-Every other per-release key is available under the same prefix - `charts/n8n--version`,
-`--major`, `--minor`, `--patch`, `--sha`, `--body`, `--html_url`, `--upload_url`. A new job that needs one
-adds it to the `outputs:` block of the release job. The unprefixed `releases_created` and `paths_released`
-outputs are the exception: the action always sets those two.
+The action emits every property of the created release under the same prefix, among them
+`charts/n8n--version`, `charts/n8n--major`, `charts/n8n--minor`, `charts/n8n--patch`, `charts/n8n--sha`,
+`charts/n8n--name`, `charts/n8n--body`, `charts/n8n--html_url` and `charts/n8n--upload_url`. A new job that
+needs one adds it to the `outputs:` block of the release job. The unprefixed `releases_created` and
+`paths_released` outputs are the exception: the action always sets those two.
 
 ## Required Repository Settings
 
