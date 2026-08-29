@@ -95,12 +95,11 @@ spec:
             - "worker"
             - "--concurrency={{ .Values.worker.concurrency }}"
           {{- end }}
-          {{- $workerConfig := default (dict) .Values.worker.config }}
           ports:
-            # The worker health server binds QUEUE_HEALTH_CHECK_PORT, not N8N_PORT, so prefer it;
-            # n8n.port stays as a fallback so existing overrides keep working.
+            # A worker serves only the health endpoints, and binds QUEUE_HEALTH_CHECK_PORT to do
+            # so. N8N_PORT is never bound here, so it must not be used to derive this port.
             - name: http
-              containerPort: {{ dig "queue" "health" "port" (dig "n8n" "port" 5678 $workerConfig) $workerConfig }}
+              containerPort: {{ dig "queue" "health" "check" "port" 5678 (default (dict) .Values.worker.config) }}
               protocol: TCP
           {{- with .Values.worker.startupProbe }}
           startupProbe:

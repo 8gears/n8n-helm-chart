@@ -302,6 +302,9 @@ worker:
           # QUEUE_HEALTH_CHECK_ACTIVE. A worker starts no HTTP server unless this is true,
           # so the liveness/readiness probes below have nothing to talk to without it.
           active: true
+          # QUEUE_HEALTH_CHECK_PORT. Uncomment to move the worker health server; the container
+          # port and the probes follow it. N8N_PORT does not apply to workers.
+          # port: 5678
 
   # additional (to main) config for worker
   secret: {}
