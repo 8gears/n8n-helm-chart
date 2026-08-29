@@ -1,0 +1,81 @@
+---
+name: Publish Chart
+
+# What: Packages the chart at a release tag and pushes it to the OCI registry.
+# Fires on: called by release-please.yml after a release is created, or manual dispatch.
+# Needs: REGISTRY_USER and REGISTRY_PASSWORD.
+# Safe to delete if: the chart is published somewhere else. Remove the caller in release-please.yml too.
+#
+# There is deliberately no `push: tags` trigger. GitHub raises no workflow
+# events for a ref pushed with GITHUB_TOKEN, and release-please creates the
+# release tag with exactly that token, so a tag trigger would never fire for an
+# automated release. release-please.yml calls this workflow directly instead.
+on:
+  workflow_call:
+    inputs:
+      tag_name:
+        description: Release tag to package and push
+        required: true
+        type: string
+    secrets:
+      REGISTRY_USER:
+        required: true
+      REGISTRY_PASSWORD:
+        required: true
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: Release tag to package and push
+        required: true
+        type: string
+
+permissions: {}
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          ref: ${{ inputs.tag_name }}
+          persist-credentials: false
+
+      - name: Set up Helm
+        uses: azure/setup-helm@1a275c3b69536ee54be43f2070a358922e12c8d4  # v4.3.1
+
+      # The tag and Chart.yaml are written by the same release-please commit, so
+      # a mismatch here means the two drifted apart and the push would publish a
+      # chart version that does not match its tag.
+      - name: Verify chart version matches the tag
+        env:
+          TAG_NAME: ${{ inputs.tag_name }}
+        run: |
+          chart_version=$(helm show chart charts/n8n | awk '/^version:/ {print $2}')
+          if [ "${chart_version}" != "${TAG_NAME}" ]; then
+            echo "::error::Chart.yaml version ${chart_version} does not match release tag ${TAG_NAME}"
+            exit 1
+          fi
+          echo "Publishing chart version ${chart_version}"
+
+      # see https://github.com/helm/chart-releaser/issues/183
+      - name: Login to 8gears.container-registry.com
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef  # v3.6.0
+        with:
+          registry: 8gears.container-registry.com
+          username: ${{ secrets.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Generate values schema json
+        uses: losisin/helm-values-schema-json-action@e3a9e1095fdeef9fb81954b68a0c523962fd4255  # v1.6.0
+        with:
+          input: charts/n8n/values.yaml
+          # "Skip copying the schema values file for now, as it needs more testing."
+
+      - name: Push chart to 8gears.container-registry.com
+        run: |
+          cp -a README.md LICENSE charts/n8n/
+          package_path=$(helm package charts/n8n --dependency-update | grep -o '/.*\.tgz')
+          helm push "${package_path}" "oci://8gears.container-registry.com/library"
