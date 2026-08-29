@@ -1,7 +1,7 @@
 apiVersion: v2
 name: n8n
 version: 2.1.0
-appVersion: 2.35.7
+appVersion: 2.36.8
 type: application
 description: "Helm Chart for deploying n8n on Kubernetes, a fair-code workflow automation platform with native AI capabilities for technical teams. Easily automate tasks across different services."
 home: https://github.com/8gears/n8n-helm-chart
@@ -51,3 +51,5 @@ annotations:
       description: "Added a startupProbe to the main, worker and webhook pods, so the liveness probe no longer kills containers that are still running migrations"
     - kind: fixed
       description: "Worker pods now default QUEUE_HEALTH_CHECK_ACTIVE to true and expose the queue health check port, without which the worker probes could never pass"
+    - kind: changed
+      description: "Updated n8n to 2.36.8, the current stable release"
