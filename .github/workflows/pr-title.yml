@@ -19,7 +19,7 @@ name: PR Title
 # does not apply here as long as nothing checks out the head.
 on:  # zizmor: ignore[dangerous-triggers]
   pull_request_target:
-    types: [opened, edited, synchronize]
+    types: [opened, edited, reopened, synchronize]
 
 permissions: {}
 

@@ -109,7 +109,12 @@ without touching the manifest or creating a release.
 The chart is not at the repository root, and release-please namespaces every per-release output with the
 package path unless that path is `.`. The outputs are `charts/n8n--release_created`, `charts/n8n--tag_name`
 and so on; the bare `release_created` and `tag_name` outputs are never set. `release-please.yml` normalizes
-them into job outputs so downstream jobs do not have to care.
+the two it needs into job outputs so downstream jobs do not have to care.
+
+Every other per-release key is available under the same prefix - `charts/n8n--version`,
+`--major`, `--minor`, `--patch`, `--sha`, `--body`, `--html_url`, `--upload_url`. A new job that needs one
+adds it to the `outputs:` block of the release job. The unprefixed `releases_created` and `paths_released`
+outputs are the exception: the action always sets those two.
 
 ## Required Repository Settings
 
