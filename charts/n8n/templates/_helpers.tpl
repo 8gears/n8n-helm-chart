@@ -187,8 +187,8 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 - name: N8N_SANDBOX_SERVICE_API_KEY
   valueFrom:
     secretKeyRef:
-      name: {{ include "n8n.sandboxSecretName" $root }}
-      key: {{ include "n8n.sandboxSecretKey" $root }}
+      name: {{ include "n8n.sandboxSecretName" $root | quote }}
+      key: {{ include "n8n.sandboxSecretKey" $root | quote }}
 {{- end -}}
 
 {{/* A misspelt component in sandbox.wireInto would otherwise deploy silently unwired */}}

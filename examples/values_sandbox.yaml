@@ -8,7 +8,10 @@
 #     TLS, so a public ACME issuer such as Let's Encrypt cannot serve this.
 #
 # A private CA issuer, if you do not already have one. Apply it into the namespace you install
-# this release into; an Issuer is namespaced and the subchart looks it up next to itself.
+# this release into; an Issuer is namespaced and the subchart looks it up next to itself. Save the
+# three documents below as sandbox-ca.yaml, then:
+#
+#   kubectl apply -n <release namespace> -f sandbox-ca.yaml
 #
 #   apiVersion: cert-manager.io/v1
 #   kind: Issuer
@@ -92,6 +95,18 @@ n8n-sandbox-service:
         name: sandbox-ca
         kind: Issuer
 
+  # The API port is plain HTTP and, by default, reachable from every pod in the cluster. The
+  # upstream NetworkPolicy narrows that to the n8n pods. Use "- podSelector: {}" for the whole
+  # namespace instead, or leave httpIngressFrom empty to allow every source in the cluster, which
+  # an ingress controller in another namespace needs.
+  # networkPolicy:
+  #   enabled: true
+  #   api:
+  #     httpIngressFrom:
+  #       - podSelector:
+  #           matchLabels:
+  #             app.kubernetes.io/name: n8n
+
   runner:
     # sysbox is the recommended isolation and needs sysbox installed on the nodes, which
     # labels them sysbox-install=yes and registers a sysbox-runc RuntimeClass.
@@ -123,5 +138,8 @@ n8n-sandbox-service:
 #   url: "http://n8n-sandbox-service-api.sandbox.svc:8080"   # same cluster, other namespace
 #   # url: "https://sandbox.example.com"                       # anywhere else, via TLS ingress
 #   apiKey:
-#     existingSecret: n8n-sandbox-auth
-#     key: api-keys
+#     # A Secret in this release's namespace holding that service's admin key, the one it lists
+#     # in SANDBOX_API_KEYS. Not the Secret from the in-cluster setup above; that key was never
+#     # given to the external service.
+#     existingSecret: external-sandbox-api-key
+#     key: api-key
