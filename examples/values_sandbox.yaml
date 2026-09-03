@@ -95,6 +95,8 @@ n8n-sandbox-service:
     # acknowledgePrivileged: true
     # privileged:
     #   runtime:
+    #     # Only when /proc/sys/user/max_user_namespaces on the node is above 0. Talos ships it
+    #     # at 0, where the runner pod never starts. Leave this out in that case.
     #     hostUsers: false
 
 # Alternative: run the sandbox somewhere else and only point n8n at it. Drop the whole

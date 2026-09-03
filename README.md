@@ -950,9 +950,21 @@ so the cluster has to be prepared first:
   has to modify the node filesystem and containerd config: Talos, Bottlerocket, Flatcar and Fedora
   CoreOS. It needs `runner.acknowledgePrivileged: true` and the namespace labelled
   `pod-security.kubernetes.io/enforce=privileged`. **An escape from the runner container reaches the
-  node.** On Kubernetes >= 1.33 with containerd >= 2.0, `runner.privileged.runtime.hostUsers: false`
-  scopes those capabilities to a pod user namespace, which narrows the blast radius without making
-  it a boundary. Prefer a dedicated node pool either way.
+  node.** Prefer a dedicated node pool.
+
+  `runner.privileged.runtime.hostUsers: false` scopes those capabilities to a pod user namespace,
+  which narrows the blast radius without making it a boundary. Kubernetes >= 1.33 with
+  containerd >= 2.0 is necessary but *not* sufficient: the node also needs
+  `user.max_user_namespaces` above 0. Talos ships it at `0`, and there the runner pod never starts
+  — the pod sandbox fails with `unshare: fork/exec /proc/self/exe: no space left on device`, which
+  is the kernel refusing a new user namespace, not a full disk. Check it before enabling:
+
+  ```console
+  $ kubectl run sysctl-probe --rm -it --image=busybox --restart=Never \
+      -- cat /proc/sys/user/max_user_namespaces
+  ```
+
+  Leave `hostUsers: null` when it reads `0`.
 * GKE Autopilot blocks both. Run the data plane outside the cluster there
   (`dataPlane.mode: external`) and point `sandbox.url` at it.
 * The API and runners speak gRPC over **mutual TLS**, so they need a *private* CA. A public ACME
