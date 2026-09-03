@@ -34,8 +34,9 @@ Use this structure to orient yourself.
 3. Main n8n app configuration + Kubernetes specific settings
 4. Worker related settings + Kubernetes specific settings
 5. Webhook related settings + Kubernetes specific settings
-6. Raw Resources to pass through your own manifests like GatewayAPI, ServiceMonitor etc.
-7. Redis related settings + Kubernetes specific settings
+6. Sandbox, the isolated execution environment the instance-ai module needs
+7. Raw Resources to pass through your own manifests like GatewayAPI, ServiceMonitor etc.
+8. Valkey/Redis related settings + Kubernetes specific settings
 
 ## Configurating N8n via Values and Environment Variables
 
@@ -837,8 +838,9 @@ sandbox:
     #  Secret holding the sandbox API key, which has to match the key the sandbox API accepts.
     #  Defaults to the auth Secret of the deployed subchart. Required when deploy is false.
     existingSecret: ""
-    #  Key within that Secret.
-    key: api-keys
+    #  Key within that Secret. Empty follows the deployed subchart's auth.secretKeys.apiKeys, or
+    #  api-keys when nothing is deployed.
+    key: ""
 
   #  Which n8n components receive the sandbox connection. The AI Assistant runs in the main
   #  instance; add worker when your workflows execute sandbox-backed agent nodes.
@@ -919,10 +921,15 @@ sandbox instead of in the n8n pod. The `sandbox` section connects n8n to an
 [n8n Sandbox Service](https://github.com/n8n-io/n8n-sandbox-service) and, with
 `sandbox.deploy: true`, deploys one as a subchart in the same release.
 
-The chart supplies only the two facts you cannot write by hand: it derives `N8N_SANDBOX_SERVICE_URL`
-from the sandbox API Service and reads `N8N_SANDBOX_SERVICE_API_KEY` straight out of the sandbox's
-own Secret. Switching the feature on stays with you, in `main.config`, because a container
-environment entry would silently override whatever the ConfigMap holds:
+The chart supplies only the two facts you cannot write by hand. With `sandbox.deploy: true` it
+derives `N8N_SANDBOX_SERVICE_URL` from the sandbox API Service and reads `N8N_SANDBOX_SERVICE_API_KEY`
+straight out of the sandbox's own Secret. With `sandbox.deploy: false` you supply both yourself,
+through `sandbox.url` and `sandbox.apiKey.existingSecret`, and rendering fails until you do. The
+derived URL is plain HTTP to a ClusterIP Service in the release namespace, because the upstream API
+serves no TLS on that port. The key it carries in the `X-Api-Key` header is the sandbox's admin key,
+so a sandbox reached across a trust boundary belongs behind a TLS ingress with an `https://` value
+in `sandbox.url`. Switching the feature on stays with you, in `main.config`,
+because a container environment entry would silently override whatever the ConfigMap holds:
 
 ```yaml
 main:
@@ -957,10 +964,12 @@ so the cluster has to be prepared first:
   containerd >= 2.0 is necessary but *not* sufficient: the node also needs
   `user.max_user_namespaces` above 0. Talos ships it at `0`, and there the runner pod never starts
   — the pod sandbox fails with `unshare: fork/exec /proc/self/exe: no space left on device`, which
-  is the kernel refusing a new user namespace, not a full disk. Check it before enabling:
+  is the kernel refusing a new user namespace, not a full disk. Check it before enabling, on a node
+  from the pool the runner will schedule to, since pools can differ:
 
   ```console
   $ kubectl run sysctl-probe --rm -it --image=busybox --restart=Never \
+      --overrides='{"spec":{"nodeName":"<node>"}}' \
       -- cat /proc/sys/user/max_user_namespaces
   ```
 

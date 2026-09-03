@@ -737,8 +737,9 @@ sandbox:
     #  Secret holding the sandbox API key, which has to match the key the sandbox API accepts.
     #  Defaults to the auth Secret of the deployed subchart. Required when deploy is false.
     existingSecret: ""
-    #  Key within that Secret.
-    key: api-keys
+    #  Key within that Secret. Empty follows the deployed subchart's auth.secretKeys.apiKeys, or
+    #  api-keys when nothing is deployed.
+    key: ""
 
   #  Which n8n components receive the sandbox connection. The AI Assistant runs in the main
   #  instance; add worker when your workflows execute sandbox-backed agent nodes.

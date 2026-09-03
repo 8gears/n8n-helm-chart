@@ -7,16 +7,17 @@
 #   * cert-manager plus a *private* CA issuer. The API and runners speak gRPC over mutual
 #     TLS, so a public ACME issuer such as Let's Encrypt cannot serve this.
 #
-# A private CA issuer, if you do not already have one:
+# A private CA issuer, if you do not already have one. Apply it into the namespace you install
+# this release into; an Issuer is namespaced and the subchart looks it up next to itself.
 #
 #   apiVersion: cert-manager.io/v1
 #   kind: Issuer
-#   metadata: {name: sandbox-selfsigned, namespace: n8n}
+#   metadata: {name: sandbox-selfsigned}
 #   spec: {selfSigned: {}}
 #   ---
 #   apiVersion: cert-manager.io/v1
 #   kind: Certificate
-#   metadata: {name: sandbox-ca, namespace: n8n}
+#   metadata: {name: sandbox-ca}
 #   spec:
 #     isCA: true
 #     commonName: sandbox-ca
@@ -26,8 +27,20 @@
 #   ---
 #   apiVersion: cert-manager.io/v1
 #   kind: Issuer
-#   metadata: {name: sandbox-ca, namespace: n8n}
+#   metadata: {name: sandbox-ca}
 #   spec: {ca: {secretName: sandbox-ca}}
+#
+# The sandbox API keys, created out of band so nothing predictable ever lands in a values file.
+# Same namespace rule as the Issuer above. The API uses api-keys, runner-registration-token and
+# runner-api-key; the runner uses runner-api-keys and runner-registration-token, so the two runner
+# values must match.
+#
+#   RUNNER_KEY=$(openssl rand -hex 32)
+#   kubectl create secret generic n8n-sandbox-auth -n <release namespace> \
+#     --from-literal=api-keys=$(openssl rand -hex 32) \
+#     --from-literal=runner-registration-token=$(openssl rand -hex 32) \
+#     --from-literal=runner-api-key=$RUNNER_KEY \
+#     --from-literal=runner-api-keys=$RUNNER_KEY
 
 main:
   config:
@@ -54,24 +67,23 @@ main:
     size: 2Gi
 
 # Connect n8n to the sandbox and deploy one alongside it. The chart derives the API URL and
-# reads the key straight from the subchart's Secret, so neither is repeated here.
+# reads the key straight from the subchart's Secret, so neither is repeated here. The derived
+# URL is plain HTTP to a ClusterIP Service in this namespace; the upstream API serves no TLS on
+# that port. Anything that crosses a trust boundary goes through a TLS ingress instead, see below.
 sandbox:
   enabled: true
   deploy: true
   wireInto:
     - main
 
-# Upstream chart values. Full reference:
+# Upstream chart values. Reference (upstream main; this chart pins the version in Chart.yaml):
 # https://github.com/n8n-io/n8n-sandbox-service/tree/main/charts/n8n-sandbox-service
 n8n-sandbox-service:
   auth:
-    # Placeholders are rejected by the subchart. In production create the Secret out of band
-    # and set auth.existingSecret instead, so the keys never sit in a values file.
-    generated:
-      apiKeys: "<random-api-key>"
-      runnerRegistrationToken: "<random-registration-token>"
-      runnerApiKey: "<random-runner-api-key>"
-      runnerApiKeys: "<random-runner-api-key>"
+    # The Secret created above. Without it the subchart falls back to auth.generated, whose
+    # upstream placeholders fail the render, so a copied file cannot ship as-is. The chart reads
+    # the n8n-side key from this same Secret.
+    existingSecret: n8n-sandbox-auth
 
   tls:
     mode: certManager
@@ -100,12 +112,16 @@ n8n-sandbox-service:
     #     hostUsers: false
 
 # Alternative: run the sandbox somewhere else and only point n8n at it. Drop the whole
-# n8n-sandbox-service block above and use:
+# n8n-sandbox-service block above and use one of these. Plain http:// is only for a Service inside
+# the same cluster; the admin API key travels in an X-Api-Key header, so once the path leaves the
+# cluster put the sandbox API behind a TLS ingress (api.ingress in the upstream chart) and use
+# https://.
 #
 # sandbox:
 #   enabled: true
 #   deploy: false
-#   url: "http://n8n-sandbox-service-api.sandbox.svc:8080"
+#   url: "http://n8n-sandbox-service-api.sandbox.svc:8080"   # same cluster, other namespace
+#   # url: "https://sandbox.example.com"                       # anywhere else, via TLS ingress
 #   apiKey:
 #     existingSecret: n8n-sandbox-auth
 #     key: api-keys

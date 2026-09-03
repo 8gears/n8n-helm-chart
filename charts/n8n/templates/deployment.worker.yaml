@@ -79,7 +79,7 @@ spec:
           {{- $sandboxWired := and .Values.sandbox.enabled (has "worker" (default (list) .Values.sandbox.wireInto)) }}
           env: {{ or (not (empty .Values.worker.extraEnv)) $sandboxWired | ternary nil "[]" }}
             {{- if $sandboxWired }}
-            {{- include "n8n.sandboxEnv" . | nindent 12 }}
+            {{- include "n8n.sandboxEnv" (dict "root" . "extraEnv" .Values.worker.extraEnv) | nindent 12 }}
             {{- end }}
             {{- range $key, $value := .Values.worker.extraEnv }}
             - name: {{ $key }}
