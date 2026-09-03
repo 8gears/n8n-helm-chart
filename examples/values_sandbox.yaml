@@ -1,0 +1,109 @@
+# n8n with an in-cluster n8n Sandbox Service, the isolated execution environment the
+# instance-ai module (AI Assistant, agent code execution) runs generated code in.
+#
+# Cluster prerequisites, none of which a chart can create for you:
+#   * The runner needs Docker-in-Docker privileges. Either sysbox on the nodes (the default
+#     below), or runner.isolation=privileged on clusters that cannot install it.
+#   * cert-manager plus a *private* CA issuer. The API and runners speak gRPC over mutual
+#     TLS, so a public ACME issuer such as Let's Encrypt cannot serve this.
+#
+# A private CA issuer, if you do not already have one:
+#
+#   apiVersion: cert-manager.io/v1
+#   kind: Issuer
+#   metadata: {name: sandbox-selfsigned, namespace: n8n}
+#   spec: {selfSigned: {}}
+#   ---
+#   apiVersion: cert-manager.io/v1
+#   kind: Certificate
+#   metadata: {name: sandbox-ca, namespace: n8n}
+#   spec:
+#     isCA: true
+#     commonName: sandbox-ca
+#     secretName: sandbox-ca
+#     privateKey: {algorithm: ECDSA, size: 256}
+#     issuerRef: {name: sandbox-selfsigned, kind: Issuer, group: cert-manager.io}
+#   ---
+#   apiVersion: cert-manager.io/v1
+#   kind: Issuer
+#   metadata: {name: sandbox-ca, namespace: n8n}
+#   spec: {ca: {secretName: sandbox-ca}}
+
+main:
+  config:
+    db:
+      type: sqlite
+    n8n:
+      # instance-ai carries the AI Assistant. It is a list, so keep any module you already run.
+      enabled_modules: "instance-ai"
+      instance_ai:
+        sandbox:
+          enabled: true
+          provider: n8n-sandbox
+        model: "anthropic/claude-opus-4-8"
+  secret:
+    n8n:
+      encryption_key: "<your-secure-encryption-key>"
+      instance_ai:
+        model:
+          api_key: "<your-model-provider-api-key>"
+
+  persistence:
+    enabled: true
+    type: dynamic
+    size: 2Gi
+
+# Connect n8n to the sandbox and deploy one alongside it. The chart derives the API URL and
+# reads the key straight from the subchart's Secret, so neither is repeated here.
+sandbox:
+  enabled: true
+  deploy: true
+  wireInto:
+    - main
+
+# Upstream chart values. Full reference:
+# https://github.com/n8n-io/n8n-sandbox-service/tree/main/charts/n8n-sandbox-service
+n8n-sandbox-service:
+  auth:
+    # Placeholders are rejected by the subchart. In production create the Secret out of band
+    # and set auth.existingSecret instead, so the keys never sit in a values file.
+    generated:
+      apiKeys: "<random-api-key>"
+      runnerRegistrationToken: "<random-registration-token>"
+      runnerApiKey: "<random-runner-api-key>"
+      runnerApiKeys: "<random-runner-api-key>"
+
+  tls:
+    mode: certManager
+    certManager:
+      issuerRef:
+        name: sandbox-ca
+        kind: Issuer
+
+  runner:
+    # sysbox is the recommended isolation and needs sysbox installed on the nodes, which
+    # labels them sysbox-install=yes and registers a sysbox-runc RuntimeClass.
+    isolation: sysbox
+
+    # On Talos, Bottlerocket, Flatcar or Fedora CoreOS sysbox cannot install at all. Swap the
+    # three lines above for these, label the namespace
+    # pod-security.kubernetes.io/enforce=privileged, and understand that an escape from the
+    # runner container reaches the node. hostUsers narrows that, and needs
+    # Kubernetes >= 1.33 with containerd >= 2.0.
+    #
+    # isolation: privileged
+    # acknowledgePrivileged: true
+    # privileged:
+    #   runtime:
+    #     hostUsers: false
+
+# Alternative: run the sandbox somewhere else and only point n8n at it. Drop the whole
+# n8n-sandbox-service block above and use:
+#
+# sandbox:
+#   enabled: true
+#   deploy: false
+#   url: "http://n8n-sandbox-service-api.sandbox.svc:8080"
+#   apiKey:
+#     existingSecret: n8n-sandbox-auth
+#     key: api-keys

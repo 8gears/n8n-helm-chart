@@ -1,6 +1,9 @@
 dependencies:
+- name: n8n-sandbox-service
+  repository: oci://ghcr.io/n8n-io/n8n-sandbox-service
+  version: 0.6.3
 - name: valkey
   repository: https://valkey.io/valkey-helm/
   version: 0.8.1
-digest: sha256:9f554436d4d0d4b2817ab949eb90d2ddcc770fc5e60278bfed353d5fece6d5a6
-generated: "2025-12-01T23:58:16.062167+01:00"
+digest: sha256:6dc9727c011a25b78a08a422538a253ba09f354979ee6e2baa5f20fc977d93ee
+generated: "2026-09-03T16:00:47.701869+02:00"

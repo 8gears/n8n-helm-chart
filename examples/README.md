@@ -9,6 +9,7 @@ for to help you get started with a setup for your particular use case.
 * values_local.yaml - n8n on local kind/k3s cluster for testing on localhost
 * aws - n8n on AWS with EKS, ingress-nginx
 * simple-prod -  simple production setup with AWS
+* values_sandbox.yaml - n8n with an in-cluster n8n Sandbox Service for the instance-ai module
 
 ## Render Examples
 

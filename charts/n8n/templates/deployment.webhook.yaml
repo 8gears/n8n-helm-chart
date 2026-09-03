@@ -33,7 +33,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: {{ print .Values.webhook .Values.main | sha256sum }}
+        checksum/config: {{ print .Values.webhook .Values.main .Values.sandbox | sha256sum }}
         {{- with .Values.webhook.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -106,7 +106,11 @@ spec:
                 name: {{ include "n8n.fullname" . }}-webhook-secret
             {{- end }}
 
-          env: {{ not (empty .Values.webhook.extraEnv) | ternary nil "[]" }}
+          {{- $sandboxWired := and .Values.sandbox.enabled (has "webhook" (default (list) .Values.sandbox.wireInto)) }}
+          env: {{ or (not (empty .Values.webhook.extraEnv)) $sandboxWired | ternary nil "[]" }}
+            {{- if $sandboxWired }}
+            {{- include "n8n.sandboxEnv" . | nindent 12 }}
+            {{- end }}
             {{- range $key, $value := .Values.webhook.extraEnv }}
             - name: {{ $key }}
               {{- toYaml $value | nindent 14 }}

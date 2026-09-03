@@ -103,3 +103,64 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end -}}
 
 
+
+
+{{/* Fully qualified name of the sandbox API Service.
+     This mirrors the fullname helper of the upstream n8n-sandbox-service chart. That coupling is
+     the price of deriving the URL for the user; re-check it against their _helpers.tpl whenever the
+     dependency version in Chart.yaml moves. */}}
+{{- define "n8n.sandboxApiName" -}}
+{{- include "n8n.sandboxFullname" . }}-api
+{{- end -}}
+
+{{- define "n8n.sandboxFullname" -}}
+{{- $values := default (dict) (index .Values "n8n-sandbox-service") -}}
+{{- if $values.fullnameOverride -}}
+{{- $values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- $name := default "n8n-sandbox-service" $values.nameOverride -}}
+{{- if contains $name .Release.Name -}}
+{{- .Release.Name | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/* Base URL n8n uses to reach the sandbox API */}}
+{{- define "n8n.sandboxUrl" -}}
+{{- if .Values.sandbox.url -}}
+{{- .Values.sandbox.url -}}
+{{- else if .Values.sandbox.deploy -}}
+{{- $values := default (dict) (index .Values "n8n-sandbox-service") -}}
+{{- printf "http://%s.%s.svc:%v" (include "n8n.sandboxApiName" .) .Release.Namespace (dig "api" "service" "httpPort" 8080 $values) -}}
+{{- else -}}
+{{- fail "sandbox.enabled needs a sandbox to talk to: set sandbox.url, or sandbox.deploy=true to run one in this release" -}}
+{{- end -}}
+{{- end -}}
+
+{{/* Secret holding the sandbox API key */}}
+{{- define "n8n.sandboxSecretName" -}}
+{{- if .Values.sandbox.apiKey.existingSecret -}}
+{{- .Values.sandbox.apiKey.existingSecret -}}
+{{- else if .Values.sandbox.deploy -}}
+{{- $values := default (dict) (index .Values "n8n-sandbox-service") -}}
+{{- default (printf "%s-auth" (include "n8n.sandboxFullname" .)) (dig "auth" "existingSecret" "" $values) | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- fail "sandbox.enabled needs an API key: set sandbox.apiKey.existingSecret, or sandbox.deploy=true to let the subchart own the Secret" -}}
+{{- end -}}
+{{- end -}}
+
+{{/* Connection environment for a component listed in sandbox.wireInto.
+     Only the two connection facts live here. Everything that switches the feature on belongs in
+     main.config/main.secret, because a container env entry wins over envFrom and would quietly
+     override the user's own value. */}}
+{{- define "n8n.sandboxEnv" -}}
+- name: N8N_SANDBOX_SERVICE_URL
+  value: {{ include "n8n.sandboxUrl" . | quote }}
+- name: N8N_SANDBOX_SERVICE_API_KEY
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "n8n.sandboxSecretName" . }}
+      key: {{ .Values.sandbox.apiKey.key }}
+{{- end -}}
