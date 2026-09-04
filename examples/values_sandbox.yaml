@@ -1,0 +1,160 @@
+# n8n with an in-cluster n8n Sandbox Service, the isolated execution environment the
+# instance-ai module (AI Assistant, agent code execution) runs generated code in.
+#
+# Cluster prerequisites, none of which a chart can create for you:
+#   * The runner needs Docker-in-Docker privileges. Either sysbox on the nodes (the default
+#     below), or runner.isolation=privileged on clusters that cannot install it.
+#   * cert-manager plus a *private* CA issuer. The API and runners speak gRPC over mutual
+#     TLS, so a public ACME issuer such as Let's Encrypt cannot serve this.
+#
+# A private CA issuer, if you do not already have one. Apply it into the namespace you install
+# this release into; an Issuer is namespaced and the subchart looks it up next to itself. Save the
+# three documents below as sandbox-ca.yaml, then:
+#
+#   kubectl apply -n <release namespace> -f sandbox-ca.yaml
+#
+#   apiVersion: cert-manager.io/v1
+#   kind: Issuer
+#   metadata: {name: sandbox-selfsigned}
+#   spec: {selfSigned: {}}
+#   ---
+#   apiVersion: cert-manager.io/v1
+#   kind: Certificate
+#   metadata: {name: sandbox-ca}
+#   spec:
+#     isCA: true
+#     commonName: sandbox-ca
+#     secretName: sandbox-ca
+#     privateKey: {algorithm: ECDSA, size: 256}
+#     issuerRef: {name: sandbox-selfsigned, kind: Issuer, group: cert-manager.io}
+#   ---
+#   apiVersion: cert-manager.io/v1
+#   kind: Issuer
+#   metadata: {name: sandbox-ca}
+#   spec: {ca: {secretName: sandbox-ca}}
+#
+# The sandbox API keys, created out of band so nothing predictable ever lands in a values file.
+# Same namespace rule as the Issuer above. The API uses api-keys, runner-registration-token and
+# runner-api-key; the runner uses runner-api-keys and runner-registration-token, so the two runner
+# values must match.
+#
+#   RUNNER_KEY=$(openssl rand -hex 32)
+#   kubectl create secret generic n8n-sandbox-auth -n <release namespace> \
+#     --from-literal=api-keys=$(openssl rand -hex 32) \
+#     --from-literal=runner-registration-token=$(openssl rand -hex 32) \
+#     --from-literal=runner-api-key=$RUNNER_KEY \
+#     --from-literal=runner-api-keys=$RUNNER_KEY
+
+main:
+  config:
+    db:
+      type: sqlite
+    n8n:
+      # instance-ai carries the AI Assistant. It is a list, so keep any module you already run.
+      enabled_modules: "instance-ai"
+      instance_ai:
+        sandbox:
+          enabled: true
+          provider: n8n-sandbox
+        model: "anthropic/claude-opus-4-8"
+  secret:
+    n8n:
+      encryption_key: "<your-secure-encryption-key>"
+    # A built-in provider reads its own SDK variable, chosen by the prefix of instance_ai.model:
+    # anthropic -> ANTHROPIC_API_KEY, openai -> OPENAI_API_KEY, google -> GOOGLE_GENERATIVE_AI_API_KEY,
+    # mistral -> MISTRAL_API_KEY, groq, cohere, deepseek, openrouter and xai likewise.
+    # N8N_INSTANCE_AI_MODEL_API_KEY (secret.n8n.instance_ai.model.api_key) is only read for a
+    # custom OpenAI-compatible endpoint set through instance_ai.model_url.
+    anthropic_api_key: "<your-anthropic-api-key>"
+
+  persistence:
+    enabled: true
+    type: dynamic
+    size: 2Gi
+
+# Connect n8n to the sandbox and deploy one alongside it. The chart derives the API URL and
+# reads the key straight from the subchart's Secret, so neither is repeated here. The derived
+# URL is plain HTTP to a ClusterIP Service in this namespace; the upstream API serves no TLS on
+# that port. Anything that crosses a trust boundary goes through a TLS ingress instead, see below.
+sandbox:
+  enabled: true
+  deploy: true
+  wireInto:
+    - main
+
+# Upstream chart values. Reference (upstream main; this chart pins the version in Chart.yaml):
+# https://github.com/n8n-io/n8n-sandbox-service/tree/main/charts/n8n-sandbox-service
+n8n-sandbox-service:
+  auth:
+    # The Secret created above. Without it the subchart falls back to auth.generated, whose
+    # upstream placeholders fail the render, so a copied file cannot ship as-is. The chart reads
+    # the n8n-side key from this same Secret.
+    existingSecret: n8n-sandbox-auth
+
+  tls:
+    mode: certManager
+    certManager:
+      issuerRef:
+        name: sandbox-ca
+        kind: Issuer
+
+  # The API port is plain HTTP and, by default, reachable from every pod in the cluster. The
+  # upstream NetworkPolicy narrows that to the n8n pods. Use "- podSelector: {}" for the whole
+  # namespace instead, or leave httpIngressFrom empty to allow every source in the cluster, which
+  # an ingress controller in another namespace needs.
+  # networkPolicy:
+  #   enabled: true
+  #   api:
+  #     httpIngressFrom:
+  #       - podSelector:
+  #           matchLabels:
+  #             app.kubernetes.io/name: n8n
+
+  api:
+    resources:
+      requests: {cpu: 100m, memory: 128Mi}
+      limits: {memory: 512Mi}
+
+  runner:
+    # Upstream sets no resources. The runner is the largest pod in the release: one dockerd plus
+    # every sandbox container it starts (defaultMemoryMb: 512 each). Leave it unbounded only on
+    # a node pool of its own.
+    resources:
+      requests: {cpu: 500m, memory: 1Gi}
+      limits: {memory: 4Gi}
+
+    # sysbox is the recommended isolation and needs sysbox installed on the nodes, which
+    # labels them sysbox-install=yes and registers a sysbox-runc RuntimeClass.
+    isolation: sysbox
+
+    # On Talos, Bottlerocket, Flatcar or Fedora CoreOS sysbox cannot install at all. Swap the
+    # three lines above for these, label the namespace
+    # pod-security.kubernetes.io/enforce=privileged, and understand that an escape from the
+    # runner container reaches the node. hostUsers narrows that, and needs
+    # Kubernetes >= 1.33 with containerd >= 2.0.
+    #
+    # isolation: privileged
+    # acknowledgePrivileged: true
+    # privileged:
+    #   runtime:
+    #     # Only when /proc/sys/user/max_user_namespaces on the node is above 0. Talos ships it
+    #     # at 0, where the runner pod never starts. Leave this out in that case.
+    #     hostUsers: false
+
+# Alternative: run the sandbox somewhere else and only point n8n at it. Drop the whole
+# n8n-sandbox-service block above and use one of these. Plain http:// is only for a Service inside
+# the same cluster; the admin API key travels in an X-Api-Key header, so once the path leaves the
+# cluster put the sandbox API behind a TLS ingress (api.ingress in the upstream chart) and use
+# https://.
+#
+# sandbox:
+#   enabled: true
+#   deploy: false
+#   url: "http://n8n-sandbox-service-api.sandbox.svc:8080"   # same cluster, other namespace
+#   # url: "https://sandbox.example.com"                       # anywhere else, via TLS ingress
+#   apiKey:
+#     # A Secret in this release's namespace holding that service's admin key, the one it lists
+#     # in SANDBOX_API_KEYS. Not the Secret from the in-cluster setup above; that key was never
+#     # given to the external service.
+#     existingSecret: external-sandbox-api-key
+#     key: api-key

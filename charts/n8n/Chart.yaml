@@ -27,6 +27,10 @@ maintainers:
     url: https://github.com/n8n-io
 
 dependencies:
+  - name: n8n-sandbox-service
+    version: 0.6.3
+    repository: oci://ghcr.io/n8n-io/n8n-sandbox-service
+    condition: sandbox.deploy
   - name: valkey
     version: 0.8.1
     repository: https://valkey.io/valkey-helm/
@@ -47,11 +51,7 @@ annotations:
       url: https://docs.n8n.io/hosting/configuration/environment-variables/
   # supported kinds are added, changed, deprecated, removed, fixed and security.
   artifacthub.io/changes: |
-    - kind: fixed
-      description: "Readiness probes now use /healthz/readiness, so a pod that lost its database connection is removed from the Service instead of staying Ready on /healthz"
     - kind: added
-      description: "Added a startupProbe to the main, worker and webhook pods, so the liveness probe no longer kills containers that are still running migrations"
-    - kind: fixed
-      description: "Worker pods now default QUEUE_HEALTH_CHECK_ACTIVE to true and expose the queue health check port, without which the worker probes could never pass"
-    - kind: changed
-      description: "Updated n8n to 2.36.8, the current stable release"
+      description: "Added an optional sandbox section that wires n8n to an n8n Sandbox Service, the isolated execution environment the instance-ai module needs"
+    - kind: added
+      description: "Added the upstream n8n-sandbox-service chart as an optional dependency, rendered when sandbox.deploy is true"

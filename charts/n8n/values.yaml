@@ -5,8 +5,9 @@
 # 3. Main n8n app configuration + kubernetes specific settings
 # 4. Worker related settings + kubernetes specific settings
 # 5. Webhook related settings + kubernetes specific settings
-# 6. Raw Resources to pass through your own manifests like GatewayAPI, ServiceMonitor etc.
-# 7. Valkey/Redis related settings and kubernetes specific settings
+# 6. Sandbox, the isolated execution environment the instance-ai module needs
+# 7. Raw Resources to pass through your own manifests like GatewayAPI, ServiceMonitor etc.
+# 8. Valkey/Redis related settings and kubernetes specific settings
 
 #
 # Global common config for this entire n8n deployment
@@ -705,6 +706,63 @@ webhook:
 
   # Pod termination grace period in seconds
   terminationGracePeriodSeconds: 30
+
+#
+# Sandbox, the isolated execution environment the instance-ai module needs
+#
+
+#  n8n's instance-ai module (AI Assistant, agent code execution) runs generated code inside a
+#  sandbox rather than in the n8n pod. This section connects n8n to an n8n Sandbox Service and can
+#  optionally deploy one. See https://github.com/n8n-io/n8n-sandbox-service
+sandbox:
+  #  Set N8N_SANDBOX_SERVICE_URL and N8N_SANDBOX_SERVICE_API_KEY on the components in wireInto.
+  #  This only supplies the connection; enable the feature itself through main.config, for example
+  #  n8n.enabled_modules and n8n.instance_ai.sandbox.enabled. Doing it here instead would emit a
+  #  container env entry, which silently overrides whatever main.config puts in the ConfigMap.
+  enabled: false
+
+  #  Also deploy the upstream n8n-sandbox-service chart as part of this release. Leave false to point
+  #  n8n at a sandbox that lives elsewhere, or at a hosted provider.
+  #
+  #  The runner needs Docker-in-Docker privileges the chart cannot grant itself: either sysbox on the
+  #  nodes, or runner.isolation=privileged with a Pod Security Admission privileged namespace. Read
+  #  the Sandbox section of the README before turning this on.
+  deploy: false
+
+  #  Base URL of the sandbox API. Defaults to the API Service of the deployed subchart, so it only
+  #  needs a value when deploy is false.
+  url: ""
+
+  apiKey:
+    #  Secret holding the sandbox API key, which has to match the key the sandbox API accepts.
+    #  Defaults to the auth Secret of the deployed subchart. Required when deploy is false.
+    existingSecret: ""
+    #  Key within that Secret. Empty follows the deployed subchart's auth.secretKeys.apiKeys, or
+    #  api-keys when nothing is deployed.
+    key: ""
+
+  #  Which n8n components receive the sandbox connection. The AI Assistant runs in the main
+  #  instance; add worker when your workflows execute sandbox-backed agent nodes.
+  wireInto:
+    - main
+
+#  Values for the upstream n8n-sandbox-service subchart, rendered when sandbox.deploy is true.
+#  Full reference: https://github.com/n8n-io/n8n-sandbox-service/tree/main/charts/n8n-sandbox-service
+n8n-sandbox-service: {}
+#  auth:
+#    #  Prefer an existingSecret in production. The subchart refuses to render on placeholder values.
+#    existingSecret: n8n-sandbox-auth
+#  runner:
+#    #  sysbox (default) needs sysbox installed on the nodes. Use privileged on clusters that cannot
+#    #  install it, such as Talos, Bottlerocket, Flatcar and Fedora CoreOS.
+#    isolation: sysbox
+#  tls:
+#    #  The API and runners speak gRPC over mutual TLS, so they need a private CA, not a public one.
+#    mode: certManager
+#    certManager:
+#      issuerRef:
+#        name: sandbox-ca
+#        kind: ClusterIssuer
 
 #
 # User defined supplementary K8s manifests

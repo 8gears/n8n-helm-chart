@@ -20,3 +20,12 @@
   echo "Visit http://127.0.0.1:8080 to use your application"
   kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:$CONTAINER_PORT
 {{- end }}
+{{- if .Values.sandbox.enabled }}
+{{- range $component := default (list) .Values.sandbox.wireInto }}
+{{- if and (ne $component "main") (not (index $.Values $component).enabled) }}
+
+WARNING: sandbox.wireInto lists "{{ $component }}" but {{ $component }}.enabled is false. No {{ $component }} pod
+         was created, so nothing is wired there. Enable it or drop it from sandbox.wireInto.
+{{- end }}
+{{- end }}
+{{- end }}

@@ -34,8 +34,9 @@ Use this structure to orient yourself.
 3. Main n8n app configuration + Kubernetes specific settings
 4. Worker related settings + Kubernetes specific settings
 5. Webhook related settings + Kubernetes specific settings
-6. Raw Resources to pass through your own manifests like GatewayAPI, ServiceMonitor etc.
-7. Redis related settings + Kubernetes specific settings
+6. Sandbox, the isolated execution environment the instance-ai module needs
+7. Raw Resources to pass through your own manifests like GatewayAPI, ServiceMonitor etc.
+8. Valkey/Redis related settings + Kubernetes specific settings
 
 ## Configurating N8n via Values and Environment Variables
 
@@ -808,6 +809,63 @@ webhook:
   terminationGracePeriodSeconds: 30
 
 #
+# Sandbox, the isolated execution environment the instance-ai module needs
+#
+
+#  n8n's instance-ai module (AI Assistant, agent code execution) runs generated code inside a
+#  sandbox rather than in the n8n pod. This section connects n8n to an n8n Sandbox Service and can
+#  optionally deploy one. See https://github.com/n8n-io/n8n-sandbox-service
+sandbox:
+  #  Set N8N_SANDBOX_SERVICE_URL and N8N_SANDBOX_SERVICE_API_KEY on the components in wireInto.
+  #  This only supplies the connection; enable the feature itself through main.config, for example
+  #  n8n.enabled_modules and n8n.instance_ai.sandbox.enabled. Doing it here instead would emit a
+  #  container env entry, which silently overrides whatever main.config puts in the ConfigMap.
+  enabled: false
+
+  #  Also deploy the upstream n8n-sandbox-service chart as part of this release. Leave false to point
+  #  n8n at a sandbox that lives elsewhere, or at a hosted provider.
+  #
+  #  The runner needs Docker-in-Docker privileges the chart cannot grant itself: either sysbox on the
+  #  nodes, or runner.isolation=privileged with a Pod Security Admission privileged namespace. Read
+  #  the Sandbox section of the README before turning this on.
+  deploy: false
+
+  #  Base URL of the sandbox API. Defaults to the API Service of the deployed subchart, so it only
+  #  needs a value when deploy is false.
+  url: ""
+
+  apiKey:
+    #  Secret holding the sandbox API key, which has to match the key the sandbox API accepts.
+    #  Defaults to the auth Secret of the deployed subchart. Required when deploy is false.
+    existingSecret: ""
+    #  Key within that Secret. Empty follows the deployed subchart's auth.secretKeys.apiKeys, or
+    #  api-keys when nothing is deployed.
+    key: ""
+
+  #  Which n8n components receive the sandbox connection. The AI Assistant runs in the main
+  #  instance; add worker when your workflows execute sandbox-backed agent nodes.
+  wireInto:
+    - main
+
+#  Values for the upstream n8n-sandbox-service subchart, rendered when sandbox.deploy is true.
+#  Full reference: https://github.com/n8n-io/n8n-sandbox-service/tree/main/charts/n8n-sandbox-service
+n8n-sandbox-service: {}
+#  auth:
+#    #  Prefer an existingSecret in production. The subchart refuses to render on placeholder values.
+#    existingSecret: n8n-sandbox-auth
+#  runner:
+#    #  sysbox (default) needs sysbox installed on the nodes. Use privileged on clusters that cannot
+#    #  install it, such as Talos, Bottlerocket, Flatcar and Fedora CoreOS.
+#    isolation: sysbox
+#  tls:
+#    #  The API and runners speak gRPC over mutual TLS, so they need a private CA, not a public one.
+#    mode: certManager
+#    certManager:
+#      issuerRef:
+#        name: sandbox-ca
+#        kind: ClusterIssuer
+
+#
 # User defined supplementary K8s manifests
 #
 
@@ -856,6 +914,125 @@ valkey:
   #   enabled: false
   #   requestedSize: 2Gi
 ```
+## Sandbox for the AI Assistant
+
+n8n's `instance-ai` module (AI Assistant, agent code execution) runs generated code inside a
+sandbox instead of in the n8n pod. The `sandbox` section connects n8n to an
+[n8n Sandbox Service](https://github.com/n8n-io/n8n-sandbox-service) and, with
+`sandbox.deploy: true`, deploys one as a subchart in the same release.
+
+The chart supplies only the two facts you cannot write by hand. With `sandbox.deploy: true` it
+derives `N8N_SANDBOX_SERVICE_URL` from the sandbox API Service and reads `N8N_SANDBOX_SERVICE_API_KEY`
+straight out of the sandbox's own Secret. With `sandbox.deploy: false` you supply both yourself,
+through `sandbox.url` and `sandbox.apiKey.existingSecret`, and rendering fails until you do. The
+derived URL is plain HTTP to a ClusterIP Service in the release namespace, because the upstream API
+serves no TLS on that port. The key it carries in the `X-Api-Key` header is the sandbox's admin key,
+so a sandbox reached across a trust boundary belongs behind a TLS ingress with an `https://` value
+in `sandbox.url`. Switching the feature on stays with you, in `main.config`,
+because a container environment entry would silently override whatever the ConfigMap holds:
+
+```yaml
+main:
+  config:
+    n8n:
+      enabled_modules: "instance-ai"
+      instance_ai:
+        sandbox:
+          enabled: true
+          provider: n8n-sandbox
+```
+
+The model credential is a separate variable, and which one depends on the provider prefix of
+`instance_ai.model`: a built-in provider reads its own SDK variable, so `anthropic/*` needs
+`ANTHROPIC_API_KEY`, `openai/*` needs `OPENAI_API_KEY`, `google/*` needs
+`GOOGLE_GENERATIVE_AI_API_KEY`, and mistral, groq, cohere, deepseek, openrouter and xai follow the
+same pattern. `N8N_INSTANCE_AI_MODEL_API_KEY` is read only for a custom OpenAI-compatible endpoint
+configured through `instance_ai.model_url`. Put the key under `main.secret` so it lands in the
+Secret rather than the ConfigMap:
+
+```yaml
+main:
+  secret:
+    anthropic_api_key: "<your-anthropic-api-key>"
+```
+
+See [examples/values_sandbox.yaml](examples/values_sandbox.yaml) for a complete file.
+
+### Cluster prerequisites
+
+The sandbox runner is a Docker-in-Docker container. No chart can grant it the privileges it needs,
+so the cluster has to be prepared first:
+
+* **`runner.isolation: sysbox`** (the upstream default, and the recommended one) needs
+  [sysbox](https://github.com/nestybox/sysbox/blob/master/docs/user-guide/install-k8s.md) installed
+  on the nodes. Its installer labels them `sysbox-install=yes` and registers a `sysbox-runc`
+  RuntimeClass, which the runner pod then requests.
+* **`runner.isolation: privileged`** is for clusters where sysbox cannot install at all, because it
+  has to modify the node filesystem and containerd config: Talos, Bottlerocket, Flatcar and Fedora
+  CoreOS. It needs `runner.acknowledgePrivileged: true` and the namespace labelled
+  `pod-security.kubernetes.io/enforce=privileged`. **An escape from the runner container reaches the
+  node.** Prefer a dedicated node pool.
+
+  Label the namespace *before* installing. Neither `helm template` nor
+  `kubectl apply --dry-run=server` catches a missing label: Pod Security Admission only rejects the
+  pod when the StatefulSet controller creates it, so the install succeeds and the runner stays at
+  `0/1` with a `FailedCreate` event reading
+  `violates PodSecurity "baseline:latest": privileged`.
+
+  `runner.privileged.runtime.hostUsers: false` scopes those capabilities to a pod user namespace,
+  which narrows the blast radius without making it a boundary. Kubernetes >= 1.33 with
+  containerd >= 2.0 is necessary but *not* sufficient: the node also needs
+  `user.max_user_namespaces` above 0. Talos ships it at `0`, and there the runner pod never starts
+  — the pod sandbox fails with `unshare: fork/exec /proc/self/exe: no space left on device`, which
+  is the kernel refusing a new user namespace, not a full disk. Check it before enabling, on a node
+  from the pool the runner will schedule to, since pools can differ:
+
+  ```console
+  $ kubectl run sysctl-probe --rm -it --image=busybox --restart=Never \
+      --overrides='{"spec":{"nodeName":"<node>"}}' \
+      -- cat /proc/sys/user/max_user_namespaces
+  ```
+
+  Leave `hostUsers: null` when it reads `0`.
+* GKE Autopilot blocks both. Run the data plane outside the cluster there
+  (`dataPlane.mode: external`) and point `sandbox.url` at it.
+* The API and runners speak gRPC over **mutual TLS**, so they need a *private* CA. A public ACME
+  issuer such as Let's Encrypt cannot serve this; use `tls.mode: certManager` with a self-signed CA
+  issuer, or `tls.mode: existingSecret` with certificates you manage.
+
+* **Resources.** Upstream sets none for the API or the runner. The runner is the largest pod in
+  the release, one dockerd plus every sandbox container it starts (`defaultMemoryMb: 512` each),
+  so on shared nodes give it requests and a limit through `n8n-sandbox-service.runner.resources`.
+  The example uses requests of 500m CPU and 1Gi memory with a 4Gi memory limit; leave it unbounded
+  only on a node pool of its own.
+
+Anything under `n8n-sandbox-service` goes to the upstream chart untouched. Its
+[README](https://github.com/n8n-io/n8n-sandbox-service/tree/main/charts/n8n-sandbox-service)
+is the reference for those values, including disk quotas, NetworkPolicy and ServiceMonitor.
+
+### After the install
+
+n8n stores Instance AI settings an owner changes in the UI in its database, and those take
+precedence over the environment. On an instance where the sandbox was ever switched off in
+*Settings > AI Assistant*, the chart values look right yet the assistant reports no sandbox; the
+n8n log says so at startup:
+
+```
+Sandbox: enabled=false provider=n8n-sandbox (DB override; env was enabled=true provider=n8n-sandbox)
+```
+
+Re-enable it in *Settings > AI Assistant*, or as an owner with
+`PUT /rest/instance-ai/settings` and `{"sandboxEnabled": true}`. The same page reports
+*Setup required* until web search is either configured or explicitly disabled there, even though
+model and sandbox are already detected from the environment.
+
+### Licensing
+
+The n8n Sandbox Service is covered by n8n's
+[Sustainable Use License](https://github.com/n8n-io/n8n-sandbox-service/blob/main/LICENSE.md), and
+its Firecracker runner requires an n8n Enterprise licence. That is a different licence from this
+chart's own, so review it before deploying the subchart.
+
 ## Migration Guide to Version 1.0.0
 
 This version includes a complete redesign of the chart to better accommodate n8n configuration options.
