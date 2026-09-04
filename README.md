@@ -942,6 +942,20 @@ main:
           provider: n8n-sandbox
 ```
 
+The model credential is a separate variable, and which one depends on the provider prefix of
+`instance_ai.model`: a built-in provider reads its own SDK variable, so `anthropic/*` needs
+`ANTHROPIC_API_KEY`, `openai/*` needs `OPENAI_API_KEY`, `google/*` needs
+`GOOGLE_GENERATIVE_AI_API_KEY`, and mistral, groq, cohere, deepseek, openrouter and xai follow the
+same pattern. `N8N_INSTANCE_AI_MODEL_API_KEY` is read only for a custom OpenAI-compatible endpoint
+configured through `instance_ai.model_url`. Put the key under `main.secret` so it lands in the
+Secret rather than the ConfigMap:
+
+```yaml
+main:
+  secret:
+    anthropic_api_key: "<your-anthropic-api-key>"
+```
+
 See [examples/values_sandbox.yaml](examples/values_sandbox.yaml) for a complete file.
 
 ### Cluster prerequisites
@@ -958,6 +972,12 @@ so the cluster has to be prepared first:
   CoreOS. It needs `runner.acknowledgePrivileged: true` and the namespace labelled
   `pod-security.kubernetes.io/enforce=privileged`. **An escape from the runner container reaches the
   node.** Prefer a dedicated node pool.
+
+  Label the namespace *before* installing. Neither `helm template` nor
+  `kubectl apply --dry-run=server` catches a missing label: Pod Security Admission only rejects the
+  pod when the StatefulSet controller creates it, so the install succeeds and the runner stays at
+  `0/1` with a `FailedCreate` event reading
+  `violates PodSecurity "baseline:latest": privileged`.
 
   `runner.privileged.runtime.hostUsers: false` scopes those capabilities to a pod user namespace,
   which narrows the blast radius without making it a boundary. Kubernetes >= 1.33 with
@@ -980,9 +1000,31 @@ so the cluster has to be prepared first:
   issuer such as Let's Encrypt cannot serve this; use `tls.mode: certManager` with a self-signed CA
   issuer, or `tls.mode: existingSecret` with certificates you manage.
 
+* **Resources.** Upstream sets none for the API or the runner. The runner is the largest pod in
+  the release, one dockerd plus every sandbox container it starts (`defaultMemoryMb: 512` each),
+  so on shared nodes give it requests and a limit through `n8n-sandbox-service.runner.resources`.
+  The example uses requests of 500m CPU and 1Gi memory with a 4Gi memory limit; leave it unbounded
+  only on a node pool of its own.
+
 Anything under `n8n-sandbox-service` goes to the upstream chart untouched. Its
 [README](https://github.com/n8n-io/n8n-sandbox-service/tree/main/charts/n8n-sandbox-service)
 is the reference for those values, including disk quotas, NetworkPolicy and ServiceMonitor.
+
+### After the install
+
+n8n stores Instance AI settings an owner changes in the UI in its database, and those take
+precedence over the environment. On an instance where the sandbox was ever switched off in
+*Settings > AI Assistant*, the chart values look right yet the assistant reports no sandbox; the
+n8n log says so at startup:
+
+```
+Sandbox: enabled=false provider=n8n-sandbox (DB override; env was enabled=true provider=n8n-sandbox)
+```
+
+Re-enable it in *Settings > AI Assistant*, or as an owner with
+`PUT /rest/instance-ai/settings` and `{"sandboxEnabled": true}`. The same page reports
+*Setup required* until web search is either configured or explicitly disabled there, even though
+model and sandbox are already detected from the environment.
 
 ### Licensing
 

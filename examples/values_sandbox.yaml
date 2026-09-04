@@ -60,9 +60,12 @@ main:
   secret:
     n8n:
       encryption_key: "<your-secure-encryption-key>"
-      instance_ai:
-        model:
-          api_key: "<your-model-provider-api-key>"
+    # A built-in provider reads its own SDK variable, chosen by the prefix of instance_ai.model:
+    # anthropic -> ANTHROPIC_API_KEY, openai -> OPENAI_API_KEY, google -> GOOGLE_GENERATIVE_AI_API_KEY,
+    # mistral -> MISTRAL_API_KEY, groq, cohere, deepseek, openrouter and xai likewise.
+    # N8N_INSTANCE_AI_MODEL_API_KEY (secret.n8n.instance_ai.model.api_key) is only read for a
+    # custom OpenAI-compatible endpoint set through instance_ai.model_url.
+    anthropic_api_key: "<your-anthropic-api-key>"
 
   persistence:
     enabled: true
@@ -107,7 +110,19 @@ n8n-sandbox-service:
   #           matchLabels:
   #             app.kubernetes.io/name: n8n
 
+  api:
+    resources:
+      requests: {cpu: 100m, memory: 128Mi}
+      limits: {memory: 512Mi}
+
   runner:
+    # Upstream sets no resources. The runner is the largest pod in the release: one dockerd plus
+    # every sandbox container it starts (defaultMemoryMb: 512 each). Leave it unbounded only on
+    # a node pool of its own.
+    resources:
+      requests: {cpu: 500m, memory: 1Gi}
+      limits: {memory: 4Gi}
+
     # sysbox is the recommended isolation and needs sysbox installed on the nodes, which
     # labels them sysbox-install=yes and registers a sysbox-runc RuntimeClass.
     isolation: sysbox
