@@ -1,6 +1,6 @@
 apiVersion: v2
 name: n8n
-version: 2.1.1
+version: 2.2.0
 appVersion: 2.36.8
 type: application
 description: "Helm Chart for deploying n8n on Kubernetes, a fair-code workflow
