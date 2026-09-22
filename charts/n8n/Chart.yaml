@@ -55,3 +55,5 @@ annotations:
       description: "Added an optional sandbox section that wires n8n to an n8n Sandbox Service, the isolated execution environment the instance-ai module needs"
     - kind: added
       description: "Added the upstream n8n-sandbox-service chart as an optional dependency, rendered when sandbox.deploy is true"
+    - kind: added
+      description: "Added main.runtimeClassName, worker.runtimeClassName and webhook.runtimeClassName so pods can opt in to a sandboxed container runtime such as gVisor or Kata"

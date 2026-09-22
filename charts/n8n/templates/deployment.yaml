@@ -125,6 +125,9 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with .Values.main.runtimeClassName }}
+      runtimeClassName: {{ . | quote }}
+      {{- end }}
       {{- if hasKey .Values.main "terminationGracePeriodSeconds" }}
       terminationGracePeriodSeconds: {{ .Values.main.terminationGracePeriodSeconds }}
       {{- end }}

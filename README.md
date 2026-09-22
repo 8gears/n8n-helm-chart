@@ -385,6 +385,12 @@ related to the application deployment and operation but not the application itse
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  # Name of an existing RuntimeClass to run the pods under, e.g. "gvisor" or
+  # "kata-containers" for a sandboxed runtime. Left unset, pods use the
+  # cluster default runtime. Deliberately commented out rather than defaulted
+  # to "": the deployments hash .Values into their checksum/config annotation,
+  # so shipping a new key would roll every existing user's pods on upgrade.
+  # runtimeClassName: "gvisor"
 
   # Pod termination grace period in seconds
   terminationGracePeriodSeconds: 30
@@ -600,6 +606,12 @@ worker:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  # Name of an existing RuntimeClass to run the pods under, e.g. "gvisor" or
+  # "kata-containers" for a sandboxed runtime. Left unset, pods use the
+  # cluster default runtime. Deliberately commented out rather than defaulted
+  # to "": the deployments hash .Values into their checksum/config annotation,
+  # so shipping a new key would roll every existing user's pods on upgrade.
+  # runtimeClassName: "gvisor"
 
   # Pod termination grace period in seconds
   terminationGracePeriodSeconds: 30
@@ -804,6 +816,12 @@ webhook:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  # Name of an existing RuntimeClass to run the pods under, e.g. "gvisor" or
+  # "kata-containers" for a sandboxed runtime. Left unset, pods use the
+  # cluster default runtime. Deliberately commented out rather than defaulted
+  # to "": the deployments hash .Values into their checksum/config annotation,
+  # so shipping a new key would roll every existing user's pods on upgrade.
+  # runtimeClassName: "gvisor"
 
   # Pod termination grace period in seconds
   terminationGracePeriodSeconds: 30

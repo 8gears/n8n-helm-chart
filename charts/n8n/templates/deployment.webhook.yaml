@@ -143,6 +143,9 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with .Values.webhook.runtimeClassName }}
+      runtimeClassName: {{ . | quote }}
+      {{- end }}
       {{- if hasKey .Values.webhook "terminationGracePeriodSeconds" }}
       terminationGracePeriodSeconds: {{ .Values.webhook.terminationGracePeriodSeconds }}
       {{- end }}
